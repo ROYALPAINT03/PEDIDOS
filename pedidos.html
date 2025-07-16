@@ -1126,8 +1126,8 @@
                 <button class="btn btn-primary" id="btn-download-pdf">
                     <i class="fas fa-download"></i> Descargar PDF
                 </button>
-                <button class="btn btn-success" id="btn-send-whatsapp">
-                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                <button class="btn btn-success" id="btn-process-order">
+                    <i class="fas fa-paper-plane"></i> Procesar Pedido
                 </button>
             </div>
         </div>
@@ -1469,11 +1469,11 @@
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
             document.getElementById('btn-pdf').addEventListener('click', generatePDF);
-            document.getElementById('btn-whatsapp').addEventListener('click', sendWhatsApp);
+            document.getElementById('btn-whatsapp').addEventListener('click', generatePDF);
             
             // Botones de PDF
             document.getElementById('btn-download-pdf').addEventListener('click', downloadPDF);
-            document.getElementById('btn-send-whatsapp').addEventListener('click', sendWhatsAppFromPreview);
+            document.getElementById('btn-process-order').addEventListener('click', processOrder);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1992,86 +1992,77 @@
             closePdfModal();
         }
 
-        // Enviar por WhatsApp (con observaciones)
-        function sendWhatsApp() {
+        // Procesar pedido (envía PDF a WhatsApp y correo)
+        function processOrder() {
+            if (!currentPDFBlob) return;
+            
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
-            const paymentMethod = document.getElementById('payment-method').value;
-            const observations = document.getElementById('observations').value.trim();
-
-            // Validar campos requeridos
-            if (!sellerName || !clientName || !paymentMethod) {
-                showNotification('Por favor complete todos los campos requeridos', 'error');
-                return;
-            }
-
-            if (cartItems.length === 0) {
-                showNotification('No hay productos en el pedido', 'error');
-                return;
-            }
-
-            // Construir mensaje
-            let message = `📋 *PEDIDO PINTURAS OSI & SISI* 📋%0A%0A`;
-            message += `👤 *Vendedor:* ${sellerName}%0A`;
-            message += `🏢 *Cliente:* ${clientName}%0A`;
-            message += `💳 *Método de Pago:* ${paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}%0A`;
+            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
             
-            // Agregar observaciones si existen
-            if (observations) {
-                message += `📝 *Observaciones:* ${observations}%0A`;
-            }
+            // 1. Enviar por WhatsApp
+            sendPDFViaWhatsApp(currentPDFBlob, fileName);
             
-            message += `%0A%F0%9F%93%8A *DETALLES DEL PEDIDO:*%0A%0A`;
-
-            cartItems.forEach(item => {
-                // Calcular unidades totales
-                let totalUnits = 0;
-                if (item.product.ref === 600) { // Tempera OSI
-                    if (item.unit === 'U') totalUnits = item.quantity;
-                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
-                    if (item.unit === 'BUL') totalUnits = item.quantity * 100;
-                } else {
-                    if (item.unit === 'U') totalUnits = item.quantity;
-                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
-                    if (item.unit === 'BUL') totalUnits = item.quantity * 288;
-                }
-                
-                message += `➡️ *${item.product.name}*%0A`;
-                message += `   🔹 Ref: ${item.product.ref}%0A`;
-                message += `   🔹 Unidad: ${getUnitName(item.unit)}%0A`;
-                message += `   🔹 Cantidad: ${item.quantity}%0A`;
-                message += `   🔹 Total unidades: ${totalUnits}%0A%0A`;
-            });
-
-            // Totales
-            const totalProducts = cartItems.length;
-            const totalUnits = cartItems.reduce((sum, item) => {
-                if (item.product.ref === 600) {
-                    if (item.unit === 'U') return sum + item.quantity;
-                    if (item.unit === 'DZ') return sum + item.quantity * 12;
-                    if (item.unit === 'BUL') return sum + item.quantity * 100;
-                } else {
-                    if (item.unit === 'U') return sum + item.quantity;
-                    if (item.unit === 'DZ') return sum + item.quantity * 12;
-                    if (item.unit === 'BUL') return sum + item.quantity * 288;
-                }
-            }, 0);
+            // 2. Enviar por correo
+            sendPDFViaEmail(currentPDFBlob, fileName, sellerName, clientName);
             
-            message += `%0A📊 *RESUMEN FINAL:*%0A`;
-            message += `   ✅ *Total de Productos:* ${totalProducts}%0A`;
-            message += `   📦 *Total de Unidades:* ${totalUnits}%0A%0A`;
-            message += `_Pedido generado el ${new Date().toLocaleDateString()}_`;
-
-            // Abrir WhatsApp con el número específico
-            window.open(`https://wa.me/584243757335?text=${encodeURIComponent(message)}`, '_blank');
-            
-            showNotification('Mensaje de WhatsApp preparado!');
-        }
-        
-        // Enviar por WhatsApp desde la previsualización
-        function sendWhatsAppFromPreview() {
-            sendWhatsApp();
+            // 3. Mostrar confirmación
+            showNotification('Pedido procesado: PDF enviado a WhatsApp y correo');
             closePdfModal();
+        }
+
+        // Enviar PDF por WhatsApp
+        function sendPDFViaWhatsApp(pdfBlob, fileName) {
+            // Crear enlace de descarga temporal
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(pdfBlob);
+            downloadLink.download = fileName;
+            document.body.appendChild(downloadLink);
+            
+            // Forzar descarga para que esté disponible para WhatsApp
+            downloadLink.click();
+            
+            // Esperar un momento antes de abrir WhatsApp
+            setTimeout(() => {
+                // Abrir WhatsApp con mensaje predeterminado
+                const message = encodeURIComponent(`Pedido de ${fileName}`);
+                window.open(`https://wa.me/?text=${message}`, '_blank');
+                
+                // Limpiar
+                setTimeout(() => {
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(downloadLink.href);
+                }, 5000);
+            }, 1000);
+        }
+
+        // Enviar PDF por correo
+        function sendPDFViaEmail(pdfBlob, fileName, sellerName, clientName) {
+            // Crear enlace de descarga temporal
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(pdfBlob);
+            downloadLink.download = fileName;
+            document.body.appendChild(downloadLink);
+            
+            // Crear mailto con información
+            const subject = encodeURIComponent(`Pedido OSI - ${clientName}`);
+            const body = encodeURIComponent(
+                `Vendedor: ${sellerName}\nCliente: ${clientName}\n\nAdjunto pedido en PDF`
+            );
+            
+            // Forzar descarga para que esté disponible para el correo
+            downloadLink.click();
+            
+            // Abrir cliente de correo
+            setTimeout(() => {
+                window.location.href = `mailto:royaloficina3@gmail.com?subject=${subject}&body=${body}`;
+                
+                // Limpiar
+                setTimeout(() => {
+                    document.body.removeChild(downloadLink);
+                    URL.revokeObjectURL(downloadLink.href);
+                }, 5000);
+            }, 1000);
         }
 
         // Mostrar notificación
