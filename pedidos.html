@@ -1,10 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   <link rel="shortcut icon" href="OSI.jpg" />
     <title>Pedidos - Pinturas OSI & SISI</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -848,6 +846,67 @@
         .category-envejecedores { background: rgba(121, 85, 72, 0.1); color: var(--envejecedores); }
         .category-perlados { background: rgba(255, 152, 0, 0.1); color: var(--perlados); }
         .category-neon { background: rgba(255, 64, 129, 0.1); color: var(--neon); }
+        
+        /* Modal de previsualización PDF */
+        .pdf-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .pdf-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .pdf-modal-header {
+            background: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+        }
+        
+        .pdf-modal-body {
+            flex: 1;
+            padding: 20px;
+            overflow: auto;
+            background: #f0f4ff;
+        }
+        
+        #pdf-preview {
+            width: 100%;
+            height: 70vh;
+            border: 1px solid #ddd;
+            background: white;
+        }
+        
+        .pdf-actions {
+            display: flex;
+            gap: 15px;
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+            border-radius: 0 0 16px 16px;
+        }
+        
+        .pdf-actions .btn {
+            flex: 1;
+        }
 
         @media (max-width: 768px) {
             .product-grid {
@@ -858,7 +917,7 @@
                 flex-direction: column;
             }
             
-            .actions, .cart-actions {
+            .actions, .cart-actions, .pdf-actions {
                 flex-direction: column;
             }
             
@@ -866,7 +925,7 @@
                 width: 100%;
             }
             
-            .cart-modal-content {
+            .cart-modal-content, .pdf-modal-content {
                 width: 95%;
                 max-height: 85vh;
             }
@@ -885,14 +944,18 @@
                 justify-content: space-between;
                 margin-top: 10px;
             }
+            
+            #pdf-preview {
+                height: 50vh;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1><i class="fas fa-paint-roller"></i> Sistema de Pedidos - Pinturas OSI</h1>
-            <p>Gestión de pedidos para todas las líneas de productos</p>
+            <h1><i class="fas fa-paint-roller"></i> Pedidos - Pinturas OSI & SISI</h1>
+            <p>Sistema de gestión de pedidos para todas las líneas de productos</p>
         </header>
 
         <div class="app-container">
@@ -921,7 +984,6 @@
                     </select>
                 </div>
                 
-                <!-- Campo de observaciones agregado -->
                 <div class="form-group">
                     <label for="observations"><i class="fas fa-sticky-note"></i> Observaciones (Opcional)</label>
                     <textarea id="observations" class="form-control" placeholder="Ingrese observaciones adicionales" rows="2"></textarea>
@@ -1045,6 +1107,32 @@
         </div>
     </div>
 
+    <!-- Modal de previsualización PDF -->
+    <div class="pdf-modal" id="pdf-modal">
+        <div class="pdf-modal-content">
+            <div class="pdf-modal-header">
+                <h2><i class="fas fa-file-pdf"></i> Vista Previa del PDF</h2>
+                <button class="close-modal" id="close-pdf-modal">&times;</button>
+            </div>
+            
+            <div class="pdf-modal-body">
+                <iframe id="pdf-preview"></iframe>
+            </div>
+            
+            <div class="pdf-actions">
+                <button class="btn btn-danger" id="btn-close-pdf">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+                <button class="btn btn-primary" id="btn-download-pdf">
+                    <i class="fas fa-download"></i> Descargar PDF
+                </button>
+                <button class="btn btn-success" id="btn-send-whatsapp">
+                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                </button>
+            </div>
+        </div>
+    </div>
+
     <div class="notification" id="notification">
         <i class="fas fa-check-circle"></i>
         <div>
@@ -1064,6 +1152,7 @@
         let currentProduct = null;
         let selectedUnit = 'U';
         let quantity = 1;
+        let currentPDFBlob = null;
 
         // Definición precisa de categorías con nombres específicos
         const categories = [
@@ -1371,6 +1460,8 @@
             // Cerrar modales
             document.getElementById('close-unit-modal').addEventListener('click', closeUnitModal);
             document.getElementById('close-cart-modal').addEventListener('click', closeCartModal);
+            document.getElementById('close-pdf-modal').addEventListener('click', closePdfModal);
+            document.getElementById('btn-close-pdf').addEventListener('click', closePdfModal);
             
             // Carrito flotante
             document.getElementById('floating-cart').addEventListener('click', openCartModal);
@@ -1379,6 +1470,10 @@
             document.getElementById('btn-clear').addEventListener('click', clearAll);
             document.getElementById('btn-pdf').addEventListener('click', generatePDF);
             document.getElementById('btn-whatsapp').addEventListener('click', sendWhatsApp);
+            
+            // Botones de PDF
+            document.getElementById('btn-download-pdf').addEventListener('click', downloadPDF);
+            document.getElementById('btn-send-whatsapp').addEventListener('click', sendWhatsAppFromPreview);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1568,6 +1663,11 @@
             document.getElementById('cart-modal').style.display = 'none';
         }
 
+        // Cerrar modal de PDF
+        function closePdfModal() {
+            document.getElementById('pdf-modal').style.display = 'none';
+        }
+
         // Renderizar ítems del carrito en el modal
         function renderCartModal() {
             const cartModalBody = document.getElementById('cart-modal-body');
@@ -1690,7 +1790,7 @@
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const paymentMethod = document.getElementById('payment-method').value;
-            const observations = document.getElementById('observations').value.trim(); // Nuevo
+            const observations = document.getElementById('observations').value.trim();
 
             // Validar campos requeridos
             if (!sellerName || !clientName || !paymentMethod) {
@@ -1749,7 +1849,6 @@
                 yPos += 30;
 
                 // Observaciones
-                const observations = document.getElementById('observations').value.trim();
                 if (observations) {
                     doc.setFont(undefined, 'bold');
                     doc.text('Observaciones:', margin, yPos);
@@ -1857,11 +1956,16 @@
                 doc.text('Pedidos - Pinturas OSI & SISI 2025.', pageWidth / 2, yPos, { align: 'center' });
                 doc.text(new Date().getFullYear().toString(), pageWidth / 2, yPos + 5, { align: 'center' });
 
-                // Guardar el PDF
-                doc.save(`pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`);
+                // Generar blob para previsualización
+                const pdfBlob = doc.output('blob');
+                currentPDFBlob = pdfBlob;
+                
+                // Mostrar previsualización
+                const pdfUrl = URL.createObjectURL(pdfBlob);
+                document.getElementById('pdf-preview').src = pdfUrl;
+                document.getElementById('pdf-modal').style.display = 'flex';
                 
                 showLoading(false);
-                showNotification('PDF generado exitosamente!');
             } catch (error) {
                 console.error("Error al generar PDF:", error);
                 showLoading(false);
@@ -1869,12 +1973,31 @@
             }
         }
 
+        // Descargar PDF
+        function downloadPDF() {
+            if (!currentPDFBlob) return;
+            
+            const sellerName = document.getElementById('seller-name').value.trim();
+            const clientName = document.getElementById('client-name').value.trim();
+            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
+            
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(currentPDFBlob);
+            downloadLink.download = fileName;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+            
+            showNotification('PDF descargado exitosamente!');
+            closePdfModal();
+        }
+
         // Enviar por WhatsApp (con observaciones)
         function sendWhatsApp() {
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const paymentMethod = document.getElementById('payment-method').value;
-            const observations = document.getElementById('observations').value.trim(); // Nuevo
+            const observations = document.getElementById('observations').value.trim();
 
             // Validar campos requeridos
             if (!sellerName || !clientName || !paymentMethod) {
@@ -1888,17 +2011,17 @@
             }
 
             // Construir mensaje
-            let message = `*PEDIDO PINTURAS OSI*%0A%0A`;
-            message += `*Vendedor:* ${sellerName}%0A`;
-            message += `*Cliente:* ${clientName}%0A`;
-            message += `*Método de Pago:* ${paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}%0A%0A`;
+            let message = `📋 *PEDIDO PINTURAS OSI & SISI* 📋%0A%0A`;
+            message += `👤 *Vendedor:* ${sellerName}%0A`;
+            message += `🏢 *Cliente:* ${clientName}%0A`;
+            message += `💳 *Método de Pago:* ${paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}%0A`;
             
             // Agregar observaciones si existen
             if (observations) {
-                message += `*Observaciones:* ${observations}%0A%0A`;
+                message += `📝 *Observaciones:* ${observations}%0A`;
             }
             
-            message += `*DETALLES DEL PEDIDO:*%0A%0A`;
+            message += `%0A%F0%9F%93%8A *DETALLES DEL PEDIDO:*%0A%0A`;
 
             cartItems.forEach(item => {
                 // Calcular unidades totales
@@ -1913,16 +2036,42 @@
                     if (item.unit === 'BUL') totalUnits = item.quantity * 288;
                 }
                 
-                message += `- ${item.product.name} (Ref. ${item.product.ref})%0A`;
-                message += `  ▶ Unidad: ${getUnitName(item.unit)} | Cantidad: ${item.quantity} | Total unidades: ${totalUnits}%0A%0A`;
+                message += `➡️ *${item.product.name}*%0A`;
+                message += `   🔹 Ref: ${item.product.ref}%0A`;
+                message += `   🔹 Unidad: ${getUnitName(item.unit)}%0A`;
+                message += `   🔹 Cantidad: ${item.quantity}%0A`;
+                message += `   🔹 Total unidades: ${totalUnits}%0A%0A`;
             });
 
-            message += `%0A*Total de Productos:* ${cartItems.length}%0A`;
+            // Totales
+            const totalProducts = cartItems.length;
+            const totalUnits = cartItems.reduce((sum, item) => {
+                if (item.product.ref === 600) {
+                    if (item.unit === 'U') return sum + item.quantity;
+                    if (item.unit === 'DZ') return sum + item.quantity * 12;
+                    if (item.unit === 'BUL') return sum + item.quantity * 100;
+                } else {
+                    if (item.unit === 'U') return sum + item.quantity;
+                    if (item.unit === 'DZ') return sum + item.quantity * 12;
+                    if (item.unit === 'BUL') return sum + item.quantity * 288;
+                }
+            }, 0);
+            
+            message += `%0A📊 *RESUMEN FINAL:*%0A`;
+            message += `   ✅ *Total de Productos:* ${totalProducts}%0A`;
+            message += `   📦 *Total de Unidades:* ${totalUnits}%0A%0A`;
+            message += `_Pedido generado el ${new Date().toLocaleDateString()}_`;
 
-            // Abrir WhatsApp
-            window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank');
+            // Abrir WhatsApp con el número específico
+            window.open(`https://wa.me/584243757335?text=${encodeURIComponent(message)}`, '_blank');
             
             showNotification('Mensaje de WhatsApp preparado!');
+        }
+        
+        // Enviar por WhatsApp desde la previsualización
+        function sendWhatsAppFromPreview() {
+            sendWhatsApp();
+            closePdfModal();
         }
 
         // Mostrar notificación
