@@ -351,11 +351,6 @@
             transform: translateX(0);
         }
 
-        .notification i {
-            font-size: 24px;
-            color: var(--success);
-        }
-
         .notification.error {
             border-left-color: var(--danger);
         }
@@ -902,10 +897,12 @@
             background: #f8f9fa;
             border-top: 1px solid #eee;
             border-radius: 0 0 16px 16px;
+            flex-wrap: wrap;
         }
         
         .pdf-actions .btn {
             flex: 1;
+            min-width: 120px;
         }
 
         @media (max-width: 768px) {
@@ -955,7 +952,7 @@
     <div class="container">
         <header>
             <h1><i class="fas fa-paint-roller"></i> Pedidos - Pinturas OSI & SISI</h1>
-            <p>Gestion de Pedidos Marca OSI & SISI </p>
+            <p>Sistema de gestión de pedidos para todas las líneas de productos</p>
         </header>
 
         <div class="app-container">
@@ -1099,9 +1096,6 @@
                     <button class="btn btn-warning" id="btn-pdf">
                         <i class="fas fa-file-pdf"></i> Generar PDF
                     </button>
-                    <button class="btn btn-success" id="btn-whatsapp">
-                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
-                    </button>
                 </div>
             </div>
         </div>
@@ -1126,8 +1120,11 @@
                 <button class="btn btn-primary" id="btn-download-pdf">
                     <i class="fas fa-download"></i> Descargar PDF
                 </button>
-                <button class="btn btn-success" id="btn-process-order">
-                    <i class="fas fa-paper-plane"></i> Procesar Pedido
+                <button class="btn btn-success" id="btn-email">
+                    <i class="fas fa-envelope"></i> Enviar por Correo
+                </button>
+                <button class="btn btn-success" id="btn-whatsapp">
+                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                 </button>
             </div>
         </div>
@@ -1469,11 +1466,11 @@
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
             document.getElementById('btn-pdf').addEventListener('click', generatePDF);
-            document.getElementById('btn-whatsapp').addEventListener('click', generatePDF);
             
             // Botones de PDF
             document.getElementById('btn-download-pdf').addEventListener('click', downloadPDF);
-            document.getElementById('btn-process-order').addEventListener('click', processOrder);
+            document.getElementById('btn-email').addEventListener('click', sendPDFViaEmail);
+            document.getElementById('btn-whatsapp').addEventListener('click', sendPDFViaWhatsApp);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1989,33 +1986,60 @@
             document.body.removeChild(downloadLink);
             
             showNotification('PDF descargado exitosamente!');
-            closePdfModal();
         }
 
-        // Procesar pedido (envía PDF a WhatsApp y correo)
-        function processOrder() {
+        // Enviar PDF por correo con adjunto automático
+        function sendPDFViaEmail() {
+            if (!currentPDFBlob) return;
+            
+            const sellerName = document.getElementById('seller-name').value.trim();
+            const clientName = document.getElementById('client-name').value.trim();
+            const paymentMethod = document.getElementById('payment-method').value;
+            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
+            
+            // Convertir blob a base64
+            const reader = new FileReader();
+            reader.readAsDataURL(currentPDFBlob);
+            reader.onloadend = function() {
+                const base64data = reader.result;
+                
+                // Crear enlace para abrir cliente de correo
+                const subject = encodeURIComponent(`Pedido OSI - ${clientName}`);
+                const body = encodeURIComponent(
+                    `Hola,\n\nAdjunto el pedido de ${clientName} realizado por ${sellerName}.\n\nMétodo de pago: ${paymentMethod}\n\nSaludos.`
+                );
+                
+                // Crear un enlace temporal para descargar el archivo
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(currentPDFBlob);
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                
+                // Abrir cliente de correo
+                setTimeout(() => {
+                    window.location.href = `mailto:?subject=${subject}&body=${body}&attachment=${base64data}`;
+                    
+                    // Limpiar
+                    setTimeout(() => {
+                        document.body.removeChild(downloadLink);
+                        URL.revokeObjectURL(downloadLink.href);
+                    }, 5000);
+                }, 1000);
+            };
+        }
+
+        // Enviar PDF por WhatsApp
+        function sendPDFViaWhatsApp() {
             if (!currentPDFBlob) return;
             
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
             
-            // 1. Enviar por WhatsApp
-            sendPDFViaWhatsApp(currentPDFBlob, fileName);
-            
-            // 2. Enviar por correo
-            sendPDFViaEmail(currentPDFBlob, fileName, sellerName, clientName);
-            
-            // 3. Mostrar confirmación
-            showNotification('Pedido procesado: PDF enviado a WhatsApp y correo');
-            closePdfModal();
-        }
-
-        // Enviar PDF por WhatsApp
-        function sendPDFViaWhatsApp(pdfBlob, fileName) {
             // Crear enlace de descarga temporal
             const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(pdfBlob);
+            downloadLink.href = URL.createObjectURL(currentPDFBlob);
             downloadLink.download = fileName;
             document.body.appendChild(downloadLink);
             
@@ -2027,35 +2051,6 @@
                 // Abrir WhatsApp con mensaje predeterminado
                 const message = encodeURIComponent(`Pedido de ${fileName}`);
                 window.open(`https://wa.me/?text=${message}`, '_blank');
-                
-                // Limpiar
-                setTimeout(() => {
-                    document.body.removeChild(downloadLink);
-                    URL.revokeObjectURL(downloadLink.href);
-                }, 5000);
-            }, 1000);
-        }
-
-        // Enviar PDF por correo
-        function sendPDFViaEmail(pdfBlob, fileName, sellerName, clientName) {
-            // Crear enlace de descarga temporal
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(pdfBlob);
-            downloadLink.download = fileName;
-            document.body.appendChild(downloadLink);
-            
-            // Crear mailto con información
-            const subject = encodeURIComponent(`Pedido OSI - ${clientName}`);
-            const body = encodeURIComponent(
-                `Vendedor: ${sellerName}\nCliente: ${clientName}\n\nAdjunto pedido en PDF`
-            );
-            
-            // Forzar descarga para que esté disponible para el correo
-            downloadLink.click();
-            
-            // Abrir cliente de correo
-            setTimeout(() => {
-                window.location.href = `mailto:royaloficina3@gmail.com?subject=${subject}&body=${body}`;
                 
                 // Limpiar
                 setTimeout(() => {
