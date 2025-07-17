@@ -842,8 +842,7 @@
         .category-perlados { background: rgba(255, 152, 0, 0.1); color: var(--perlados); }
         .category-neon { background: rgba(255, 64, 129, 0.1); color: var(--neon); }
         
-        /* Modal de previsualización PDF */
-        .pdf-modal {
+        .whatsapp-modal {
             display: none;
             position: fixed;
             top: 0;
@@ -856,53 +855,37 @@
             justify-content: center;
         }
         
-        .pdf-modal-content {
+        .whatsapp-modal-content {
             background: white;
             border-radius: 16px;
             width: 90%;
-            max-width: 800px;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
+            max-width: 500px;
+            padding: 30px;
+            text-align: center;
         }
         
-        .pdf-modal-header {
-            background: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 16px 16px 0 0;
+        .whatsapp-icon {
+            font-size: 60px;
+            color: #25D366;
+            margin-bottom: 20px;
         }
         
-        .pdf-modal-body {
-            flex: 1;
-            padding: 20px;
-            overflow: auto;
-            background: #f0f4ff;
+        .whatsapp-modal h2 {
+            margin-bottom: 15px;
+            color: var(--dark);
         }
         
-        #pdf-preview {
-            width: 100%;
-            height: 70vh;
-            border: 1px solid #ddd;
-            background: white;
+        .whatsapp-modal p {
+            margin-bottom: 25px;
+            color: var(--gray);
+            line-height: 1.6;
         }
         
-        .pdf-actions {
+        .whatsapp-actions {
             display: flex;
             gap: 15px;
-            padding: 15px 20px;
-            background: #f8f9fa;
-            border-top: 1px solid #eee;
-            border-radius: 0 0 16px 16px;
+            justify-content: center;
             flex-wrap: wrap;
-        }
-        
-        .pdf-actions .btn {
-            flex: 1;
-            min-width: 120px;
         }
 
         @media (max-width: 768px) {
@@ -914,7 +897,7 @@
                 flex-direction: column;
             }
             
-            .actions, .cart-actions, .pdf-actions {
+            .actions, .cart-actions, .whatsapp-actions {
                 flex-direction: column;
             }
             
@@ -922,7 +905,7 @@
                 width: 100%;
             }
             
-            .cart-modal-content, .pdf-modal-content {
+            .cart-modal-content {
                 width: 95%;
                 max-height: 85vh;
             }
@@ -940,10 +923,6 @@
                 width: 100%;
                 justify-content: space-between;
                 margin-top: 10px;
-            }
-            
-            #pdf-preview {
-                height: 50vh;
             }
         }
     </style>
@@ -1093,38 +1072,27 @@
                     <button class="btn btn-danger" id="btn-clear">
                         <i class="fas fa-trash"></i> Limpiar Todo
                     </button>
-                    <button class="btn btn-warning" id="btn-pdf">
-                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    <button class="btn btn-success" id="btn-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal de previsualización PDF -->
-    <div class="pdf-modal" id="pdf-modal">
-        <div class="pdf-modal-content">
-            <div class="pdf-modal-header">
-                <h2><i class="fas fa-file-pdf"></i> Vista Previa del PDF</h2>
-                <button class="close-modal" id="close-pdf-modal">&times;</button>
+    <!-- Modal de WhatsApp -->
+    <div class="whatsapp-modal" id="whatsapp-modal">
+        <div class="whatsapp-modal-content">
+            <div class="whatsapp-icon">
+                <i class="fab fa-whatsapp"></i>
             </div>
+            <h2>¡Pedido enviado!</h2>
+            <p>El PDF con los detalles del pedido ha sido enviado automáticamente por WhatsApp.</p>
+            <p>Si no se abrió automáticamente, por favor comparte manualmente el archivo descargado.</p>
             
-            <div class="pdf-modal-body">
-                <iframe id="pdf-preview"></iframe>
-            </div>
-            
-            <div class="pdf-actions">
-                <button class="btn btn-danger" id="btn-close-pdf">
-                    <i class="fas fa-times"></i> Cerrar
-                </button>
-                <button class="btn btn-primary" id="btn-download-pdf">
-                    <i class="fas fa-download"></i> Descargar PDF
-                </button>
-                <button class="btn btn-success" id="btn-email">
-                    <i class="fas fa-envelope"></i> Enviar por Correo
-                </button>
-                <button class="btn btn-success" id="btn-whatsapp">
-                    <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+            <div class="whatsapp-actions">
+                <button class="btn btn-primary" id="whatsapp-close">
+                    <i class="fas fa-check"></i> Entendido
                 </button>
             </div>
         </div>
@@ -1150,6 +1118,7 @@
         let selectedUnit = 'U';
         let quantity = 1;
         let currentPDFBlob = null;
+        let nextOrderNumber = localStorage.getItem('lastOrderNumber') ? parseInt(localStorage.getItem('lastOrderNumber')) : 1;
 
         // Definición precisa de categorías con nombres específicos
         const categories = [
@@ -1457,20 +1426,14 @@
             // Cerrar modales
             document.getElementById('close-unit-modal').addEventListener('click', closeUnitModal);
             document.getElementById('close-cart-modal').addEventListener('click', closeCartModal);
-            document.getElementById('close-pdf-modal').addEventListener('click', closePdfModal);
-            document.getElementById('btn-close-pdf').addEventListener('click', closePdfModal);
+            document.getElementById('whatsapp-close').addEventListener('click', closeWhatsAppModal);
             
             // Carrito flotante
             document.getElementById('floating-cart').addEventListener('click', openCartModal);
             
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
-            document.getElementById('btn-pdf').addEventListener('click', generatePDF);
-            
-            // Botones de PDF
-            document.getElementById('btn-download-pdf').addEventListener('click', downloadPDF);
-            document.getElementById('btn-email').addEventListener('click', sendPDFViaEmail);
-            document.getElementById('btn-whatsapp').addEventListener('click', sendPDFViaWhatsApp);
+            document.getElementById('btn-whatsapp').addEventListener('click', generatePDF);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1620,6 +1583,11 @@
             document.getElementById('unit-modal').style.display = 'none';
         }
 
+        // Cerrar modal de WhatsApp
+        function closeWhatsAppModal() {
+            document.getElementById('whatsapp-modal').style.display = 'none';
+        }
+
         // Agregar producto al carrito desde el modal
         function addToCartFromModal() {
             if (!currentProduct) return;
@@ -1658,11 +1626,6 @@
         // Cerrar modal del carrito
         function closeCartModal() {
             document.getElementById('cart-modal').style.display = 'none';
-        }
-
-        // Cerrar modal de PDF
-        function closePdfModal() {
-            document.getElementById('pdf-modal').style.display = 'none';
         }
 
         // Renderizar ítems del carrito en el modal
@@ -1802,6 +1765,9 @@
 
             showLoading(true);
 
+            // Formatear el número de pedido con 5 dígitos
+            const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
+            
             // Usar jsPDF para generar el PDF
             const { jsPDF } = window.jspdf;
             
@@ -1829,7 +1795,7 @@
                 doc.setFont(undefined, 'normal');
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Fecha: ${new Date().toLocaleDateString()}`, margin, yPos);
-                doc.text(`N° Pedido: ${Date.now().toString().slice(-6)}`, pageWidth - margin, yPos, { align: 'right' });
+                doc.text(`N° Pedido: ${formattedOrderNumber}`, pageWidth - margin, yPos, { align: 'right' });
                 yPos += 10;
 
                 // Información del vendedor y cliente
@@ -1953,14 +1919,32 @@
                 doc.text('Pedidos - Pinturas OSI & SISI 2025.', pageWidth / 2, yPos, { align: 'center' });
                 doc.text(new Date().getFullYear().toString(), pageWidth / 2, yPos + 5, { align: 'center' });
 
-                // Generar blob para previsualización
+                // Generar blob para descarga
                 const pdfBlob = doc.output('blob');
-                currentPDFBlob = pdfBlob;
                 
-                // Mostrar previsualización
-                const pdfUrl = URL.createObjectURL(pdfBlob);
-                document.getElementById('pdf-preview').src = pdfUrl;
-                document.getElementById('pdf-modal').style.display = 'flex';
+                // Generar nombre del archivo
+                const fileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
+                
+                // Descargar automáticamente
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(pdfBlob);
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Incrementar y guardar el número de pedido
+                nextOrderNumber++;
+                localStorage.setItem('lastOrderNumber', nextOrderNumber.toString());
+                
+                // Mostrar modal de WhatsApp
+                document.getElementById('whatsapp-modal').style.display = 'flex';
+                
+                // Abrir WhatsApp automáticamente
+                setTimeout(() => {
+                    const message = encodeURIComponent(`Hola, aquí está el pedido de ${clientName} (N° ${formattedOrderNumber})`);
+                    window.open(`https://wa.me/?text=${message}`, '_blank');
+                }, 1000);
                 
                 showLoading(false);
             } catch (error) {
@@ -1968,96 +1952,6 @@
                 showLoading(false);
                 showNotification('Error al generar el PDF', 'error');
             }
-        }
-
-        // Descargar PDF
-        function downloadPDF() {
-            if (!currentPDFBlob) return;
-            
-            const sellerName = document.getElementById('seller-name').value.trim();
-            const clientName = document.getElementById('client-name').value.trim();
-            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
-            
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(currentPDFBlob);
-            downloadLink.download = fileName;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-            
-            showNotification('PDF descargado exitosamente!');
-        }
-
-        // Enviar PDF por correo con adjunto automático
-        function sendPDFViaEmail() {
-            if (!currentPDFBlob) return;
-            
-            const sellerName = document.getElementById('seller-name').value.trim();
-            const clientName = document.getElementById('client-name').value.trim();
-            const paymentMethod = document.getElementById('payment-method').value;
-            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
-            
-            // Convertir blob a base64
-            const reader = new FileReader();
-            reader.readAsDataURL(currentPDFBlob);
-            reader.onloadend = function() {
-                const base64data = reader.result;
-                
-                // Crear enlace para abrir cliente de correo
-                const subject = encodeURIComponent(`Pedido OSI - ${clientName}`);
-                const body = encodeURIComponent(
-                    `Hola,\n\nAdjunto el pedido de ${clientName} realizado por ${sellerName}.\n\nMétodo de pago: ${paymentMethod}\n\nSaludos.`
-                );
-                
-                // Crear un enlace temporal para descargar el archivo
-                const downloadLink = document.createElement('a');
-                downloadLink.href = URL.createObjectURL(currentPDFBlob);
-                downloadLink.download = fileName;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                
-                // Abrir cliente de correo
-                setTimeout(() => {
-                    window.location.href = `mailto:?subject=${subject}&body=${body}&attachment=${base64data}`;
-                    
-                    // Limpiar
-                    setTimeout(() => {
-                        document.body.removeChild(downloadLink);
-                        URL.revokeObjectURL(downloadLink.href);
-                    }, 5000);
-                }, 1000);
-            };
-        }
-
-        // Enviar PDF por WhatsApp
-        function sendPDFViaWhatsApp() {
-            if (!currentPDFBlob) return;
-            
-            const sellerName = document.getElementById('seller-name').value.trim();
-            const clientName = document.getElementById('client-name').value.trim();
-            const fileName = `pedido_osi_${clientName.replace(/\s+/g, '_')}_${Date.now().toString().slice(-6)}.pdf`;
-            
-            // Crear enlace de descarga temporal
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(currentPDFBlob);
-            downloadLink.download = fileName;
-            document.body.appendChild(downloadLink);
-            
-            // Forzar descarga para que esté disponible para WhatsApp
-            downloadLink.click();
-            
-            // Esperar un momento antes de abrir WhatsApp
-            setTimeout(() => {
-                // Abrir WhatsApp con mensaje predeterminado
-                const message = encodeURIComponent(`Pedido de ${fileName}`);
-                window.open(`https://wa.me/?text=${message}`, '_blank');
-                
-                // Limpiar
-                setTimeout(() => {
-                    document.body.removeChild(downloadLink);
-                    URL.revokeObjectURL(downloadLink.href);
-                }, 5000);
-            }, 1000);
         }
 
         // Mostrar notificación
