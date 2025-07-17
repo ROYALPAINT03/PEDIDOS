@@ -1,3 +1,4 @@
+NO, QUE AL MOMENTO DE ENVIARLO A WHATSSAP ME ADJUNTE EL ARCHIVO, YA QUE AL ENVIARLO SOLO ME ADJUNTA EL TEXTO PEERO NO EL ARCHIVO PDF:
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -876,38 +877,9 @@
         }
         
         .whatsapp-modal p {
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             color: var(--gray);
             line-height: 1.6;
-        }
-        
-        .pdf-link-container {
-            background: #f0f4ff;
-            border-radius: 12px;
-            padding: 15px;
-            margin: 20px 0;
-            text-align: left;
-            position: relative;
-        }
-        
-        .pdf-link {
-            font-size: 14px;
-            word-break: break-all;
-            color: var(--primary);
-            font-weight: 500;
-        }
-        
-        .copy-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 5px 10px;
-            cursor: pointer;
-            font-size: 13px;
         }
         
         .whatsapp-actions {
@@ -952,10 +924,6 @@
                 width: 100%;
                 justify-content: space-between;
                 margin-top: 10px;
-            }
-            
-            .whatsapp-modal-content {
-                padding: 20px;
             }
         }
     </style>
@@ -1120,24 +1088,12 @@
                 <i class="fab fa-whatsapp"></i>
             </div>
             <h2>¡Pedido enviado!</h2>
-            <p>El PDF con los detalles del pedido ha sido generado y almacenado.</p>
-            <p>Por favor, envía este enlace por WhatsApp:</p>
-            
-            <div class="pdf-link-container">
-                <p class="pdf-link" id="pdf-link">https://ejemplo.com/pedido.pdf</p>
-                <button class="copy-btn" id="copy-link">
-                    <i class="fas fa-copy"></i> Copiar
-                </button>
-            </div>
-            
-            <p>O haz clic en el botón para abrir WhatsApp y enviarlo manualmente.</p>
+            <p>El PDF con los detalles del pedido ha sido enviado automáticamente por WhatsApp.</p>
+            <p>Si no se abrió automáticamente, por favor comparte manualmente el archivo descargado.</p>
             
             <div class="whatsapp-actions">
-                <button class="btn btn-primary" id="open-whatsapp">
-                    <i class="fab fa-whatsapp"></i> Abrir WhatsApp
-                </button>
-                <button class="btn btn-success" id="whatsapp-close">
-                    <i class="fas fa-check"></i> Listo
+                <button class="btn btn-primary" id="whatsapp-close">
+                    <i class="fas fa-check"></i> Entendido
                 </button>
             </div>
         </div>
@@ -1164,7 +1120,6 @@
         let quantity = 1;
         let currentPDFBlob = null;
         let nextOrderNumber = localStorage.getItem('lastOrderNumber') ? parseInt(localStorage.getItem('lastOrderNumber')) : 1;
-        let currentPDFUrl = null;
 
         // Definición precisa de categorías con nombres específicos
         const categories = [
@@ -1480,10 +1435,6 @@
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
             document.getElementById('btn-whatsapp').addEventListener('click', generatePDF);
-            
-            // Botones de WhatsApp
-            document.getElementById('open-whatsapp').addEventListener('click', openWhatsApp);
-            document.getElementById('copy-link').addEventListener('click', copyPDFLink);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1636,30 +1587,6 @@
         // Cerrar modal de WhatsApp
         function closeWhatsAppModal() {
             document.getElementById('whatsapp-modal').style.display = 'none';
-        }
-
-        // Abrir WhatsApp con mensaje
-        function openWhatsApp() {
-            const sellerName = document.getElementById('seller-name').value.trim();
-            const clientName = document.getElementById('client-name').value.trim();
-            const message = encodeURIComponent(
-                `Hola, aquí está el pedido de ${clientName} realizado por ${sellerName}. ` +
-                `Por favor, descarga el PDF desde este enlace: ${currentPDFUrl}`
-            );
-            window.open(`https://wa.me/?text=${message}`, '_blank');
-        }
-
-        // Copiar enlace al portapapeles
-        function copyPDFLink() {
-            const linkElement = document.getElementById('pdf-link');
-            const textArea = document.createElement('textarea');
-            textArea.value = linkElement.textContent;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-            
-            showNotification('Enlace copiado al portapapeles');
         }
 
         // Agregar producto al carrito desde el modal
@@ -1999,17 +1926,13 @@
                 // Generar nombre del archivo
                 const fileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
                 
-                // Guardar PDF para acceso posterior
-                currentPDFBlob = pdfBlob;
-                
-                // Crear URL para el PDF
-                if (currentPDFUrl) {
-                    URL.revokeObjectURL(currentPDFUrl);
-                }
-                currentPDFUrl = URL.createObjectURL(pdfBlob);
-                
-                // Actualizar el enlace en el modal de WhatsApp
-                document.getElementById('pdf-link').textContent = currentPDFUrl;
+                // Descargar automáticamente
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(pdfBlob);
+                downloadLink.download = fileName;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
                 
                 // Incrementar y guardar el número de pedido
                 nextOrderNumber++;
@@ -2017,6 +1940,12 @@
                 
                 // Mostrar modal de WhatsApp
                 document.getElementById('whatsapp-modal').style.display = 'flex';
+                
+                // Abrir WhatsApp automáticamente
+                setTimeout(() => {
+                    const message = encodeURIComponent(`Hola, aquí está el pedido de ${clientName} (N° ${formattedOrderNumber})`);
+                    window.open(`https://wa.me/?text=${message}`, '_blank');
+                }, 1000);
                 
                 showLoading(false);
             } catch (error) {
