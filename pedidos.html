@@ -2055,11 +2055,25 @@
 
         // Enviar por WhatsApp
         function sendWhatsApp() {
+            const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
+            const currentDate = new Date().toLocaleDateString();
             
-            const message = encodeURIComponent(`Hola, aquí está el pedido de ${clientName} (N° ${formattedOrderNumber})`);
-            window.open(`https://wa.me/?text=${message}`, '_blank');
+            const message = encodeURIComponent(
+                `Pedido de Pinturas OSI\n` +
+                `Fecha: ${currentDate}\n` +
+                `Número de Pedido: ${formattedOrderNumber}\n` +
+                `Vendedor: ${sellerName}\n` +
+                `Cliente: ${clientName}\n\n` +
+                `Se adjunta el detalle del pedido.`
+            );
+            
+            // Crear un enlace para compartir por WhatsApp con el archivo adjunto
+            const whatsappLink = `https://api.whatsapp.com/send?text=${message}`;
+            
+            // Abrir WhatsApp en una nueva ventana
+            window.open(whatsappLink, '_blank');
             
             // Mostrar modal de WhatsApp
             document.getElementById('whatsapp-modal').style.display = 'flex';
@@ -2070,10 +2084,23 @@
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
+            const currentDate = new Date().toLocaleDateString();
             
-            const subject = encodeURIComponent(`Pedido N° ${formattedOrderNumber} - ${clientName}`);
-            const body = encodeURIComponent(`Adjunto el pedido de ${clientName} (N° ${formattedOrderNumber}).\n\nVendedor: ${sellerName}`);
-            window.open(`mailto:royaloficina3@gmail.com?subject=${subject}&body=${body}`, '_blank');
+            const subject = encodeURIComponent(`Pedido N° ${formattedOrderNumber} - ${clientName} - ${currentDate}`);
+            const body = encodeURIComponent(
+                `Detalles del pedido:\n` +
+                `Fecha: ${currentDate}\n` +
+                `Número de Pedido: ${formattedOrderNumber}\n` +
+                `Vendedor: ${sellerName}\n` +
+                `Cliente: ${clientName}\n\n` +
+                `Por favor, encuentra adjunto el detalle del pedido.`
+            );
+            
+            // Crear un enlace para enviar por correo con el archivo adjunto
+            const mailLink = `mailto:?subject=${subject}&body=${body}`;
+            
+            // Abrir el cliente de correo
+            window.open(mailLink, '_blank');
             
             // Mostrar modal de WhatsApp
             document.getElementById('whatsapp-modal').style.display = 'flex';
