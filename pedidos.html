@@ -1,10 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos - Pinturas OSI & SISI</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -178,6 +178,7 @@
             display: flex;
             align-items: center;
             cursor: pointer;
+            position: relative;
         }
 
         .category-title i {
@@ -889,6 +890,7 @@
             flex-wrap: wrap;
         }
 
+        /* Nuevos estilos para mejor responsive */
         @media (max-width: 768px) {
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
@@ -925,6 +927,87 @@
                 justify-content: space-between;
                 margin-top: 10px;
             }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .form-control {
+                padding: 12px 15px;
+            }
+            
+            .floating-cart {
+                width: 60px;
+                height: 60px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .cart-icon {
+                font-size: 24px;
+            }
+            
+            .cart-count {
+                width: 22px;
+                height: 22px;
+                font-size: 12px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .product-card .image-container {
+                height: 100px;
+            }
+            
+            .card-title {
+                font-size: 1.3rem;
+            }
+            
+            .card-title i {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+            }
+            
+            .btn {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+        
+        /* Mejoras para inputs */
+        .input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .input-group .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        /* Estilo para el nuevo botón de correo */
+        .btn-email {
+            background: #d44638;
+            color: white;
+        }
+        
+        .btn-email:hover {
+            background: #c13524;
+            transform: translateY(-3px);
         }
     </style>
 </head>
@@ -942,23 +1025,27 @@
                     <h2>Información del Pedido</h2>
                 </div>
                 
-                <div class="form-group">
-                    <label for="seller-name"><i class="fas fa-user-tie"></i> Nombre del Vendedor</label>
-                    <input type="text" id="seller-name" class="form-control" placeholder="Ingrese su nombre">
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="seller-name"><i class="fas fa-user-tie"></i> Nombre del Vendedor</label>
+                        <input type="text" id="seller-name" class="form-control" placeholder="Ingrese su nombre">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client-name"><i class="fas fa-user"></i> Nombre del Cliente</label>
+                        <input type="text" id="client-name" class="form-control" placeholder="Ingrese nombre del cliente">
+                    </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="client-name"><i class="fas fa-user"></i> Nombre del Cliente</label>
-                    <input type="text" id="client-name" class="form-control" placeholder="Ingrese nombre del cliente">
-                </div>
-                
-                <div class="form-group">
-                    <label for="payment-method"><i class="fas fa-money-bill-wave"></i> Método de Pago</label>
-                    <select id="payment-method" class="form-control">
-                        <option value="">Seleccione método de pago</option>
-                        <option value="BOLIVAR">Bolívar</option>
-                        <option value="DOLAR">Dólar</option>
-                    </select>
+                <div class="input-group">
+                    <div class="form-group">
+                        <label for="payment-method"><i class="fas fa-money-bill-wave"></i> Método de Pago</label>
+                        <select id="payment-method" class="form-control">
+                            <option value="">Seleccione método de pago</option>
+                            <option value="BOLIVAR">Bolívar</option>
+                            <option value="DOLAR">Dólar</option>
+                        </select>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -1076,6 +1163,9 @@
                     <button class="btn btn-success" id="btn-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
+                    <button class="btn btn-email" id="btn-email">
+                        <i class="fas fa-envelope"></i> Enviar por Correo
+                    </button>
                 </div>
             </div>
         </div>
@@ -1087,9 +1177,9 @@
             <div class="whatsapp-icon">
                 <i class="fab fa-whatsapp"></i>
             </div>
-            <h2>¡Pedido enviado!</h2>
-            <p>El PDF con los detalles del pedido ha sido enviado automáticamente por WhatsApp.</p>
-            <p>Si no se abrió automáticamente, por favor comparte manualmente el archivo descargado.</p>
+            <h2>¡Pedido generado!</h2>
+            <p>El PDF con los detalles del pedido ha sido generado y descargado.</p>
+            <p>Por favor comparte el archivo descargado por WhatsApp o correo.</p>
             
             <div class="whatsapp-actions">
                 <button class="btn btn-primary" id="whatsapp-close">
@@ -1119,6 +1209,7 @@
         let selectedUnit = 'U';
         let quantity = 1;
         let currentPDFBlob = null;
+        let currentFileName = '';
         let nextOrderNumber = localStorage.getItem('lastOrderNumber') ? parseInt(localStorage.getItem('lastOrderNumber')) : 1;
 
         // Definición precisa de categorías con nombres específicos
@@ -1434,7 +1525,12 @@
             
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
-            document.getElementById('btn-whatsapp').addEventListener('click', generatePDF);
+            document.getElementById('btn-whatsapp').addEventListener('click', function() {
+                generatePDF('whatsapp');
+            });
+            document.getElementById('btn-email').addEventListener('click', function() {
+                generatePDF('email');
+            });
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -1470,7 +1566,7 @@
 
                         // Ordenar: primero los que coinciden exactamente en el nombre o referencia
                         filtered.sort((a, b) => {
-                            // Si el término de búsqueda es exactamente el nombre o la referencia, priorizar
+                            // Priorizar coincidencias exactas
                             const aNameExact = a.name.toLowerCase() === searchTerm;
                             const bNameExact = b.name.toLowerCase() === searchTerm;
                             const aRefExact = a.ref.toString() === searchTerm;
@@ -1747,7 +1843,7 @@
         }
 
         // Generar PDF (con observaciones)
-        function generatePDF() {
+        function generatePDF(action) {
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
             const paymentMethod = document.getElementById('payment-method').value;
@@ -1922,14 +2018,15 @@
 
                 // Generar blob para descarga
                 const pdfBlob = doc.output('blob');
+                currentPDFBlob = pdfBlob;
                 
                 // Generar nombre del archivo
-                const fileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
+                currentFileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
                 
                 // Descargar automáticamente
                 const downloadLink = document.createElement('a');
                 downloadLink.href = URL.createObjectURL(pdfBlob);
-                downloadLink.download = fileName;
+                downloadLink.download = currentFileName;
                 document.body.appendChild(downloadLink);
                 downloadLink.click();
                 document.body.removeChild(downloadLink);
@@ -1938,14 +2035,15 @@
                 nextOrderNumber++;
                 localStorage.setItem('lastOrderNumber', nextOrderNumber.toString());
                 
-                // Mostrar modal de WhatsApp
-                document.getElementById('whatsapp-modal').style.display = 'flex';
-                
-                // Abrir WhatsApp automáticamente
-                setTimeout(() => {
-                    const message = encodeURIComponent(`Hola, aquí está el pedido de ${clientName} (N° ${formattedOrderNumber})`);
-                    window.open(`https://wa.me/?text=${message}`, '_blank');
-                }, 1000);
+                // Realizar acción después de generar el PDF
+                if (action === 'whatsapp') {
+                    sendWhatsApp();
+                } else if (action === 'email') {
+                    sendEmail();
+                } else {
+                    // Mostrar modal de WhatsApp para cualquier acción
+                    document.getElementById('whatsapp-modal').style.display = 'flex';
+                }
                 
                 showLoading(false);
             } catch (error) {
@@ -1953,6 +2051,32 @@
                 showLoading(false);
                 showNotification('Error al generar el PDF', 'error');
             }
+        }
+
+        // Enviar por WhatsApp
+        function sendWhatsApp() {
+            const clientName = document.getElementById('client-name').value.trim();
+            const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
+            
+            const message = encodeURIComponent(`Hola, aquí está el pedido de ${clientName} (N° ${formattedOrderNumber})`);
+            window.open(`https://wa.me/?text=${message}`, '_blank');
+            
+            // Mostrar modal de WhatsApp
+            document.getElementById('whatsapp-modal').style.display = 'flex';
+        }
+
+        // Enviar por correo
+        function sendEmail() {
+            const sellerName = document.getElementById('seller-name').value.trim();
+            const clientName = document.getElementById('client-name').value.trim();
+            const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
+            
+            const subject = encodeURIComponent(`Pedido N° ${formattedOrderNumber} - ${clientName}`);
+            const body = encodeURIComponent(`Adjunto el pedido de ${clientName} (N° ${formattedOrderNumber}).\n\nVendedor: ${sellerName}`);
+            window.open(`mailto:royaloficina3@gmail.com?subject=${subject}&body=${body}`, '_blank');
+            
+            // Mostrar modal de WhatsApp
+            document.getElementById('whatsapp-modal').style.display = 'flex';
         }
 
         // Mostrar notificación
