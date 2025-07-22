@@ -1,12 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pedidos - Pinturas OSI & SISI</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
+    <link rel="icon" href="data:image/svg+xml<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -56,6 +58,18 @@
             color: var(--dark);
             position: relative;
             animation: fadeInDown 0.8s ease;
+        }
+
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+
+        .logo {
+            height: 70px;
+            width: auto;
+            margin: 0 10px;
         }
 
         @keyframes fadeInDown {
@@ -889,9 +903,123 @@
             justify-content: center;
             flex-wrap: wrap;
         }
+        
+        /* Modal de previsualización */
+        .preview-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 3000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .preview-modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .preview-header {
+            background: var(--primary);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .preview-header h2 {
+            font-size: 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .preview-body {
+            padding: 20px;
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .preview-footer {
+            padding: 20px;
+            background: #f8f9fa;
+            border-top: 1px solid #eee;
+        }
+        
+        .preview-actions {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .preview-actions .btn {
+            flex: 1;
+            min-width: 150px;
+        }
+        
+        .preview-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        
+        .preview-table th {
+            background-color: var(--primary);
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .preview-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .preview-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        .preview-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .preview-summary {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .preview-summary p {
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .preview-summary strong {
+            color: var(--primary);
+        }
 
         /* Nuevos estilos para mejor responsive */
         @media (max-width: 768px) {
+            .logo {
+                height: 50px;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             }
@@ -900,7 +1028,7 @@
                 flex-direction: column;
             }
             
-            .actions, .cart-actions, .whatsapp-actions {
+            .actions, .cart-actions, .whatsapp-actions, .preview-actions {
                 flex-direction: column;
             }
             
@@ -908,7 +1036,7 @@
                 width: 100%;
             }
             
-            .cart-modal-content {
+            .cart-modal-content, .preview-modal-content {
                 width: 95%;
                 max-height: 85vh;
             }
@@ -926,10 +1054,6 @@
                 width: 100%;
                 justify-content: space-between;
                 margin-top: 10px;
-            }
-            
-            header h1 {
-                font-size: 2rem;
             }
             
             .card {
@@ -956,9 +1080,25 @@
                 height: 22px;
                 font-size: 12px;
             }
+            
+            .preview-table {
+                font-size: 14px;
+            }
+            
+            .preview-table th, .preview-table td {
+                padding: 8px 5px;
+            }
         }
         
         @media (max-width: 480px) {
+            .logo {
+                height: 40px;
+            }
+            
+            header h1 {
+                font-size: 1.6rem;
+            }
+            
             .product-grid {
                 grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
             }
@@ -984,6 +1124,10 @@
             .btn {
                 padding: 12px 20px;
                 font-size: 14px;
+            }
+            
+            .preview-table {
+                font-size: 12px;
             }
         }
         
@@ -1014,6 +1158,7 @@
 <body>
     <div class="container">
         <header>
+            
             <h1><i class="fas fa-paint-roller"></i> Pedidos - Pinturas OSI & SISI</h1>
             <p>Sistema de gestión de pedidos para todas las líneas de productos</p>
         </header>
@@ -1157,6 +1302,9 @@
             
             <div class="cart-modal-footer">
                 <div class="cart-actions">
+                    <button class="btn btn-primary" id="btn-preview">
+                        <i class="fas fa-eye"></i> Previsualizar
+                    </button>
                     <button class="btn btn-danger" id="btn-clear">
                         <i class="fas fa-trash"></i> Limpiar Todo
                     </button>
@@ -1185,6 +1333,35 @@
                 <button class="btn btn-primary" id="whatsapp-close">
                     <i class="fas fa-check"></i> Entendido
                 </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de previsualización -->
+    <div class="preview-modal" id="preview-modal">
+        <div class="preview-modal-content">
+            <div class="preview-header">
+                <h2><i class="fas fa-file-pdf"></i> Previsualización del Pedido</h2>
+                <button class="close-modal" id="close-preview-modal">&times;</button>
+            </div>
+            <div class="preview-body" id="preview-body">
+                <!-- Contenido de previsualización se generará aquí -->
+            </div>
+            <div class="preview-footer">
+                <div class="preview-actions">
+                    <button class="btn btn-success" id="preview-whatsapp">
+                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                    <button class="btn btn-email" id="preview-email">
+                        <i class="fas fa-envelope"></i> Enviar por Correo
+                    </button>
+                    <button class="btn btn-primary" id="preview-download">
+                        <i class="fas fa-download"></i> Descargar PDF
+                    </button>
+                    <button class="btn btn-danger" id="preview-close">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1276,7 +1453,7 @@
                     {id: 723, name: "Verde Navidad OSI", ref: 723, category: "osi", image: `LINEA OSI 60CC/723.png`},
                     {id: 724, name: "Verde Manzana OSI", ref: 724, category: "osi", image: `LINEA OSI 60CC/724.png`},
                     {id: 725, name: "Verde Claro OSI", ref: 725, category: "osi", image: `LINEA OSI 60CC/725.png`},
-                    {id: 726, name: "Turquesa OSI", ref: 726, category: "osi", image: `LINEA OSI 60CC/726.png`},
+                    {id: 726, name: "Turquesa OSI", ref: 726, category: "oi", image: `LINEA OSI 60CC/726.png`},
                     {id: 727, name: "Aguamarina OSI", ref: 727, category: "osi", image: `LINEA OSI 60CC/727.png`},
                     {id: 728, name: "Lila OSI", ref: 728, category: "osi", image: `LINEA OSI 60CC/728.png`},
                     {id: 729, name: "Negro OSI", ref: 729, category: "osi", image: `LINEA OSI 60CC/729.png`},
@@ -1519,6 +1696,8 @@
             document.getElementById('close-unit-modal').addEventListener('click', closeUnitModal);
             document.getElementById('close-cart-modal').addEventListener('click', closeCartModal);
             document.getElementById('whatsapp-close').addEventListener('click', closeWhatsAppModal);
+            document.getElementById('close-preview-modal').addEventListener('click', closePreviewModal);
+            document.getElementById('preview-close').addEventListener('click', closePreviewModal);
             
             // Carrito flotante
             document.getElementById('floating-cart').addEventListener('click', openCartModal);
@@ -1530,6 +1709,21 @@
             });
             document.getElementById('btn-email').addEventListener('click', function() {
                 generatePDF('email');
+            });
+            document.getElementById('btn-preview').addEventListener('click', showPreview);
+            
+            // Botones de previsualización
+            document.getElementById('preview-whatsapp').addEventListener('click', function() {
+                generatePDF('whatsapp');
+                closePreviewModal();
+            });
+            document.getElementById('preview-email').addEventListener('click', function() {
+                generatePDF('email');
+                closePreviewModal();
+            });
+            document.getElementById('preview-download').addEventListener('click', function() {
+                generatePDF('download');
+                closePreviewModal();
             });
         }
 
@@ -1683,6 +1877,11 @@
         // Cerrar modal de WhatsApp
         function closeWhatsAppModal() {
             document.getElementById('whatsapp-modal').style.display = 'none';
+        }
+
+        // Cerrar modal de previsualización
+        function closePreviewModal() {
+            document.getElementById('preview-modal').style.display = 'none';
         }
 
         // Agregar producto al carrito desde el modal
@@ -1840,6 +2039,95 @@
                 updateCartCount();
                 showNotification('Pedido limpiado correctamente');
             }
+        }
+
+        // Mostrar previsualización del pedido
+        function showPreview() {
+            const sellerName = document.getElementById('seller-name').value.trim();
+            const clientName = document.getElementById('client-name').value.trim();
+            const paymentMethod = document.getElementById('payment-method').value;
+            const observations = document.getElementById('observations').value.trim();
+            
+            if (!sellerName || !clientName || !paymentMethod) {
+                showNotification('Por favor complete todos los campos requeridos', 'error');
+                return;
+            }
+
+            if (cartItems.length === 0) {
+                showNotification('No hay productos en el pedido para previsualizar', 'error');
+                return;
+            }
+            
+            // Formatear el número de pedido con 5 dígitos
+            const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
+            
+            const previewBody = document.getElementById('preview-body');
+            previewBody.innerHTML = '';
+            
+            // Construir HTML de previsualización
+            let previewHTML = `
+                <div class="preview-summary">
+                    <p><strong>Vendedor:</strong> ${sellerName}</p>
+                    <p><strong>Cliente:</strong> ${clientName}</p>
+                    <p><strong>Método de Pago:</strong> ${paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}</p>
+                    ${observations ? `<p><strong>Observaciones:</strong> ${observations}</p>` : ''}
+                    <p><strong>N° Pedido:</strong> ${formattedOrderNumber}</p>
+                    <p><strong>Fecha:</strong> ${new Date().toLocaleDateString()}</p>
+                </div>
+                
+                <table class="preview-table">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Ref.</th>
+                            <th>Unidad</th>
+                            <th>Cantidad</th>
+                            <th>Unid. Totales</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            let totalGeneralUnidades = 0;
+            
+            cartItems.forEach(item => {
+                // Calcular unidades totales
+                let totalUnits = 0;
+                if (item.product.ref === 600) { // Tempera OSI
+                    if (item.unit === 'U') totalUnits = item.quantity;
+                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
+                    if (item.unit === 'BUL') totalUnits = item.quantity * 100;
+                } else {
+                    if (item.unit === 'U') totalUnits = item.quantity;
+                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
+                    if (item.unit === 'BUL') totalUnits = item.quantity * 288;
+                }
+                
+                totalGeneralUnidades += totalUnits;
+                
+                previewHTML += `
+                    <tr>
+                        <td>${item.product.name}</td>
+                        <td>${item.product.ref}</td>
+                        <td>${getUnitName(item.unit)}</td>
+                        <td>${item.quantity}</td>
+                        <td>${totalUnits}</td>
+                    </tr>
+                `;
+            });
+            
+            previewHTML += `
+                    </tbody>
+                </table>
+                
+                <div class="preview-summary">
+                    <p><strong>Total de Productos:</strong> ${cartItems.length}</p>
+                    <p><strong>Total de Unidades:</strong> ${totalGeneralUnidades}</p>
+                </div>
+            `;
+            
+            previewBody.innerHTML = previewHTML;
+            document.getElementById('preview-modal').style.display = 'flex';
         }
 
         // Generar PDF (con observaciones)
@@ -2023,13 +2311,15 @@
                 // Generar nombre del archivo
                 currentFileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
                 
-                // Descargar automáticamente
-                const downloadLink = document.createElement('a');
-                downloadLink.href = URL.createObjectURL(pdfBlob);
-                downloadLink.download = currentFileName;
-                document.body.appendChild(downloadLink);
-                downloadLink.click();
-                document.body.removeChild(downloadLink);
+                // Descargar automáticamente si no es solo previsualización
+                if (action !== 'preview') {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = URL.createObjectURL(pdfBlob);
+                    downloadLink.download = currentFileName;
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }
                 
                 // Incrementar y guardar el número de pedido
                 nextOrderNumber++;
@@ -2040,7 +2330,7 @@
                     sendWhatsApp();
                 } else if (action === 'email') {
                     sendEmail();
-                } else {
+                } else if (action === 'download') {
                     // Mostrar modal de WhatsApp para cualquier acción
                     document.getElementById('whatsapp-modal').style.display = 'flex';
                 }
