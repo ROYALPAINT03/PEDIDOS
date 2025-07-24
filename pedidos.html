@@ -1008,6 +1008,31 @@
         .preview-summary strong {
             color: var(--primary);
         }
+        
+        /* Nuevo campo de teléfono */
+        .phone-input {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .phone-input input {
+            flex: 1;
+        }
+        
+        .whatsapp-icon-field {
+            color: #25D366;
+            font-size: 24px;
+        }
+        
+        /* Botón de WhatsApp mejorado */
+        .whatsapp-btn {
+            background: #25D366 !important;
+        }
+        
+        .whatsapp-btn:hover {
+            background: #128C7E !important;
+        }
 
         /* Nuevos estilos para mejor responsive */
         @media (max-width: 768px) {
@@ -1160,12 +1185,12 @@
                 <div class="input-group">
                     <div class="form-group">
                         <label for="seller-name"><i class="fas fa-user-tie"></i> Nombre del Vendedor</label>
-                        <input type="text" id="seller-name" class="form-control" placeholder="Ingrese su nombre">
+                        <input type="text" id="seller-name" class="form-control" placeholder="Ingrese su nombre" value="Juan Pérez">
                     </div>
                     
                     <div class="form-group">
                         <label for="client-name"><i class="fas fa-user"></i> Nombre del Cliente</label>
-                        <input type="text" id="client-name" class="form-control" placeholder="Ingrese nombre del cliente">
+                        <input type="text" id="client-name" class="form-control" placeholder="Ingrese nombre del cliente" value="Tienda Pinturas ABC">
                     </div>
                 </div>
                 
@@ -1174,15 +1199,22 @@
                         <label for="payment-method"><i class="fas fa-money-bill-wave"></i> Metodo de Pago</label>
                         <select id="payment-method" class="form-control">
                             <option value="">Seleccione metodo de pago</option>
-                            <option value="BOLIVAR">Bolivar</option>
+                            <option value="BOLIVAR" selected>Bolivar</option>
                             <option value="DOLAR">Dolar</option>
                         </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="client-phone"><i class="fab fa-whatsapp whatsapp-icon-field"></i> Teléfono del Cliente</label>
+                        <div class="phone-input">
+                            <input type="tel" id="client-phone" class="form-control" placeholder="Ingrese teléfono con WhatsApp">
+                        </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="observations"><i class="fas fa-sticky-note"></i> Observaciones (Opcional)</label>
-                    <textarea id="observations" class="form-control" placeholder="Ingrese observaciones adicionales" rows="2"></textarea>
+                    <textarea id="observations" class="form-control" placeholder="Ingrese observaciones adicionales" rows="2">Entregar antes del viernes</textarea>
                 </div>
             </div>
 
@@ -1295,7 +1327,7 @@
                     <button class="btn btn-danger" id="btn-clear">
                         <i class="fas fa-trash"></i> Limpiar Todo
                     </button>
-                    <button class="btn btn-success" id="btn-whatsapp">
+                    <button class="btn btn-success whatsapp-btn" id="btn-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
                 </div>
@@ -1309,12 +1341,15 @@
             <div class="whatsapp-icon">
                 <i class="fab fa-whatsapp"></i>
             </div>
-            <h2>¡Pedido enviado!</h2>
-            <p>El PDF con los detalles del pedido ha sido enviado automáticamente al número:</p>
-            <p><strong>+584243757335</strong></p>
-            <p>Puedes verificar en WhatsApp que se haya enviado correctamente.</p>
+            <h2 id="whatsapp-title">¡Pedido listo para enviar!</h2>
+            <p id="whatsapp-message">El PDF con los detalles del pedido se ha generado correctamente.</p>
+            <p id="whatsapp-instruction">El mensaje de WhatsApp con el PDF adjunto se abrirá automáticamente.</p>
+            <p id="whatsapp-alternative">Si WhatsApp no se abre, por favor haga clic en el botón de abajo.</p>
             
             <div class="whatsapp-actions">
+                <button class="btn btn-success whatsapp-btn" id="whatsapp-open">
+                    <i class="fab fa-whatsapp"></i> Abrir WhatsApp
+                </button>
                 <button class="btn btn-primary" id="whatsapp-close">
                     <i class="fas fa-check"></i> Entendido
                 </button>
@@ -1334,7 +1369,7 @@
             </div>
             <div class="preview-footer">
                 <div class="preview-actions">
-                    <button class="btn btn-success" id="preview-whatsapp">
+                    <button class="btn btn-success whatsapp-btn" id="preview-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
                     </button>
                     <button class="btn btn-primary" id="preview-download">
@@ -1436,7 +1471,7 @@
                     {id: 723, name: "Verde Navidad OSI", ref: 723, category: "osi", image: `LINEA OSI 60CC/723.png`},
                     {id: 724, name: "Verde Manzana OSI", ref: 724, category: "osi", image: `LINEA OSI 60CC/724.png`},
                     {id: 725, name: "Verde Claro OSI", ref: 725, category: "osi", image: `LINEA OSI 60CC/725.png`},
-                    {id: 726, name: "Turquesa OSI", ref: 726, category: "oi", image: `LINEA OSI 60CC/726.png`},
+                    {id: 726, name: "Turquesa OSI", ref: 726, category: "osi", image: `LINEA OSI 60CC/726.png`},
                     {id: 727, name: "Aguamarina OSI", ref: 727, category: "osi", image: `LINEA OSI 60CC/727.png`},
                     {id: 728, name: "Lila OSI", ref: 728, category: "osi", image: `LINEA OSI 60CC/728.png`},
                     {id: 729, name: "Negro OSI", ref: 729, category: "osi", image: `LINEA OSI 60CC/729.png`},
@@ -1701,6 +1736,9 @@
                 generatePDF('download');
                 closePreviewModal();
             });
+            
+            // Botón para abrir WhatsApp manualmente
+            document.getElementById('whatsapp-open').addEventListener('click', openWhatsApp);
         }
 
         // Filtrar productos (con búsqueda por nombre y referencia, y ordenamiento)
@@ -2110,6 +2148,7 @@
         function generatePDF(action) {
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
+            const clientPhone = document.getElementById('client-phone').value.trim();
             const paymentMethod = document.getElementById('payment-method').value;
             const observations = document.getElementById('observations').value.trim();
 
@@ -2165,12 +2204,14 @@
                 doc.text('Vendedor:', margin, yPos);
                 doc.text('Cliente:', margin, yPos + 10);
                 doc.text('Método de Pago:', margin, yPos + 20);
+                if (clientPhone) doc.text('Teléfono:', margin, yPos + 30);
                 
                 doc.setFont(undefined, 'normal');
                 doc.text(sellerName, margin + 25, yPos);
                 doc.text(clientName, margin + 25, yPos + 10);
                 doc.text(paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar', margin + 45, yPos + 20);
-                yPos += 30;
+                if (clientPhone) doc.text(clientPhone, margin + 25, yPos + 30);
+                yPos += clientPhone ? 40 : 30;
 
                 // Observaciones
                 if (observations) {
@@ -2296,15 +2337,8 @@
                     sendWhatsApp(pdfBlob);
                 } else if (action === 'download') {
                     // Descargar el PDF
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = URL.createObjectURL(pdfBlob);
-                    downloadLink.download = currentFileName;
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                    
-                    // Mostrar modal de WhatsApp para confirmación
-                    document.getElementById('whatsapp-modal').style.display = 'flex';
+                    downloadPDF(pdfBlob, currentFileName);
+                    showNotification('PDF descargado correctamente');
                 }
                 
                 showLoading(false);
@@ -2315,92 +2349,82 @@
             }
         }
 
+        // Descargar PDF
+        function downloadPDF(pdfBlob, fileName) {
+            const downloadLink = document.createElement('a');
+            downloadLink.href = URL.createObjectURL(pdfBlob);
+            downloadLink.download = fileName;
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        }
+
+        // Abrir WhatsApp manualmente
+        function openWhatsApp() {
+            const clientPhone = document.getElementById('client-phone').value.trim();
+            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
+            
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const whatsappUrl = isMobile ? 
+                `whatsapp://send?phone=${phoneToUse}` : 
+                `https://web.whatsapp.com/send?phone=${phoneToUse}`;
+            
+            window.open(whatsappUrl, '_blank');
+        }
+
         // Enviar por WhatsApp
         function sendWhatsApp(pdfBlob) {
             const sellerName = document.getElementById('seller-name').value.trim();
             const clientName = document.getElementById('client-name').value.trim();
+            const clientPhone = document.getElementById('client-phone').value.trim();
             const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
             const currentDate = new Date().toLocaleDateString();
             
-            // Crear un FormData para simular un formulario
-            const formData = new FormData();
-            formData.append('file', pdfBlob, currentFileName);
+            // Crear el archivo para compartir
+            const file = new File([pdfBlob], currentFileName, { type: 'application/pdf' });
             
-            // Crear un enlace para compartir por WhatsApp con el archivo adjunto
-            const whatsappLink = `https://web.whatsapp.com/send?phone=${WHATSAPP_NUMBER}`;
+            // Determinar el número de WhatsApp: si hay teléfono de cliente, usarlo, sino el predeterminado
+            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
             
-            // Abrir WhatsApp en una nueva ventana
-            const whatsappWindow = window.open(whatsappLink, '_blank');
+            // Texto del mensaje
+            const messageText = `Pedido de ${clientName} - N° ${formattedOrderNumber}\nVendedor: ${sellerName}\nFecha: ${currentDate}`;
             
-            // Esperar a que WhatsApp cargue para intentar enviar el archivo
-            setTimeout(() => {
-                try {
-                    // Crear un elemento de entrada de archivo
-                    const fileInput = document.createElement('input');
-                    fileInput.type = 'file';
-                    fileInput.style.display = 'none';
-                    document.body.appendChild(fileInput);
-                    
-                    // Simular un clic en el input de archivo
-                    fileInput.click();
-                    
-                    // Cuando se seleccione un archivo
-                    fileInput.onchange = function(e) {
-                        const file = e.target.files[0];
-                        if (file) {
-                            // Crear un FormData para simular un formulario
-                            const formData = new FormData();
-                            formData.append('file', file);
-                            
-                            // Enviar el archivo a WhatsApp (esto es solo simulación)
-                            // En un entorno real, esto requeriría permisos adicionales
-                            console.log('Archivo listo para enviar:', file.name);
-                        }
-                    };
-                    
-                    // Forzar el clic en el botón de adjuntar archivo
-                    const attachButton = whatsappWindow.document.querySelector('div[title="Adjuntar"]');
-                    if (attachButton) {
-                        attachButton.click();
-                        
-                        // Esperar y seleccionar la opción de documento
-                        setTimeout(() => {
-                            const documentOption = whatsappWindow.document.querySelector('div[aria-label="Documento"]');
-                            if (documentOption) {
-                                documentOption.click();
-                                
-                                // Seleccionar el archivo generado
-                                setTimeout(() => {
-                                    const fileInput = whatsappWindow.document.querySelector('input[type="file"]');
-                                    if (fileInput) {
-                                        // Crear un DataTransfer para simular la carga
-                                        const dataTransfer = new DataTransfer();
-                                        dataTransfer.items.add(new File([pdfBlob], currentFileName, { type: 'application/pdf' }));
-                                        fileInput.files = dataTransfer.files;
-                                        
-                                        // Disparar el evento change
-                                        const event = new Event('change', { bubbles: true });
-                                        fileInput.dispatchEvent(event);
-                                        
-                                        // Enviar el mensaje después de adjuntar el archivo
-                                        setTimeout(() => {
-                                            const sendButton = whatsappWindow.document.querySelector('span[data-icon="send"]');
-                                            if (sendButton) {
-                                                sendButton.click();
-                                                showNotification('Pedido enviado por WhatsApp');
-                                                document.getElementById('whatsapp-modal').style.display = 'flex';
-                                            }
-                                        }, 2000);
-                                    }
-                                }, 1000);
-                            }
-                        }, 500);
-                    }
-                } catch (error) {
-                    console.error('Error al enviar por WhatsApp:', error);
-                    showNotification('Error al enviar por WhatsApp. Por favor envíe el archivo manualmente.', 'error');
-                }
-            }, 3000);
+            // Verificar si el navegador soporta Web Share API (ideal para móviles)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Pedido de Pinturas OSI',
+                    text: messageText,
+                    files: [file]
+                })
+                .then(() => {
+                    showNotification('Pedido compartido con éxito');
+                })
+                .catch(error => {
+                    console.error('Error al compartir:', error);
+                    // Si falla, intentamos con el método de enlace de WhatsApp
+                    openWhatsAppWithFile(phoneToUse, messageText, file);
+                });
+            } else {
+                // Para navegadores que no soportan Web Share API (principalmente escritorio)
+                openWhatsAppWithFile(phoneToUse, messageText, file);
+            }
+        }
+
+        function openWhatsAppWithFile(phone, text, file) {
+            // Primero, descargamos el archivo para que el usuario lo tenga
+            downloadPDF(file, currentFileName);
+            
+            // Construimos el enlace de WhatsApp
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const whatsappUrl = isMobile ? 
+                `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}` : 
+                `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+            
+            // Abrimos WhatsApp
+            window.open(whatsappUrl, '_blank');
+            
+            // Mostramos el modal de WhatsApp con instrucciones
+            document.getElementById('whatsapp-modal').style.display = 'flex';
         }
 
         // Mostrar notificación
