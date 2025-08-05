@@ -1,0 +1,2415 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pinturas OSI y SISI - Calidad desde 1995</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --color-primary: #1a3e6c;
+            --color-secondary: #d32f2f;
+            --color-accent: #f5f5f5;
+            --color-text: #333;
+            --color-light: #fff;
+            --color-gold: #ffd700;
+            --color-silver: #c0c0c0;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --animation-timing: cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--color-text);
+            line-height: 1.6;
+            background-color: var(--color-light);
+            overflow-x: hidden;
+            padding-bottom: 100px; /* Espacio para chatbot */
+        }
+        
+        /* Animaciones personalizadas */
+        @keyframes slideIn {
+            from { transform: translateY(-100%); }
+            to { transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes slideLeft {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes slideRight {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes colorShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Header con animación de traslación */
+        header {
+            background-color: var(--color-light);
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            animation: slideIn 0.8s var(--animation-timing);
+        }
+        
+        .header-promo {
+            background: linear-gradient(90deg, var(--color-secondary), var(--color-primary));
+            color: white;
+            text-align: center;
+            padding: 8px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-text {
+            animation: slideLeft 20s linear infinite;
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+        }
+        
+        .promo-text span {
+            margin: 0 30px;
+            display: inline-block;
+        }
+        
+        .promo-highlight {
+            color: var(--color-gold);
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            position: relative;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .logo img {
+            height: 60px;
+            margin-right: 15px;
+        }
+        
+        .logo-text {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-primary);
+            position: relative;
+        }
+        
+        .logo-text::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.5s ease;
+        }
+        
+        .logo:hover .logo-text::after {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .logo-text span {
+            color: var(--color-secondary);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 25px;
+            position: relative;
+        }
+        
+        nav ul li a {
+            text-decoration: none;
+            color: var(--color-primary);
+            font-weight: 600;
+            transition: var(--transition);
+            padding: 8px 12px;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        nav ul li a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--color-secondary);
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+        
+        nav ul li a:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .order-btn {
+            background: linear-gradient(135deg, var(--color-secondary), #b71c1c);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+            transition: all 0.4s ease;
+            animation: float 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+        
+        .order-btn i {
+            margin-right: 8px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        .order-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(211, 47, 47, 0.6);
+            animation: none;
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+            background: var(--color-primary);
+            color: white;
+            border: none;
+            font-size: 1.5rem;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        /* Hero Section con Carrusel - Mejoras para escritorio */
+        .hero {
+            position: relative;
+            height: 80vh;
+            min-height: 600px;
+            overflow: hidden;
+        }
+        
+        .hero-slider {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .hero-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: var(--color-light);
+        }
+        
+        /* Optimización de imágenes para escritorio */
+        @media (min-width: 992px) {
+            .hero-slide {
+                background-size: 100% auto;
+                background-position: center center;
+            }
+        }
+        
+        .hero-slide.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        
+        .hero-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 0 20px;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .hero-content p {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease-out 0.3s;
+            animation-fill-mode: both;
+        }
+        
+        .hero-controls {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 10;
+            transform: translateY(-50%);
+        }
+        
+        .hero-control {
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-control:hover {
+            background: var(--color-secondary);
+            transform: scale(1.1);
+        }
+        
+        .hero-indicators {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+        
+        .hero-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-indicator.active {
+            background: var(--color-secondary);
+            transform: scale(1.2);
+        }
+        
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--color-secondary), #b71c1c);
+            color: var(--color-light);
+            padding: 14px 32px;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.4s ease;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(211, 47, 47, 0.4);
+            animation: pulse 2s infinite 1s;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--color-primary), #0d2a4d);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(211, 47, 47, 0.6);
+            animation: none;
+        }
+        
+        .btn:hover::before {
+            opacity: 1;
+        }
+        
+        .btn span {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--color-light);
+            color: var(--color-light);
+            margin-left: 15px;
+        }
+        
+        .btn-outline:hover {
+            background: var(--color-light);
+            color: var(--color-primary);
+        }
+        
+        /* Secciones con animaciones al hacer scroll */
+        section {
+            padding: 100px 0;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+        
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .section-title {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .section-title h2 {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            position: relative;
+            display: inline-block;
+            padding-bottom: 15px;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            border-radius: 2px;
+        }
+        
+        /* Gallery */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease 0.2s;
+        }
+        
+        section.visible .gallery {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .product-card {
+            background-color: var(--color-light);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+        
+        .product-card:nth-child(1) { animation-delay: 0.1s; }
+        .product-card:nth-child(2) { animation-delay: 0.2s; }
+        .product-card:nth-child(3) { animation-delay: 0.3s; }
+        .product-card:nth-child(4) { animation-delay: 0.4s; }
+        .product-card:nth-child(5) { animation-delay: 0.5s; }
+        .product-card:nth-child(6) { animation-delay: 0.6s; }
+        .product-card:nth-child(7) { animation-delay: 0.7s; }
+        .product-card:nth-child(8) { animation-delay: 0.8s; }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .product-image {
+            height: 250px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition);
+        }
+        
+        .product-card:hover .product-image img {
+            transform: scale(1.1);
+        }
+        
+        .product-info {
+            padding: 25px;
+        }
+        
+        .product-info h3 {
+            font-size: 1.4rem;
+            color: var(--color-primary);
+            margin-bottom: 15px;
+        }
+        
+        .product-info p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .product-info .ref-count {
+            font-size: 0.9rem;
+            color: var(--color-secondary);
+            font-weight: 600;
+            background: rgba(211, 47, 47, 0.1);
+            padding: 5px 10px;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        /* About Section */
+        .about {
+            background-color: var(--color-accent);
+        }
+        
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+        }
+        
+        .about-text {
+            flex: 1;
+            opacity: 0;
+            transform: translateX(-30px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .about-text {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-text h2 {
+            font-size: 2.2rem;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+        
+        .about-text p {
+            margin-bottom: 20px;
+        }
+        
+        .about-image {
+            flex: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateX(30px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .about-image {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .about-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.8s ease;
+        }
+        
+        .about-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* Featured Products */
+        .featured-products {
+            background-color: var(--color-accent);
+        }
+        
+        .product-highlight {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            margin-bottom: 70px;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .product-highlight {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .product-highlight:nth-child(1) { transition-delay: 0.1s; }
+        .product-highlight:nth-child(2) { transition-delay: 0.3s; }
+        
+        .highlight-image {
+            flex: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .highlight-image img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.8s ease;
+        }
+        
+        .highlight-image:hover img {
+            transform: scale(1.05);
+        }
+        
+        .highlight-info {
+            flex: 1;
+        }
+        
+        .highlight-info h3 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin-bottom: 20px;
+        }
+        
+        .highlight-info ul {
+            list-style: none;
+            margin: 25px 0;
+        }
+        
+        .highlight-info ul li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .highlight-info ul li i {
+            color: var(--color-secondary);
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+        
+        /* Contact Section */
+        .contact {
+            background-color: var(--color-light);
+        }
+        
+        .contact-container {
+            display: flex;
+            gap: 50px;
+        }
+        
+        .contact-form {
+            flex: 1;
+            background-color: var(--color-accent);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .contact-form {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.2s;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: var(--color-primary);
+        }
+        
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: var(--color-secondary);
+            box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.2);
+            outline: none;
+        }
+        
+        .form-group textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        
+        .contact-info {
+            flex: 1;
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease;
+        }
+        
+        section.visible .contact-info {
+            opacity: 1;
+            transform: translateY(0);
+            transition-delay: 0.4s;
+        }
+        
+        .contact-info h3 {
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            margin-bottom: 25px;
+        }
+        
+        .contact-info p {
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .contact-info i {
+            color: var(--color-secondary);
+            margin-right: 12px;
+            font-size: 1.3rem;
+            width: 25px;
+            text-align: center;
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--color-primary), #0d2a4d);
+            border-radius: 50%;
+            color: var(--color-light);
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+        }
+        
+        .social-links a:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(26, 62, 108, 0.3);
+        }
+        
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--color-primary), #0d2a4d);
+            color: var(--color-light);
+            padding: 70px 0 30px;
+            position: relative;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        
+        .footer-section h3 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            position: relative;
+            padding-bottom: 12px;
+        }
+        
+        .footer-section h3::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background-color: var(--color-secondary);
+        }
+        
+        .footer-links {
+            list-style: none;
+        }
+        
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        
+        .footer-links a {
+            color: #ddd;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+            padding: 5px 0;
+        }
+        
+        .footer-links a:hover {
+            color: var(--color-secondary);
+            transform: translateX(5px);
+        }
+        
+        .social-links-footer {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 0.9rem;
+            color: #aaa;
+        }
+        
+        /* Back to Top Button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--color-secondary), #b71c1c);
+            color: var(--color-light);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+        }
+        
+        .back-to-top.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .back-to-top:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: var(--color-light);
+            max-width: 900px;
+            width: 95%;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            cursor: pointer;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            transform: rotate(90deg);
+            background: var(--color-secondary);
+            color: white;
+        }
+        
+        .modal-header {
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            color: var(--color-light);
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.8rem;
+        }
+        
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 20px;
+        }
+        
+        .product-item {
+            background: #f9f9f9;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: var(--transition);
+            text-align: center;
+        }
+        
+        .product-item:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-img-container {
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            padding: 15px;
+        }
+        
+        .product-img-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .product-info-container {
+            padding: 15px 10px;
+            background: white;
+        }
+        
+        .product-info-container h4 {
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+            color: var(--color-primary);
+        }
+        
+        .product-info-container .ref {
+            font-size: 0.85rem;
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+        
+        /* Chatbot de Preguntas Frecuentes */
+        .chatbot-container {
+            position: fixed;
+            bottom: 90px;
+            right: 30px;
+            width: 350px;
+            height: 450px;
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            transform: translateY(20px);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-container.active {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .chat-header {
+            background: linear-gradient(90deg, var(--color-primary), var(--color-secondary));
+            color: white;
+            padding: 15px 20px;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header h3 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .chat-close {
+            cursor: pointer;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-close:hover {
+            transform: scale(1.2);
+        }
+        
+        .chat-body {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #f9f9f9;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding-bottom: 10px;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .bot-message {
+            background-color: var(--color-accent);
+            border-bottom-left-radius: 5px;
+            align-self: flex-start;
+            color: var(--color-text);
+        }
+        
+        .user-message {
+            background: linear-gradient(135deg, var(--color-primary), #0d2a4d);
+            color: white;
+            border-bottom-right-radius: 5px;
+            align-self: flex-end;
+            margin-left: auto;
+        }
+        
+        .chat-input {
+            display: flex;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            outline: none;
+        }
+        
+        .chat-input button {
+            background: var(--color-secondary);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+        
+        .chat-input button:hover {
+            background: #b71c1c;
+            transform: scale(1.05);
+        }
+        
+        .faq-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .faq-option {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .faq-option:hover {
+            background-color: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        
+        .chatbot-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--color-secondary), #b71c1c);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 99;
+            transition: all 0.3s ease;
+        }
+        
+        .chatbot-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Modal para enviar opciones */
+        .send-options-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1001;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .send-options-content {
+            background-color: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .send-options-content h3 {
+            margin-bottom: 25px;
+            color: var(--color-primary);
+        }
+        
+        .send-options-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .send-option-btn {
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            font-size: 1rem;
+        }
+        
+        .whatsapp-btn {
+            background-color: #25D366;
+            color: white;
+        }
+        
+        .email-btn {
+            background-color: var(--color-primary);
+            color: white;
+        }
+        
+        .send-option-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .send-option-btn i {
+            font-size: 1.2rem;
+        }
+        
+        /* Media Queries */
+        @media (max-width: 992px) {
+            .about-content,
+            .contact-container,
+            .product-highlight {
+                flex-direction: column;
+            }
+            
+            .highlight-image,
+            .highlight-info,
+            .about-image,
+            .about-text,
+            .contact-form,
+            .contact-info {
+                width: 100%;
+            }
+            
+            .header-container nav ul {
+                display: none;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+            
+            .hero-content p {
+                font-size: 1.3rem;
+            }
+            
+            /* Ajuste para móviles en hero */
+            .hero-slide {
+                background-size: cover;
+            }
+            
+            .chatbot-container {
+                width: 90%;
+                right: 5%;
+                bottom: 80px;
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .gallery {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            }
+            
+            .header-container {
+                flex-wrap: wrap;
+            }
+            
+            .order-btn {
+                margin: 15px 0 0 0;
+                width: 100%;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .section-title h2 {
+                font-size: 2.2rem;
+            }
+            
+            .btn {
+                padding: 12px 25px;
+                font-size: 0.95rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .hero {
+                height: 70vh;
+                min-height: 500px;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.3rem;
+            }
+            
+            .hero-content p {
+                font-size: 1.1rem;
+            }
+            
+            .product-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+            
+            .product-info-container h4 {
+                font-size: 0.85rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-outline {
+                margin-left: 0;
+                margin-top: 15px;
+                display: block;
+            }
+            
+            .hero-control {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2rem;
+            }
+            
+            .faq-options {
+                grid-template-columns: 1fr;
+            }
+            
+            .send-options-buttons {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        
+        /* Responsive Navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            right: -300px;
+            width: 280px;
+            height: 100%;
+            background: var(--color-light);
+            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: right 0.4s ease;
+            padding: 80px 20px 20px;
+            overflow-y: auto;
+        }
+        
+        .mobile-nav.active {
+            right: 0;
+        }
+        
+        .mobile-nav ul {
+            list-style: none;
+        }
+        
+        .mobile-nav ul li {
+            margin-bottom: 15px;
+        }
+        
+        .mobile-nav ul li a {
+            display: block;
+            padding: 12px 15px;
+            background: rgba(26, 62, 108, 0.05);
+            border-radius: 8px;
+            color: var(--color-primary);
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .mobile-nav ul li a:hover {
+            background: var(--color-primary);
+            color: white;
+        }
+        
+        .mobile-nav .order-btn {
+            margin-top: 20px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .mobile-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 1.8rem;
+            color: var(--color-primary);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <div class="logo-text">PINTURAS <span>OSI/SISI</span></div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#inicio">Inicio</a></li>
+                    <li><a href="#productos">Productos</a></li>
+                    <li><a href="#nosotros">Nosotros</a></li>
+                    <li><a href="#destacados">Destacados</a></li>
+                    <li><a href="#contacto">Contacto</a></li>
+                </ul>
+            </nav>
+            <a href="pedidos.html" class="order-btn">
+                <i class="fas fa-shopping-cart"></i> Realizar Pedido
+            </a>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav">
+        <div class="mobile-close" id="mobileClose">
+            <i class="fas fa-times"></i>
+        </div>
+        <ul>
+            <li><a href="#inicio">Inicio</a></li>
+            <li><a href="#productos">Productos</a></li>
+            <li><a href="#nosotros">Nosotros</a></li>
+            <li><a href="#destacados">Destacados</a></li>
+            <li><a href="#contacto">Contacto</a></li>
+            <li>
+                <a href="pedidos.html" class="order-btn">
+                    <i class="fas fa-shopping-cart"></i> Realizar Pedido
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Hero Section con Carrusel -->
+    <section class="hero" id="inicio">
+        <div class="hero-slider">
+            <div class="hero-slide active" style="background-image: url('OSI 8.JPG');">
+                <div class="hero-content">
+                    <h1>Pinturas de Calidad OSI y SISI</h1>
+                    <p>Descubre nuestra amplia gama de productos para todas tus necesidades de pintura. Innovación y calidad desde 1995.</p>
+                    <a href="#productos" class="btn"><span>Ver Productos</span></a>
+                    <a href="pedidos.html" class="btn btn-outline"><span>Realizar Pedido</span></a>
+                </div>
+            </div>
+            <div class="hero-slide" style="background-image: url('SISI TELA 2.JPG');">
+                <div class="hero-content">
+                    <h1>Expertos en Pintura Decorativa</h1>
+                    <p>Soluciones profesionales para efectos de envejecimiento, brillos y texturas únicas en cualquier superficie.</p>
+                    <a href="#destacados" class="btn"><span>Ver Destacados</span></a>
+                    <a href="pedidos.html" class="btn btn-outline"><span>Realizar Pedido</span></a>
+                </div>
+            </div>
+            <div class="hero-slide" style="background-image: url('SISI ACRILICA 7.JPG');">
+                <div class="hero-content">
+                    <h1>25 Años de Experiencia</h1>
+                    <p>Calidad garantizada con más de dos décadas de innovación en productos de pintura para profesionales.</p>
+                    <a href="#nosotros" class="btn"><span>Conócenos</span></a>
+                    <a href="#contacto" class="btn btn-outline"><span>Contactar</span></a>
+                </div>
+            </div>
+            
+            <div class="hero-controls">
+                <div class="hero-control prev-slide">
+                    <i class="fas fa-chevron-left"></i>
+                </div>
+                <div class="hero-control next-slide">
+                    <i class="fas fa-chevron-right"></i>
+                </div>
+            </div>
+            
+            <div class="hero-indicators">
+                <div class="hero-indicator active" data-slide="0"></div>
+                <div class="hero-indicator" data-slide="1"></div>
+                <div class="hero-indicator" data-slide="2"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Productos Section -->
+    <section id="productos">
+        <div class="container">
+            <div class="section-title">
+                <h2>Nuestras Gamas de Productos</h2>
+            </div>
+            <div class="gallery" id="product-gallery">
+                <!-- Productos serán cargados dinámicamente con JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="nosotros">
+        <div class="container">
+            <div class="section-title">
+                <h2>Sobre Nosotros</h2>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <h2>Expertos en pintura desde 1995</h2>
+                    <p>En Pinturas OSI/SISI llevamos más de 25 años ofreciendo productos de la más alta calidad a profesionales y amantes al arte. Nuestra pasión por la innovación y el compromiso con la excelencia nos han convertido en líderes del sector.</p>
+                    <p>Nuestra misión es proporcionar soluciones de pintura que superen las expectativas de nuestros clientes, combinando tecnología avanzada con un profundo conocimiento de las necesidades del mercado.</p>
+                    <p>Todos nuestros productos son sometidos a rigurosos controles de calidad para garantizar su durabilidad, cobertura y acabado perfecto en cualquier superficie.</p>
+                </div>
+                <div class="about-image">
+                    <img src="IMAGENES/BACKGROUND.jpg" alt="Historia de Pinturas OSI/SISI">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-products" id="destacados">
+        <div class="container">
+            <div class="section-title">
+                <h2>Productos Destacados</h2>
+            </div>
+            <div class="product-highlight">
+                <div class="highlight-image">
+                    <img src="OSI 1.JPG" alt="Envejecedor SISI 60CC">
+                </div>
+                <div class="highlight-info">
+                    <h3>ENVEJECEDOR SISI 60CC</h3>
+                    <p>Nuestra solución profesional para crear efectos de envejecimiento auténticos en cualquier superficie. Ideal para proyectos de decoración vintage y restauración.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Facil aplicación con pincel o esponja</li>
+                        <li><i class="fas fa-check-circle"></i> Acabado hermoso con toques de amaderado</li>
+                        <li><i class="fas fa-check-circle"></i> Resistente a la luz y al lavado</li>
+                    </ul>
+                    <a href="#" class="btn open-catalog" data-category="envejecedores"><span>Ver Catalogo Completo</span></a>
+                </div>
+            </div>
+            <div class="product-highlight">
+                <div class="highlight-info">
+                    <h3>GEL ESCARCHADO SISI 60CC</h3>
+                    <p>El acabado perfecto para añadir brillo y textura a las ideas que quieras plasmar.</p>
+                    <ul>
+                        <li><i class="fas fa-check-circle"></i> Acabado Brilloso </li>
+                        <li><i class="fas fa-check-circle"></i> Pintura a Base de Agua</li>
+                        <li><i class="fas fa-check-circle"></i> Varias tonalidades para mejor  diseño</li>
+                        <li><i class="fas fa-check-circle"></i> Facil de Limpiar</li>
+                    </ul>
+                    <a href="#" class="btn open-catalog" data-category="gel"><span>Ver Catalogo Completo</span></a>
+                </div>
+                <div class="highlight-image">
+                    <img src="SISI GEL 3.JPG" alt="Gel Escarchado SISI 60CC">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contacto">
+        <div class="container">
+            <div class="section-title">
+                <h2>Contactanos</h2>
+            </div>
+            <div class="contact-container">
+                <div class="contact-form">
+                    <h3>¿Te interesa algún producto?</h3>
+                    <form id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Nombre Completo</label>
+                            <input type="text" id="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="rif">RIF</label>
+                            <input type="text" id="rif" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Teléfono</label>
+                            <input type="tel" id="phone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Correo Electrónico</label>
+                            <input type="email" id="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Dirección</label>
+                            <input type="text" id="address" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="product">Producto de Interes</label>
+                            <select id="product">
+                                <option value="">Selecciona un producto</option>
+                                <option value="envejecidor">ENVEJECEDOR SISI 60CC</option>
+                                <option value="gel">GEL ESCARCHADO SISI 60CC</option>
+                                <option value="osi">LINEA OSI 60CC</option>
+                                <option value="sisi">LINEA SISI 60CC</option>
+                                <option value="metalicos">METALICOS SISI 22CC</option>
+                                <option value="perlados">PERLADO SISI 22CC</option>
+                                <option value="neon">TELA NEON 30CC</option>
+                                <option value="tela">TELA SISI 30CC</option>
+                                <option value="tempera">TEMPERA</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="message">Mensaje</label>
+                            <textarea id="message" required></textarea>
+                        </div>
+                        <button type="submit" class="btn"><span>Enviar Consulta</span></button>
+                    </form>
+                </div>
+                <div class="contact-info">
+                    <h3>Información de Contacto</h3>
+                    <p><i class="fas fa-map-marker-alt"></i>Maracay, Edo. Aragua, Venezuela.</p>
+                    <p><i class="fas fa-phone"></i> +584243757335</p>
+                    <p><i class="fas fa-envelope"></i> royaloficina3@gmail.com</p>
+                    <p><i class="fas fa-clock"></i> Lunes a Viernes: 7:00 AM - 4:00 PM</p>
+                    <p><i class="fas fa-shopping-cart"></i> <a href="pedidos.html" style="color: var(--color-secondary); font-weight:600;">Realizar pedidos en linea</a></p>
+                    <div class="social-links">
+                        <a href="https://wa.me/584243757335"><i class="fab fa-whatsapp"></i></a>
+                        <a href="https://www.instagram.com/pinturasosi/?hl=es"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Pinturas OSI/SISI</h3>
+                    <p>Calidad e innovación en pinturas desde 1995. Ofrecemos soluciones profesionales para todos tus proyectos.</p>
+                    <div class="social-links-footer">
+                        <a href="https://wa.me/584243757335"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h3>Productos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#" class="open-catalog" data-category="envejecedores">ENVEJECEDOR SISI 60CC</a></li>
+                        <li><a href="#" class="open-catalog" data-category="gel">GEL ESCARCHADO SISI 60CC</a></li>
+                        <li><a href="#" class="open-catalog" data-category="osi">LINEA OSI 60CC</a></li>
+                        <li><a href="#" class="open-catalog" data-category="sisi">LINEA SISI 60CC</a></li>
+                        <li><a href="#" class="open-catalog" data-category="metalicos">METALICOS SISI 22CC</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h3>Enlaces Rápidos</h3>
+                    <ul class="footer-links">
+                        <li><a href="#inicio">Inicio</a></li>
+                        <li><a href="#productos">Productos</a></li>
+                        <li><a href="#nosotros">Nosotros</a></li>
+                        <li><a href="#destacados">Destacados</a></li>
+                        <li><a href="#contacto">Contacto</a></li>
+                        <li><a href="pedidos.html">Realizar Pedido</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 Pinturas OSI/SISI. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="productModal">
+        <div class="modal-content">
+            <span class="modal-close" id="modalClose">&times;</span>
+            <div class="modal-header">
+                <h2 id="modalTitle">Catalogo de Producto</h2>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Contenido del catálogo se cargará aquí -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chatbot de Preguntas Frecuentes -->
+    <button class="chatbot-toggle" id="chatbotToggle">
+        <i class="fas fa-comments"></i>
+    </button>
+    
+    <div class="chatbot-container" id="chatbotContainer">
+        <div class="chat-header">
+            <h3>Preguntas Frecuentes</h3>
+            <span class="chat-close" id="chatClose">&times;</span>
+        </div>
+        <div class="chat-body">
+            <div class="chat-messages" id="chatMessages">
+                <!-- Mensajes del chat -->
+                <div class="message bot-message">
+                    ¡Hola! Soy el asistente virtual de Pinturas OSI/SISI. ¿En qué puedo ayudarte?
+                </div>
+                <div class="message bot-message">
+                    Puedes seleccionar una pregunta frecuente o escribir tu consulta:
+                </div>
+                <div class="faq-options" id="faqOptions">
+                    <!-- Opciones de preguntas frecuentes -->
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="chatInput" placeholder="Escribe tu pregunta...">
+                <button id="sendMessage"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para opciones de envío -->
+    <div class="send-options-modal" id="sendOptionsModal">
+        <div class="send-options-content">
+            <h3>¿Cómo deseas enviar tu consulta?</h3>
+            <p>Puedes elegir entre enviar por WhatsApp o por correo electrónico</p>
+            <div class="send-options-buttons">
+                <button class="send-option-btn whatsapp-btn" id="sendWhatsApp">
+                    <i class="fab fa-whatsapp"></i> WhatsApp
+                </button>
+                <button class="send-option-btn email-btn" id="sendEmail">
+                    <i class="fas fa-envelope"></i> Correo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Datos de productos con imágenes
+        const categories = [
+            {
+                id: "envejecedores",
+                name: "ENVEJECEDOR SISI 60CC",
+                products: [
+                    {
+                        id: 331,
+                        name: "Envejecedor Tradicional SISI",
+                        ref: 331,
+                        category: "envejecedores",
+                        image: "ENVEJECEDOR SISI 60CC/331.png"
+                    }
+                ],
+                featuredImage: "IMAGENES/ENVEJECEDOR.png"
+            },
+            {
+                id: "gel",
+                name: "GEL ESCARCHADO SISI 60CC",
+                products: [
+                    {id: 374, name: "Gel Escarchado Disco A", ref: 374, category: "gel", image: "GEL ESCARCHADO SISI 60CC/374.png"},
+                    {id: 375, name: "Gel Escarchado Disco B", ref: 375, category: "gel", image: "GEL ESCARCHADO SISI 60CC/375.png"},
+                    {id: 376, name: "Gel Escarchado Dorado", ref: 376, category: "gel", image: "GEL ESCARCHADO SISI 60CC/376.png"},
+                    {id: 377, name: "Gel Escarchado Plata", ref: 377, category: "gel", image: "GEL ESCARCHADO SISI 60CC/377.png"},
+                    {id: 378, name: "Gel Escarchado Rojo", ref: 378, category: "gel", image: "GEL ESCARCHADO SISI 60CC/378.png"},
+                    {id: 379, name: "Gel Escarchado Verde", ref: 379, category: "gel", image: "GEL ESCARCHADO SISI 60CC/379.png"},
+                    {id: 380, name: "Gel Escarchado Azul", ref: 380, category: "gel", image: "GEL ESCARCHADO SISI 60CC/380.png"},
+                    {id: 381, name: "Gel Escarchado Purpura", ref: 381, category: "gel", image: "GEL ESCARCHADO SISI 60CC/381.png"},
+                    {id: 382, name: "Gel Escarchado Uva", ref: 382, category: "gel", image: "GEL ESCARCHADO SISI 60CC/382.png"},
+                    {id: 383, name: "Gel Escarchado Fucsia", ref: 383, category: "gel", image: "GEL ESCARCHADO SISI 60CC/383.png"},
+                    {id: 384, name: "Gel Escarchado Turquesa", ref: 384, category: "gel", image: "GEL ESCARCHADO SISI 60CC/384.png"}
+                ],
+                featuredImage: "IMAGENES/ESCARCHADO_60cc.jpg"
+            },
+            {
+                id: "osi",
+                name: "LINEA OSI 60CC",
+                products: [
+                    {id: 701, name: "Rojo Vino OSI", ref: 701, category: "osi", image: "LINEA OSI 60CC/701.png"},
+                    {id: 702, name: "Rojo Intenso OSI", ref: 702, category: "osi", image: "LINEA OSI 60CC/702.png"},
+                    {id: 703, name: "Rojo Navidad OSI", ref: 703, category: "osi", image: "LINEA OSI 60CC/703.png"},
+                    {id: 704, name: "Naranja OSI", ref: 704, category: "osi", image: "LINEA OSI 60CC/704.png"},
+                    {id: 705, name: "Barney OSI", ref: 705, category: "osi", image: "LINEA OSI 60CC/705.png"},
+                    {id: 706, name: "Rosado OSI", ref: 706, category: "osi", image: "LINEA OSI 60CC/706.png"},
+                    {id: 707, name: "Rosado Claro OSI", ref: 707, category: "osi", image: "LINEA OSI 60CC/707.png"},
+                    {id: 708, name: "Marron Tierra OSI", ref: 708, category: "osi", image: "LINEA OSI 60CC/708.png"},
+                    {id: 709, name: "Marron OSI", ref: 709, category: "osi", image: "LINEA OSI 60CC/709.png"},
+                    {id: 710, name: "Canela OSI", ref: 710, category: "osi", image: "LINEA OSI 60CC/710.png"},
+                    {id: 711, name: "Salmon OSI", ref: 711, category: "osi", image: "LINEA OSI 60CC/711.png"},
+                    {id: 712, name: "Piel OSI", ref: 712, category: "osi", image: "LINEA OSI 60CC/712.png"},
+                    {id: 713, name: "Crema OSI", ref: 713, category: "osi", image: "LINEA OSI 60CC/713.png"},
+                    {id: 714, name: "Ocre OSI", ref: 714, category: "osi", image: "LINEA OSI 60CC/714.png"},
+                    {id: 715, name: "Azul Oscuro OSI", ref: 715, category: "osi", image: "LINEA OSI 60CC/715.png"},
+                    {id: 716, name: "Azul Rey OSI", ref: 716, category: "osi", image: "LINEA OSI 60CC/716.png"},
+                    {id: 717, name: "Azul Hobby OSI", ref: 717, category: "osi", image: "LINEA OSI 60CC/717.png"},
+                    {id: 718, name: "Azul Bebe OSI", ref: 718, category: "osi", image: "LINEA OSI 60CC/718.png"},
+                    {id: 719, name: "Azul Lavanda OSI", ref: 719, category: "osi", image: "LINEA OSI 60CC/719.png"},
+                    {id: 720, name: "Amarillo Primario OSI", ref: 720, category: "osi", image: "LINEA OSI 60CC/720.png"},
+                    {id: 721, name: "Amarillo Real OSI", ref: 721, category: "osi", image: "LINEA OSI 60CC/721.png"},
+                    {id: 722, name: "Verde Oscuro OSI", ref: 722, category: "osi", image: "LINEA OSI 60CC/722.png"},
+                    {id: 723, name: "Verde Navidad OSI", ref: 723, category: "osi", image: "LINEA OSI 60CC/723.png"},
+                    {id: 724, name: "Verde Manzana OSI", ref: 724, category: "osi", image: "LINEA OSI 60CC/724.png"},
+                    {id: 725, name: "Verde Claro OSI", ref: 725, category: "osi", image: "LINEA OSI 60CC/725.png"},
+                    {id: 726, name: "Turquesa OSI", ref: 726, category: "osi", image: "LINEA OSI 60CC/726.png"},
+                    {id: 727, name: "Aguamarina OSI", ref: 727, category: "osi", image: "LINEA OSI 60CC/727.png"},
+                    {id: 728, name: "Lila OSI", ref: 728, category: "osi", image: "LINEA OSI 60CC/728.png"},
+                    {id: 729, name: "Negro OSI", ref: 729, category: "osi", image: "LINEA OSI 60CC/729.png"},
+                    {id: 730, name: "Gris OSI", ref: 730, category: "osi", image: "LINEA OSI 60CC/730.png"},
+                    {id: 731, name: "Gris Claro OSI", ref: 731, category: "osi", image: "LINEA OSI 60CC/731.png"},
+                    {id: 732, name: "Blanco OSI", ref: 732, category: "osi", image: "LINEA OSI 60CC/732.png"},
+                    {id: 733, name: "Brillo al Agua OSI", ref: 733, category: "osi", image: "LINEA OSI 60CC/733.png"},
+                    {id: 735, name: "Discoteca OSI", ref: 735, category: "osi", image: "LINEA OSI 60CC/735.png"}
+                ],
+                featuredImage: "IMAGENES/OSI_60cc.jpg"
+            },
+            {
+                id: "sisi",
+                name: "LINEA SISI 60CC",
+                products: [
+                    {id: 1, name: "Rojo Bello SISI", ref: 1, category: "sisi", image: "LINEA SISI 60CC/1.png"},
+                    {id: 2, name: "Rojo Navidad SISI", ref: 2, category: "sisi", image: "LINEA SISI 60CC/2.png"},
+                    {id: 3, name: "Rojo Clasico SISI", ref: 3, category: "sisi", image: "LINEA SISI 60CC/3.png"},
+                    {id: 5, name: "Vino SISI", ref: 5, category: "sisi", image: "LINEA SISI 60CC/5.png"},
+                    {id: 9, name: "Marron Tierra SISI", ref: 9, category: "sisi", image: "LINEA SISI 60CC/9.png"},
+                    {id: 10, name: "Marron Chocolate SISI", ref: 10, category: "sisi", image: "LINEA SISI 60CC/10.png"},
+                    {id: 11, name: "Marron Peluche SISI", ref: 11, category: "sisi", image: "LINEA SISI 60CC/11.png"},
+                    {id: 19, name: "Piel Muñeca SISI", ref: 19, category: "sisi", image: "LINEA SISI 60CC/19.png"},
+                    {id: 25, name: "Fucsia SISI", ref: 25, category: "sisi", image: "LINEA SISI 60CC/25.png"},
+                    {id: 27, name: "Rosa Vieja SISI", ref: 27, category: "sisi", image: "LINEA SISI 60CC/27.png"},
+                    {id: 28, name: "Magenta SISI", ref: 28, category: "sisi", image: "LINEA SISI 60CC/28.png"},
+                    {id: 29, name: "Rosado Barbie SISI", ref: 29, category: "sisi", image: "LINEA SISI 60CC/29.png"},
+                    {id: 33, name: "Naranja SISI", ref: 33, category: "sisi", image: "LINEA SISI 60CC/33.png"},
+                    {id: 34, name: "Zanahoria SISI", ref: 34, category: "sisi", image: "LINEA SISI 60CC/34.png"},
+                    {id: 41, name: "Amarillo Principal SISI", ref: 41, category: "sisi", image: "LINEA SISI 60CC/41.png"},
+                    {id: 42, name: "Amarillo Primario SISI", ref: 42, category: "sisi", image: "LINEA SISI 60CC/42.png"},
+                    {id: 44, name: "Amarillo Clasico SISI", ref: 44, category: "sisi", image: "LINEA SISI 60CC/44.png"},
+                    {id: 46, name: "Amarillo Vivo SISI", ref: 46, category: "sisi", image: "LINEA SISI 60CC/46.png"},
+                    {id: 50, name: "Verde Cedro SISI", ref: 50, category: "sisi", image: "LINEA SISI 60CC/50.png"},
+                    {id: 51, name: "Verde Navidad SISI", ref: 51, category: "sisi", image: "LINEA SISI 60CC/51.png"},
+                    {id: 53, name: "Verde Jade SISI", ref: 53, category: "sisi", image: "LINEA SISI 60CC/53.png"},
+                    {id: 54, name: "Verde Manzana SISI", ref: 54, category: "sisi", image: "LINEA SISI 60CC/54.png"},
+                    {id: 64, name: "Turquesa SISI", ref: 64, category: "sisi", image: "LINEA SISI 60CC/64.png"},
+                    {id: 65, name: "Azul Marino SISI", ref: 65, category: "sisi", image: "LINEA SISI 60CC/65.png"},
+                    {id: 66, name: "Azul Rey SISI", ref: 66, category: "sisi", image: "LINEA SISI 60CC/66.png"},
+                    {id: 67, name: "Azul Hobby SISI", ref: 67, category: "sisi", image: "LINEA SISI 60CC/67.png"},
+                    {id: 69, name: "Azul Bebe SISI", ref: 69, category: "sisi", image: "LINEA SISI 60CC/69.png"},
+                    {id: 73, name: "Uva SISI", ref: 73, category: "sisi", image: "LINEA SISI 60CC/73.png"},
+                    {id: 74, name: "Morado SISI", ref: 74, category: "sisi", image: "LINEA SISI 60CC/74.png"},
+                    {id: 75, name: "Purpura SISI", ref: 75, category: "sisi", image: "LINEA SISI 60CC/75.png"},
+                    {id: 76, name: "Violeta SISI", ref: 76, category: "sisi", image: "LINEA SISI 60CC/76.png"},
+                    {id: 81, name: "Negro Azabache SISI", ref: 81, category: "sisi", image: "LINEA SISI 60CC/81.png"},
+                    {id: 82, name: "Gris Plomo SISI", ref: 82, category: "sisi", image: "LINEA SISI 60CC/82.png"},
+                    {id: 84, name: "Blanco SISI", ref: 84, category: "sisi", image: "LINEA SISI 60CC/84.png"}
+                ],
+                featuredImage: "IMAGENES/SISI_60cc.jpg"
+            },
+            {
+                id: "metalicos",
+                name: "METALICOS SISI 22CC",
+                products: [
+                    {id: 251, name: "Oro Maximo Metalico", ref: 251, category: "metalicos", image: "METALICOS SISI 22CC/251.png"},
+                    {id: 252, name: "Oro Extra Metalico", ref: 252, category: "metalicos", image: "METALICOS SISI 22CC/252.png"},
+                    {id: 253, name: "Oro Superior Metalico", ref: 253, category: "metalicos", image: "METALICOS SISI 22CC/253.png"},
+                    {id: 254, name: "Oro Oro Metalico", ref: 254, category: "metalicos", image: "METALICOS SISI 22CC/254.png"},
+                    {id: 255, name: "Oro Bello Metalico", ref: 255, category: "metalicos", image: "METALICOS SISI 22CC/255.png"},
+                    {id: 256, name: "Oro Maximo Metalico", ref: 256, category: "metalicos", image: "METALICOS SISI 22CC/256.png"},
+                    {id: 257, name: "Oro Extra Metalico", ref: 257, category: "metalicos", image: "METALICOS SISI 22CC/257.png"},
+                    {id: 259, name: "Oro Oro Metalico", ref: 259, category: "metalicos", image: "METALICOS SISI 22CC/259.png"},
+                    {id: 260, name: "Oro Bello Metalico", ref: 260, category: "metalicos", image: "METALICOS SISI 22CC/260.png"},
+                    {id: 261, name: "Oro Bello Metalico", ref: 261, category: "metalicos", image: "METALICOS SISI 22CC/261.png"},
+                ],
+                featuredImage: "IMAGENES/METALICO_22cc.jpg"
+            },
+            {
+                id: "perlados",
+                name: "PERLADO SISI 22CC",
+                products: [
+                    {id: 153, name: "Rojo Perlado SISI", ref: 153, category: "perlados", image: "PERLADO SISI 22CC/153.png"},
+                    {id: 154, name: "Fucsia Perlado SISI", ref: 154, category: "perlados", image: "PERLADO SISI 22CC/154.png"},
+                    {id: 160, name: "Dorado Perlado SISI", ref: 160, category: "perlados", image: "PERLADO SISI 22CC/160.png"},
+                    {id: 166, name: "Am. Primario Perlado SISI", ref: 166, category: "perlados", image: "PERLADO SISI 22CC/166.png"},
+                    {id: 169, name: "Piel Perlado SISI", ref: 169, category: "perlados", image: "PERLADO SISI 22CC/169.png"},
+                    {id: 171, name: "Verde Navidad Perlado SISI", ref: 171, category: "perlados", image: "PERLADO SISI 22CC/171.png"},
+                    {id: 175, name: "Verde Manzana Perlado SISI", ref: 175, category: "perlados", image: "PERLADO SISI 22CC/175.png"},
+                    {id: 177, name: "Az. Electrico Perlado SISI", ref: 177, category: "perlados", image: "PERLADO SISI 22CC/177.png"},
+                    {id: 178, name: "Az. Hobby Perlado SISI", ref: 178, category: "perlados", image: "PERLADO SISI 22CC/178.png"},
+                    {id: 181, name: "Az. Bebe Perlado SISI", ref: 181, category: "perlados", image: "PERLADO SISI 22CC/181.png"},
+                    {id: 185, name: "Rosado Perlado SISI", ref: 185, category: "perlados", image: "PERLADO SISI 22CC/185.png"},
+                    {id: 187, name: "Purpura Perlado SISI", ref: 187, category: "perlados", image: "PERLADO SISI 22CC/187.png"},
+                    {id: 188, name: "Negro Perlado SISI", ref: 188, category: "perlados", image: "PERLADO SISI 22CC/188.png"},
+                    {id: 190, name: "Plomo Perlado SISI", ref: 190, category: "perlados", image: "PERLADO SISI 22CC/190.png"}
+                ],
+                featuredImage: "IMAGENES/perlada_22cc.jpg"
+            },
+            {
+                id: "neon",
+                name: "TELA NEON 30CC",
+                products: [
+                    {id: 460, name: "Pantera Rosa", ref: 460, category: "neon", image: "TELA NEON 30CC/460.png"},
+                    {id: 461, name: "Mandarina", ref: 461, category: "neon", image: "TELA NEON 30CC/461.png"},
+                    {id: 462, name: "Uvita", ref: 462, category: "neon", image: "TELA NEON 30CC/462.png"},
+                    {id: 463, name: "Rosa", ref: 463, category: "neon", image: "TELA NEON 30CC/463.png"},
+                    {id: 464, name: "Iguana", ref: 464, category: "neon", image: "TELA NEON 30CC/464.png"},
+                    {id: 465, name: "Magico", ref: 465, category: "neon", image: "TELA NEON 30CC/465.png"},
+                    {id: 466, name: "Limoncello", ref: 466, category: "neon", image: "TELA NEON 30CC/466.png"},
+                    {id: 467, name: "Coral", ref: 467, category: "neon", image: "TELA NEON 30CC/467.png"}
+                ],
+                featuredImage: "IMAGENES/TELANEON.png"
+            },
+            {
+                id: "tela",
+                name: "TELA SISI 30CC",
+                products: [
+                    {id: 401, name: "Rojo Navidad Tela", ref: 401, category: "tela", image: `TELA SISI 30CC/401.png`},
+                    {id: 402, name: "Frambuesa Tela", ref: 402, category: "tela", image: `TELA SISI 30CC/402.png`},
+                    {id: 403, name: "Naranja Tela", ref: 403, category: "tela", image: `TELA SISI 30CC/403.png`},
+                    {id: 405, name: "Auyama Tela", ref: 405, category: "tela", image: `TELA SISI 30CC/405.png`},
+                    {id: 406, name: "Amarillo Primario Tela", ref: 406, category: "tela", image: `TELA SISI 30CC/406.png`},
+                    {id: 407, name: "Amarillo Vivo Tela", ref: 407, category: "tela", image: `TELA SISI 30CC/407.png`},
+                    {id: 410, name: "Azul Marino Tela", ref: 410, category: "tela", image: `TELA SISI 30CC/410.png`},
+                    {id: 411, name: "Azul Rey Tela", ref: 411, category: "tela", image: `TELA SISI 30CC/411.png`},
+                    {id: 413, name: "Azul Bebe Tela", ref: 413, category: "tela", image: `TELA SISI 30CC/413.png`},
+                    {id: 419, name: "Purpura Tela", ref: 419, category: "tela", image: `TELA SISI 30CC/419.png`},
+                    {id: 420, name: "Violeta Tela", ref: 420, category: "tela", image: `TELA SISI 30CC/420.png`},
+                    {id: 421, name: "Fucsia Tela", ref: 421, category: "tela", image: `TELA SISI 30CC/421.png`},
+                    {id: 422, name: "Magenta Tela", ref: 422, category: "tela", image: `TELA SISI 30CC/422.png`},
+                    {id: 423, name: "Rosado Tela", ref: 423, category: "tela", image: `TELA SISI 30CC/423.png`},
+                    {id: 424, name: "Rosado Claro Tela", ref: 424, category: "tela", image: `TELA SISI 30CC/424.png`},
+                    {id: 426, name: "Verde Navidad Tela", ref: 426, category: "tela", image: `TELA SISI 30CC/426.png`},
+                    {id: 428, name: "Verde Manzana Tela", ref: 428, category: "tela", image: `TELA SISI 30CC/428.png`},
+                    {id: 434, name: "Turquesa Tela", ref: 434, category: "tela", image: `TELA SISI 30CC/434.png`},
+                    {id: 437, name: "Marron Tierra Tela", ref: 437, category: "tela", image: `TELA SISI 30CC/437.png`},
+                    {id: 438, name: "Marron Tela", ref: 438, category: "tela", image: `TELA SISI 30CC/438.png`},
+                    {id: 439, name: "Tabaco Tela", ref: 439, category: "tela", image: `TELA SISI 30CC/439.png`},
+                    {id: 443, name: "Piel Tela", ref: 443, category: "tela", image: `TELA SISI 30CC/443.png`},
+                    {id: 445, name: "Vainilla Tela", ref: 445, category: "tela", image: `TELA SISI 30CC/445.png`},
+                    {id: 446, name: "Negro Tela", ref: 446, category: "tela", image: `TELA SISI 30CC/446.png`},
+                    {id: 447, name: "Gris Tela", ref: 447, category: "tela", image: `TELA SISI 30CC/447.png`},
+                    {id: 448, name: "Blanco Tela", ref: 448, category: "tela", image: `TELA SISI 30CC/448.png`}
+                ],
+                featuredImage: "IMAGENES/TELA_30cc.jpg"
+            },
+            {
+                id: "tempera",
+                name: "TEMPERA",
+                products: [
+                    {
+                        id: 600,
+                        name: "Tempera OSI",
+                        ref: 600,
+                        category: "tempera",
+                        image: "TEMPERA/600.png"
+                    }
+                ],
+                featuredImage: "IMAGENES/TEMPERA 3.JPG"
+            }
+        ];
+
+        // Datos para el chatbot
+        const faqData = [
+            {
+                question: "¿Cómo realizo un pedido?",
+                answer: "Puedes realizar pedidos directamente desde nuestra página web en la sección 'Realizar Pedido'. También puedes contactarnos por WhatsApp al +584243757335 o enviarnos un correo a royaloficina3@gmail.com."
+            },
+            {
+                question: "¿Cuáles son los métodos de pago?",
+                answer: "Aceptamos transferencias bancarias y pagos móviles. Para más detalles, contáctanos directamente."
+            },
+            {
+                question: "¿Hacen envíos a todo el país?",
+                answer: "Sí, realizamos envíos a todo Venezuela."
+            },
+            {
+                question: "¿Cuánto tarda en llegar mi pedido?",
+                answer: "En la ciudad de Maracay, los pedidos suelen entregarse en 24-48 horas."
+            },
+            {
+                question: "¿Tienen garantía en sus productos?",
+                answer: "Todos nuestros productos tienen garantía de 1 año de calidad sin que esten vencidas. Si recibes un producto defectuoso, contáctanos para realizar el cambio."
+            },
+            {
+                question: "¿Cómo aplico los productos de envejecimiento?",
+                answer: "Nuestros productos de envejecimiento se aplican fácilmente con pincel o esponja sobre superficies limpias y secas. Para mejores resultados."
+            },
+            {
+                question: "¿Los productos son resistentes al agua?",
+                answer: "Sí, la mayoría de nuestros productos son resistentes al agua una vez secos."
+            },
+            {
+                question: "¿Tienen precios al por mayor?",
+                answer: "Sí, ofrecemos descuentos especiales para compras al por mayor. Contáctanos con los detalles de tu pedido para darte una cotización personalizada."
+            },
+            {
+                question: "¿De cuanto es la compra minima para nuevos clientes?",
+                answer: "La compra minima es de 2 BULTOS de pintura que es lo equivalente a 48 DOCENAS o 1 BULTO DE TEMPERA."
+            }
+        ];
+
+        // Generar galería de categorías con imágenes
+        const productGallery = document.getElementById('product-gallery');
+        
+        categories.forEach(category => {
+            const productCard = document.createElement('div');
+            productCard.className = 'product-card';
+            productCard.innerHTML = `
+                <div class="product-image">
+                    <img src="${category.featuredImage}" alt="${category.name}">
+                </div>
+                <div class="product-info">
+                    <h3>${category.name}</h3>
+                    <p>${category.products.length} referencias disponibles</p>
+                    <p class="ref-count">Refs: ${category.products.map(p => p.ref).join(', ')}</p>
+                    <a href="#" class="btn open-catalog" data-category="${category.id}"><span>Ver Catálogo</span></a>
+                </div>
+            `;
+            productGallery.appendChild(productCard);
+        });
+
+        // Función para mostrar el modal de catálogo
+        document.querySelectorAll('.open-catalog').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                const categoryId = this.getAttribute('data-category');
+                openCatalogModal(categoryId);
+            });
+        });
+
+        function openCatalogModal(categoryId) {
+            const modal = document.getElementById('productModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalBody = document.getElementById('modalBody');
+            
+            // Encontrar la categoría por ID
+            const category = categories.find(c => c.id === categoryId);
+            
+            if (category) {
+                modalTitle.textContent = category.name;
+                
+                // Generar cuadrícula de productos
+                let productsHTML = '<div class="product-grid">';
+                
+                category.products.forEach(product => {
+                    productsHTML += `
+                        <div class="product-item">
+                            <div class="product-img-container">
+                                <img src="${product.image}" alt="${product.name}">
+                            </div>
+                            <div class="product-info-container">
+                                <h4>${product.name}</h4>
+                                <div class="ref">Ref: ${product.ref}</div>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                productsHTML += '</div>';
+                modalBody.innerHTML = productsHTML;
+                
+                modal.style.display = 'flex';
+            }
+        }
+
+        // Cerrar modal
+        document.getElementById('modalClose').addEventListener('click', () => {
+            document.getElementById('productModal').style.display = 'none';
+        });
+
+        // Cerrar modal al hacer clic fuera del contenido
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('productModal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Botón de volver arriba
+        const backToTopBtn = document.getElementById('backToTop');
+        
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                backToTopBtn.classList.add('show');
+            } else {
+                backToTopBtn.classList.remove('show');
+            }
+        });
+        
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+
+        // Formulario de contacto
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Recoger datos del formulario
+            const name = document.getElementById('name').value;
+            const rif = document.getElementById('rif').value;
+            const phone = document.getElementById('phone').value;
+            const email = document.getElementById('email').value;
+            const address = document.getElementById('address').value;
+            const product = document.getElementById('product').value;
+            const message = document.getElementById('message').value;
+            
+            // Validar que todos los campos estén llenos
+            if(!name || !rif || !phone || !email || !address || product === "" || !message) {
+                alert('Por favor, complete todos los campos del formulario.');
+                return;
+            }
+            
+            // Mostrar modal de opciones de envío
+            document.getElementById('sendOptionsModal').style.display = 'flex';
+            
+            // Configurar botones de envío
+            document.getElementById('sendWhatsApp').onclick = function() {
+                sendViaWhatsApp(name, rif, phone, email, address, product, message);
+            };
+            
+            document.getElementById('sendEmail').onclick = function() {
+                sendViaEmail(name, rif, phone, email, address, product, message);
+            };
+        });
+        
+        // Cerrar modal de opciones de envío
+        window.addEventListener('click', (e) => {
+            const modal = document.getElementById('sendOptionsModal');
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+        function sendViaWhatsApp(name, rif, phone, email, address, product, message) {
+            // Formatear mensaje para WhatsApp
+            const whatsappMessage = `*Consulta desde la web Pinturas OSI/SISI*` +
+                                    encodeURI('\n')+
+                                   `*Nombre:* ${name}%0A` +
+                                   encodeURI('\n')+
+                                   `*RIF:* ${rif}%0A` +
+                                   encodeURI('\n')+
+                                   `*Teléfono:* ${phone}%0A` +
+                                   encodeURI('\n')+
+                                   `*Correo:* ${email}%0A` +
+                                   encodeURI('\n')+
+                                   `*Dirección:* ${address}%0A` +
+                                   encodeURI('\n')+
+                                   `*Producto de interés:* ${product}%0A` +
+                                   encodeURI('\n')+
+                                   `*Mensaje:* ${message}%0A`;
+            
+            // Abrir enlace de WhatsApp
+            window.open(`https://wa.me/584243757335?text=${whatsappMessage}`, '_blank');
+            
+            // Cerrar modal
+            document.getElementById('sendOptionsModal').style.display = 'none';
+            
+            // Limpiar formulario
+            document.getElementById('contactForm').reset();
+        }
+        
+        function sendViaEmail(name, rif, phone, email, address, product, message) {
+            // Formatear asunto y cuerpo para correo
+            const subject = `Consulta desde la web: ${name}`;
+            const body = `Consulta desde la web Pinturas OSI/SISI\r\n` +
+                         `Nombre: ${name}\r\n` +
+                         `RIF: ${rif}\r\n` +
+                         `Teléfono: ${phone}\r\n` +
+                         `Correo: ${email}\r\n` +
+                         `Dirección: ${address}\r\n` +
+                         `Producto de interes: ${product}\r\n` +
+                         `Mensaje:${message}\r\n`;
+            
+            // Abrir cliente de correo
+            window.open(`mailto:royaloficina3@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`, '_blank');
+            
+            // Cerrar modal
+            document.getElementById('sendOptionsModal').style.display = 'none';
+            
+            // Limpiar formulario
+            document.getElementById('contactForm').reset();
+        }
+      
+        function checkScroll() {
+            const sections = document.querySelectorAll('section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.getBoundingClientRect().top;
+                const windowHeight = window.innerHeight;
+                
+                if (sectionTop < windowHeight * 0.85) {
+                    section.classList.add('visible');
+                }
+            });
+        }
+        
+        window.addEventListener('scroll', checkScroll);
+        window.addEventListener('load', checkScroll);
+        
+
+        const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+        const mobileNav = document.getElementById('mobileNav');
+        const mobileClose = document.getElementById('mobileClose');
+        
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileNav.classList.add('active');
+        });
+        
+        mobileClose.addEventListener('click', () => {
+            mobileNav.classList.remove('active');
+        });
+        
+
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNav.classList.remove('active');
+            });
+        });
+
+        // Carrusel Hero
+        const heroSlides = document.querySelectorAll('.hero-slide');
+        const indicators = document.querySelectorAll('.hero-indicator');
+        let currentSlide = 0;
+        
+        function showSlide(index) {
+            // Ocultar todos los slides
+            heroSlides.forEach(slide => slide.classList.remove('active'));
+            indicators.forEach(indicator => indicator.classList.remove('active'));
+            
+            // Mostrar slide actual
+            heroSlides[index].classList.add('active');
+            indicators[index].classList.add('active');
+            currentSlide = index;
+        }
+        
+        // Navegación con flechas
+        document.querySelector('.next-slide').addEventListener('click', () => {
+            let nextIndex = (currentSlide + 1) % heroSlides.length;
+            showSlide(nextIndex);
+        });
+        
+        document.querySelector('.prev-slide').addEventListener('click', () => {
+            let prevIndex = (currentSlide - 1 + heroSlides.length) % heroSlides.length;
+            showSlide(prevIndex);
+        });
+        
+        // Navegación con indicadores
+        indicators.forEach((indicator, index) => {
+            indicator.addEventListener('click', () => {
+                showSlide(index);
+            });
+        });
+        
+        // Cambio automático de slides
+        setInterval(() => {
+            let nextIndex = (currentSlide + 1) % heroSlides.length;
+            showSlide(nextIndex);
+        }, 5000);
+        
+        // Chatbot de preguntas frecuentes
+        const chatbotToggle = document.getElementById('chatbotToggle');
+        const chatbotContainer = document.getElementById('chatbotContainer');
+        const chatClose = document.getElementById('chatClose');
+        const chatMessages = document.getElementById('chatMessages');
+        const faqOptions = document.getElementById('faqOptions');
+        const chatInput = document.getElementById('chatInput');
+        const sendMessageBtn = document.getElementById('sendMessage');
+        
+        // Generar opciones de preguntas frecuentes
+        faqData.forEach((faq, index) => {
+            const option = document.createElement('div');
+            option.className = 'faq-option';
+            option.textContent = faq.question;
+            option.setAttribute('data-index', index);
+            faqOptions.appendChild(option);
+        });
+        
+        // Alternar visibilidad del chatbot
+        chatbotToggle.addEventListener('click', () => {
+            chatbotContainer.classList.toggle('active');
+        });
+        
+        chatClose.addEventListener('click', () => {
+            chatbotContainer.classList.remove('active');
+        });
+        
+        // Manejar selección de preguntas frecuentes
+        faqOptions.addEventListener('click', (e) => {
+            if (e.target.classList.contains('faq-option')) {
+                const index = e.target.getAttribute('data-index');
+                const faq = faqData[index];
+                
+                // Agregar pregunta del usuario
+                addMessage(faq.question, 'user');
+                
+                // Simular respuesta después de un breve retraso
+                setTimeout(() => {
+                    addMessage(faq.answer, 'bot');
+                }, 500);
+            }
+        });
+        
+        // Manejar envío de mensajes
+        sendMessageBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                addMessage(message, 'user');
+                chatInput.value = '';
+                
+                // Simular respuesta del bot después de un breve retraso
+                setTimeout(() => {
+                    const response = findAnswer(message);
+                    addMessage(response, 'bot');
+                }, 1000);
+            }
+        }
+        
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = text;
+            chatMessages.appendChild(messageDiv);
+            
+            // Hacer scroll al último mensaje
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+        
+        function findAnswer(question) {
+            // Convertir la pregunta a minúsculas para una coincidencia insensible a mayúsculas
+            const lowerQuestion = question.toLowerCase();
+            
+            // Buscar palabras clave en las preguntas frecuentes
+            for (const faq of faqData) {
+                if (lowerQuestion.includes(faq.question.toLowerCase().substring(0, 10))) {
+                    return faq.answer;
+                }
+            }
+            
+            // Buscar por palabras clave específicas
+            if (lowerQuestion.includes('pedido') || lowerQuestion.includes('comprar')) {
+                return "Puedes realizar pedidos desde nuestra página web en la sección 'Realizar Pedido' o contactarnos directamente por WhatsApp al +584243757335.";
+            } else if (lowerQuestion.includes('precio') || lowerQuestion.includes('costo')) {
+                return "Los precios varían según el producto y la cantidad. Por favor, indícanos qué producto te interesa para darte la información específica.";
+            } else if (lowerQuestion.includes('entrega') || lowerQuestion.includes('envío')) {
+                return "Realizamos envíos a todo Venezuela";
+            } else if (lowerQuestion.includes('garantía') || lowerQuestion.includes('devolución')) {
+                return "Todos nuestros productos tienen garantía de calidad de 1 año sin que esten vencidas. Si recibes un producto defectuoso, contáctanos para realizar el cambio.";
+            } else if (lowerQuestion.includes('contacto') || lowerQuestion.includes('teléfono')) {
+                return "Puedes contactarnos por WhatsApp al +584243757335, por correo electrónico a royaloficina3@gmail.com.";
+            }
+            
+            // Respuesta por defecto si no se encuentra coincidencia
+            return "Gracias por tu mensaje. Nuestro equipo te responderá a la brevedad. También puedes contactarnos directamente por WhatsApp al +584243757335.";
+        }
+    </script>
+</body>
+</html>
