@@ -2246,7 +2246,7 @@
             document.getElementById('preview-modal').style.display = 'flex';
         }
 
-        // Generar PDF (con observaciones)
+        // Generar PDF (con observaciones) - VERSIÓN COMPACTA
         function generatePDF(action) {
             const clientName = document.getElementById('client-name').value.trim();
             const clientRif = document.getElementById('client-rif').value.trim();
@@ -2281,45 +2281,46 @@
                     format: 'a4'
                 });
 
-                // Configuración
-                const margin = 15;
+                // Configuración compacta
+                const margin = 8; // Margen reducido
                 let yPos = margin;
                 const pageWidth = doc.internal.pageSize.getWidth();
                 const maxWidth = pageWidth - 2 * margin;
 
-                // Encabezado
-                doc.setFontSize(20);
+                // Encabezado compacto
+                doc.setFontSize(16); // Tamaño reducido
                 doc.setFont(undefined, 'bold');
                 doc.setTextColor(67, 97, 238);
                 doc.text('ORDEN DE PEDIDO - PINTURAS OSI', pageWidth / 2, yPos, { align: 'center' });
-                yPos += 10;
-
-                doc.setFontSize(12);
+                yPos += 6; // Espacio reducido
+                
+                doc.setFontSize(9); // Tamaño reducido
                 doc.setFont(undefined, 'normal');
                 doc.setTextColor(0, 0, 0);
                 doc.text(`Fecha: ${new Date().toLocaleDateString()}`, margin, yPos);
                 doc.text(`N° Pedido: ${formattedOrderNumber}`, pageWidth - margin, yPos, { align: 'right' });
-                yPos += 10;
+                yPos += 5;
 
-                // Información del cliente
-                doc.setFontSize(12);
+                // Información del cliente compacta
+                doc.setFontSize(9);
                 doc.setFont(undefined, 'bold');
                 doc.text('Nombre o Razón Social:', margin, yPos);
-                doc.text('RIF:', margin, yPos + 10);
-                doc.text('Dirección:', margin, yPos + 20);
-                doc.text('Teléfono:', margin, yPos + 30);
-                doc.text('Horario:', margin, yPos + 40);
+                doc.text('RIF:', margin, yPos + 4);
+                doc.text('Dirección:', margin, yPos + 8);
+                doc.text('Teléfono:', margin, yPos + 12);
+                doc.text('Horario:', margin, yPos + 16);
                 
                 doc.setFont(undefined, 'normal');
-                doc.text(clientName, margin + 60, yPos);
-                doc.text(clientRif, margin + 60, yPos + 10);
-                doc.text(clientAddress, margin + 60, yPos + 20);
-                doc.text(clientPhone, margin + 60, yPos + 30);
-                doc.text(clientSchedule, margin + 60, yPos + 40);
-                yPos += 50;
+                doc.text(clientName, margin + 45, yPos);
+                doc.text(clientRif, margin + 45, yPos + 4);
+                doc.text(clientAddress, margin + 45, yPos + 8);
+                doc.text(clientPhone, margin + 45, yPos + 12);
+                doc.text(clientSchedule, margin + 45, yPos + 16);
+                yPos += 20;
 
-                // Detalle
+                // Detalle compacto
                 if (observations) {
+                    yPos += 2;
                     doc.setFont(undefined, 'bold');
                     doc.text('Detalle:', margin, yPos);
                     doc.setFont(undefined, 'normal');
@@ -2329,33 +2330,36 @@
                             doc.addPage();
                             yPos = margin;
                         }
-                        doc.text(line, margin + 5, yPos + 7);
-                        yPos += 5;
+                        doc.text(line, margin + 5, yPos + 5);
+                        yPos += 4; // Espacio reducido
                     });
-                    yPos += 10;
+                    yPos += 5;
                 }
 
-                // Tabla de productos
+                // Tabla de productos compacta
+                yPos += 3;
                 doc.setFont(undefined, 'bold');
                 doc.setFillColor(67, 97, 238);
                 doc.setTextColor(255, 255, 255);
-                doc.rect(margin, yPos, maxWidth, 10, 'F');
+                doc.rect(margin, yPos, maxWidth, 6, 'F'); // Altura reducida
                 
-                doc.text('Producto', margin + 5, yPos + 7);
-                doc.text('Ref.', margin + 90, yPos + 7);
-                doc.text('Unidad', margin + 110, yPos + 7);
-                doc.text('Cant.', margin + 140, yPos + 7);
-                doc.text('Unid. Tot.', margin + 160, yPos + 7);
-                yPos += 12;
+                // Encabezados de tabla compactos
+                doc.text('Producto', margin + 3, yPos + 4);
+                doc.text('Ref.', margin + 70, yPos + 4);
+                doc.text('Unidad', margin + 85, yPos + 4);
+                doc.text('Cant.', margin + 105, yPos + 4);
+                doc.text('Unid. Tot.', margin + 125, yPos + 4);
+                yPos += 7;
 
                 doc.setFont(undefined, 'normal');
                 doc.setTextColor(0, 0, 0);
                 
                 // Variable para el total general de unidades
                 let totalGeneralUnidades = 0;
+                const rowHeight = 5; // Altura de fila reducida
                 
                 cartItems.forEach(item => {
-                    if (yPos > 250) {
+                    if (yPos > 280) {
                         doc.addPage();
                         yPos = margin;
                         
@@ -2363,13 +2367,13 @@
                         doc.setFont(undefined, 'bold');
                         doc.setFillColor(67, 97, 238);
                         doc.setTextColor(255, 255, 255);
-                        doc.rect(margin, yPos, maxWidth, 10, 'F');
-                        doc.text('Producto', margin + 5, yPos + 7);
-                        doc.text('Ref.', margin + 90, yPos + 7);
-                        doc.text('Unidad', margin + 110, yPos + 7);
-                        doc.text('Cant.', margin + 140, yPos + 7);
-                        doc.text('Unid. Tot.', margin + 160, yPos + 7);
-                        yPos += 12;
+                        doc.rect(margin, yPos, maxWidth, 6, 'F');
+                        doc.text('Producto', margin + 3, yPos + 4);
+                        doc.text('Ref.', margin + 70, yPos + 4);
+                        doc.text('Unidad', margin + 85, yPos + 4);
+                        doc.text('Cant.', margin + 105, yPos + 4);
+                        doc.text('Unid. Tot.', margin + 125, yPos + 4);
+                        yPos += 7;
                         doc.setFont(undefined, 'normal');
                         doc.setTextColor(0, 0, 0);
                     }
@@ -2388,43 +2392,43 @@
                     
                     totalGeneralUnidades += totalUnits;
                     
-                    // Nombre del producto (con recorte si es muy largo)
-                    const productName = item.product.name.length > 30 ? 
-                        item.product.name.substring(0, 27) + '...' : item.product.name;
+                    // Limitar longitud del nombre para ahorrar espacio
+                    const maxNameLength = 35;
+                    const productName = item.product.name.length > maxNameLength ? 
+                        item.product.name.substring(0, maxNameLength - 3) + '...' : item.product.name;
                     
-                    doc.text(productName, margin + 5, yPos + 7);
-                    doc.text(item.product.ref.toString(), margin + 90, yPos + 7);
-                    doc.text(getUnitName(item.unit), margin + 110, yPos + 7);
-                    doc.text(item.quantity.toString(), margin + 140, yPos + 7);
-                    doc.text(totalUnits.toString(), margin + 160, yPos + 7);
+                    doc.text(productName, margin + 3, yPos + 3);
+                    doc.text(item.product.ref.toString(), margin + 70, yPos + 3);
+                    doc.text(getUnitName(item.unit).substring(0, 3), margin + 85, yPos + 3); // Abreviar unidad a 3 caracteres
+                    doc.text(item.quantity.toString(), margin + 105, yPos + 3);
+                    doc.text(totalUnits.toString(), margin + 125, yPos + 3);
                     
-                    // Línea divisoria
+                    // Línea divisoria sutil
                     doc.setDrawColor(200, 200, 200);
-                    doc.line(margin, yPos + 10, pageWidth - margin, yPos + 10);
+                    doc.line(margin, yPos + rowHeight, pageWidth - margin, yPos + rowHeight);
                     
-                    yPos += 10;
+                    yPos += rowHeight;
                 });
 
-                // Totales
-                yPos += 10;
+                // Totales compactos
+                yPos += 5;
                 doc.setFont(undefined, 'bold');
                 doc.text(`Total de Productos: ${cartItems.length}`, margin, yPos);
                 doc.text(`Total de Unidades: ${totalGeneralUnidades}`, margin + 100, yPos);
-                yPos += 10;
-                
-                // Notas
                 yPos += 5;
-                doc.setFontSize(10);
-                doc.text("Nota: Tempera OSI (Ref. 600) - 1 bulto = 100 unidades", margin, yPos);
-                doc.text("Otras pinturas - 1 bulto = 288 unidades", margin, yPos + 5);
                 
-                // Pie de página
-                yPos = 280;
-                doc.setFontSize(10);
+                // Notas compactas
+                doc.setFontSize(8);
                 doc.setFont(undefined, 'normal');
+                doc.text("Nota: Tempera OSI (Ref. 600) - 1 bulto = 100 unidades", margin, yPos);
+                doc.text("Otras pinturas - 1 bulto = 288 unidades", margin, yPos + 3);
+                
+                // Pie de página compacto
+                yPos = 287;
+                doc.setFontSize(8);
                 doc.setTextColor(100, 100, 100);
                 doc.text('Pedidos - Pinturas OSI & SISI 2025.', pageWidth / 2, yPos, { align: 'center' });
-                doc.text(new Date().getFullYear().toString(), pageWidth / 2, yPos + 5, { align: 'center' });
+                doc.text(new Date().getFullYear().toString(), pageWidth / 2, yPos + 4, { align: 'center' });
 
                 // Generar blob para descarga
                 const pdfBlob = doc.output('blob');
@@ -2466,29 +2470,18 @@
 
         // Abrir WhatsApp manualmente
         function openWhatsApp() {
-            const clientPhone = document.getElementById('client-phone').value.trim();
-            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
-            
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const whatsappUrl = isMobile ? 
-                `whatsapp://send?phone=${phoneToUse}` : 
-                `https://web.whatsapp.com/send?phone=${phoneToUse}`;
-            
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
             window.open(whatsappUrl, '_blank');
         }
 
         // Enviar por WhatsApp
         function sendWhatsApp(pdfBlob) {
             const clientName = document.getElementById('client-name').value.trim();
-            const clientPhone = document.getElementById('client-phone').value.trim();
             const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
             const currentDate = new Date().toLocaleDateString();
             
             // Crear el archivo para compartir
             const file = new File([pdfBlob], currentFileName, { type: 'application/pdf' });
-            
-            // Determinar el número de WhatsApp: si hay teléfono de cliente, usarlo, sino el predeterminado
-            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
             
             // Texto del mensaje
             const messageText = `Pedido de ${clientName} - N° ${formattedOrderNumber}\nFecha: ${currentDate}`;
@@ -2502,33 +2495,45 @@
                 })
                 .then(() => {
                     showNotification('Pedido compartido con éxito');
+                    // Limpiar carrito después de enviar
+                    cartItems = [];
+                    updateCartCount();
+                    saveCartToStorage();
                 })
                 .catch(error => {
                     console.error('Error al compartir:', error);
                     // Si falla, intentamos con el método de enlace de WhatsApp
-                    openWhatsAppWithFile(phoneToUse, messageText, file);
+                    openWhatsAppWithFile(messageText, file);
                 });
             } else {
                 // Para navegadores que no soportan Web Share API (principalmente escritorio)
-                openWhatsAppWithFile(phoneToUse, messageText, file);
+                openWhatsAppWithFile(messageText, file);
             }
         }
 
-        function openWhatsAppWithFile(phone, text, file) {
-            // Primero, descargamos el archivo para que el usuario lo tenga
+        function openWhatsAppWithFile(text, file) {
+            // Descargar el PDF para que el usuario lo tenga
             downloadPDF(file, currentFileName);
             
-            // Construimos el enlace de WhatsApp
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const whatsappUrl = isMobile ? 
-                `whatsapp://send?phone=${phone}&text=${encodeURIComponent(text)}` : 
-                `https://web.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(text)}`;
+            // Construir URL de WhatsApp
+            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
             
-            // Abrimos WhatsApp
+            // Abrir WhatsApp en una nueva pestaña
             window.open(whatsappUrl, '_blank');
             
-            // Mostramos el modal de WhatsApp con instrucciones
+            // Actualizar el modal de WhatsApp con instrucciones
+            document.getElementById('whatsapp-title').textContent = '¡Pedido listo para enviar!';
+            document.getElementById('whatsapp-message').textContent = 'El PDF con los detalles del pedido se ha generado correctamente.';
+            document.getElementById('whatsapp-instruction').textContent = 'Por favor, adjunte el archivo PDF descargado en el chat de WhatsApp.';
+            document.getElementById('whatsapp-alternative').textContent = 'Si WhatsApp no se abrió, por favor haga clic en el botón de abajo.';
+            
+            // Mostrar modal de WhatsApp
             document.getElementById('whatsapp-modal').style.display = 'flex';
+            
+            // Limpiar carrito después de enviar
+            cartItems = [];
+            updateCartCount();
+            saveCartToStorage();
         }
 
         // Mostrar notificación
@@ -2574,5 +2579,3 @@
     </script>
 </body>
 </html>
-
-reduce el tamaño del pdf para que se vea mas reducido y abarque mas referencias:
