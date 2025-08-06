@@ -1085,6 +1085,8 @@
             font-family: monospace;
             white-space: pre-wrap;
             border: 1px solid #ddd;
+            font-size: 14px;
+            line-height: 1.5;
         }
         
         .order-detail-text {
@@ -1100,6 +1102,31 @@
             margin-bottom: 10px;
             padding-left: 15px;
             border-left: 3px solid var(--primary);
+        }
+        
+        .copy-message-btn {
+            background: #4361ee;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .copy-message-btn:hover {
+            background: #3f37c9;
+        }
+        
+        .copy-success {
+            color: #38b000;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
         }
 
         /* Nuevos estilos para mejor responsive */
@@ -1421,6 +1448,11 @@
             <div class="whatsapp-message-preview" id="whatsapp-message-preview">
                 <!-- El mensaje de WhatsApp se mostrará aquí -->
             </div>
+            
+            <button class="copy-message-btn" id="copy-message-btn">
+                <i class="fas fa-copy"></i> Copiar Mensaje
+            </button>
+            <div class="copy-success" id="copy-success">¡Mensaje copiado al portapapeles!</div>
             
             <div class="whatsapp-actions">
                 <button class="btn btn-success whatsapp-btn" id="whatsapp-open">
@@ -1815,6 +1847,9 @@
             
             // Botón para abrir WhatsApp manualmente
             document.getElementById('whatsapp-open').addEventListener('click', openWhatsApp);
+            
+            // Botón para copiar mensaje
+            document.getElementById('copy-message-btn').addEventListener('click', copyMessageToClipboard);
             
             // Cerrar modal al hacer clic fuera
             document.getElementById('cart-modal').addEventListener('click', function(e) {
@@ -2352,7 +2387,28 @@
             showLoading(false);
         }
 
-        // Abrir WhatsApp con el mensaje generado
+        // Copiar mensaje al portapapeles
+        function copyMessageToClipboard() {
+            if (!currentOrderText) {
+                showNotification('No hay mensaje para copiar', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(currentOrderText)
+                .then(() => {
+                    const copySuccess = document.getElementById('copy-success');
+                    copySuccess.style.display = 'block';
+                    setTimeout(() => {
+                        copySuccess.style.display = 'none';
+                    }, 2000);
+                })
+                .catch(err => {
+                    showNotification('Error al copiar el mensaje', 'error');
+                    console.error('Error al copiar:', err);
+                });
+        }
+
+        // Abrir WhatsApp con el mensaje generado (CORRECCIÓN PRINCIPAL)
         function openWhatsApp() {
             if (!currentOrderText) {
                 showNotification('Primero debe generar el pedido', 'error');
@@ -2360,15 +2416,49 @@
             }
             
             const clientPhone = document.getElementById('client-phone').value.trim();
-            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
+            let phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
             
-            const encodedText = encodeURIComponent(currentOrderText);
+            // Eliminar el prefijo '+' si existe
+            if (phoneToUse.startsWith('+')) {
+                phoneToUse = phoneToUse.substring(1);
+            }
+            
+            // Codificar el texto de manera más robusta
+            const encodedText = encodeWhatsAppText(currentOrderText);
+            
+            // Detectar dispositivo móvil
             const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            // Crear URL según dispositivo
             const whatsappUrl = isMobile ? 
-                `whatsapp://send?phone=${phoneToUse}&text=${encodedText}` : 
+                `https://wa.me/${phoneToUse}?text=${encodedText}` : 
                 `https://web.whatsapp.com/send?phone=${phoneToUse}&text=${encodedText}`;
             
+            // Abrir en nueva pestaña
             window.open(whatsappUrl, '_blank');
+        }
+
+        // Función para codificar texto para WhatsApp (maneja caracteres especiales)
+        function encodeWhatsAppText(text) {
+            // Reemplazar caracteres problemáticos
+            const replacements = {
+                '%': '%25',
+                '#': '%23',
+                '&': '%26',
+                '+': '%2B',
+                '=': '%3D',
+                '\n': '%0A'
+            };
+            
+            // Codificar el texto con encodeURIComponent
+            let encoded = encodeURIComponent(text);
+            
+            // Reemplazar caracteres problemáticos adicionales
+            for (const [char, replacement] of Object.entries(replacements)) {
+                encoded = encoded.replace(new RegExp(char, 'g'), replacement);
+            }
+            
+            return encoded;
         }
 
         // Mostrar notificación
