@@ -6,8 +6,6 @@
     <title>Pedidos - Pinturas OSI & SISI</title>
     <link rel="icon" href="data:image/svg+xml<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
     <style>
         :root {
             --primary: #4361ee;
@@ -1074,6 +1072,35 @@
             background: #5a6268;
             transform: translateY(-3px);
         }
+        
+        /* Nuevos estilos para mensaje de WhatsApp */
+        .whatsapp-message-preview {
+            background: #f0f2f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            white-space: pre-wrap;
+            border: 1px solid #ddd;
+        }
+        
+        .order-detail-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .order-detail-text strong {
+            color: var(--dark);
+        }
+        
+        .order-detail-text .product-item {
+            margin-bottom: 10px;
+            padding-left: 15px;
+            border-left: 3px solid var(--primary);
+        }
 
         /* Nuevos estilos para mejor responsive */
         @media (max-width: 768px) {
@@ -1388,10 +1415,12 @@
             <div class="whatsapp-icon">
                 <i class="fab fa-whatsapp"></i>
             </div>
-            <h2 id="whatsapp-title">¡Pedido listo para enviar!</h2>
-            <p id="whatsapp-message">El PDF con los detalles del pedido se ha generado correctamente.</p>
-            <p id="whatsapp-instruction">El mensaje de WhatsApp con el PDF adjunto se abrirá automáticamente.</p>
-            <p id="whatsapp-alternative">Si WhatsApp no se abre, por favor haga clic en el botón de abajo.</p>
+            <h2>¡Pedido listo para enviar!</h2>
+            <p>El mensaje de WhatsApp se abrirá automáticamente. Si no, use el botón de abajo.</p>
+            
+            <div class="whatsapp-message-preview" id="whatsapp-message-preview">
+                <!-- El mensaje de WhatsApp se mostrará aquí -->
+            </div>
             
             <div class="whatsapp-actions">
                 <button class="btn btn-success whatsapp-btn" id="whatsapp-open">
@@ -1408,7 +1437,7 @@
     <div class="preview-modal" id="preview-modal">
         <div class="preview-modal-content">
             <div class="preview-header">
-                <h2><i class="fas fa-file-pdf"></i> Previsualización del Pedido</h2>
+                <h2><i class="fas fa-file-alt"></i> Previsualización del Pedido</h2>
                 <button class="close-modal" id="close-preview-modal">&times;</button>
             </div>
             <div class="preview-body" id="preview-body">
@@ -1418,9 +1447,6 @@
                 <div class="preview-actions">
                     <button class="btn btn-success whatsapp-btn" id="preview-whatsapp">
                         <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
-                    </button>
-                    <button class="btn btn-primary" id="preview-download">
-                        <i class="fas fa-download"></i> Descargar PDF
                     </button>
                     <button class="btn btn-danger" id="preview-close">
                         <i class="fas fa-times"></i> Cerrar
@@ -1449,10 +1475,9 @@
         let currentProduct = null;
         let selectedUnit = 'U';
         let quantity = 1;
-        let currentPDFBlob = null;
-        let currentFileName = '';
         let nextOrderNumber = localStorage.getItem('lastOrderNumber') ? parseInt(localStorage.getItem('lastOrderNumber')) : 1;
-        const WHATSAPP_NUMBER = "584243757335"; // Número sin el signo +
+        const WHATSAPP_NUMBER = "+584243757335"; // Número sin el signo +
+        let currentOrderText = '';
 
         // Definición precisa de categorías con nombres específicos
         const categories = [
@@ -1778,17 +1803,13 @@
             // Botones de acción
             document.getElementById('btn-clear').addEventListener('click', clearAll);
             document.getElementById('btn-whatsapp').addEventListener('click', function() {
-                generatePDF('whatsapp');
+                generateWhatsAppMessage();
             });
             document.getElementById('btn-preview').addEventListener('click', showPreview);
             
             // Botones de previsualización
             document.getElementById('preview-whatsapp').addEventListener('click', function() {
-                generatePDF('whatsapp');
-                closePreviewModal();
-            });
-            document.getElementById('preview-download').addEventListener('click', function() {
-                generatePDF('download');
+                generateWhatsAppMessage();
                 closePreviewModal();
             });
             
@@ -2196,6 +2217,7 @@
                         <tr>
                             <th>Producto</th>
                             <th>Ref.</th>
+                            <th>Gama</th>
                             <th>Unidad</th>
                             <th>Cantidad</th>
                             <th>Unid. Totales</th>
@@ -2225,6 +2247,7 @@
                     <tr>
                         <td>${item.product.name}</td>
                         <td>${item.product.ref}</td>
+                        <td>${item.product.category.toUpperCase()}</td>
                         <td>${getUnitName(item.unit)}</td>
                         <td>${item.quantity}</td>
                         <td>${totalUnits}</td>
@@ -2246,8 +2269,8 @@
             document.getElementById('preview-modal').style.display = 'flex';
         }
 
-        // Generar PDF (con observaciones) - VERSIÓN COMPACTA
-        function generatePDF(action) {
+        // Generar mensaje detallado para WhatsApp
+        function generateWhatsAppMessage() {
             const clientName = document.getElementById('client-name').value.trim();
             const clientRif = document.getElementById('client-rif').value.trim();
             const clientAddress = document.getElementById('client-address').value.trim();
@@ -2262,7 +2285,7 @@
             }
 
             if (cartItems.length === 0) {
-                showNotification('No hay productos en el pedido para generar PDF', 'error');
+                showNotification('No hay productos en el pedido', 'error');
                 return;
             }
 
@@ -2271,269 +2294,81 @@
             // Formatear el número de pedido con 5 dígitos
             const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
             
-            // Usar jsPDF para generar el PDF
-            const { jsPDF } = window.jspdf;
-            
-            try {
-                const doc = new jsPDF({
-                    orientation: 'portrait',
-                    unit: 'mm',
-                    format: 'a4'
-                });
-
-                // Configuración compacta
-                const margin = 8; // Margen reducido
-                let yPos = margin;
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const maxWidth = pageWidth - 2 * margin;
-
-                // Encabezado compacto
-                doc.setFontSize(16); // Tamaño reducido
-                doc.setFont(undefined, 'bold');
-                doc.setTextColor(67, 97, 238);
-                doc.text('ORDEN DE PEDIDO - PINTURAS OSI', pageWidth / 2, yPos, { align: 'center' });
-                yPos += 6; // Espacio reducido
-                
-                doc.setFontSize(9); // Tamaño reducido
-                doc.setFont(undefined, 'normal');
-                doc.setTextColor(0, 0, 0);
-                doc.text(`Fecha: ${new Date().toLocaleDateString()}`, margin, yPos);
-                doc.text(`N° Pedido: ${formattedOrderNumber}`, pageWidth - margin, yPos, { align: 'right' });
-                yPos += 5;
-
-                // Información del cliente compacta
-                doc.setFontSize(9);
-                doc.setFont(undefined, 'bold');
-                doc.text('Nombre o Razón Social:', margin, yPos);
-                doc.text('RIF:', margin, yPos + 4);
-                doc.text('Dirección:', margin, yPos + 8);
-                doc.text('Teléfono:', margin, yPos + 12);
-                doc.text('Horario:', margin, yPos + 16);
-                
-                doc.setFont(undefined, 'normal');
-                doc.text(clientName, margin + 45, yPos);
-                doc.text(clientRif, margin + 45, yPos + 4);
-                doc.text(clientAddress, margin + 45, yPos + 8);
-                doc.text(clientPhone, margin + 45, yPos + 12);
-                doc.text(clientSchedule, margin + 45, yPos + 16);
-                yPos += 20;
-
-                // Detalle compacto
-                if (observations) {
-                    yPos += 2;
-                    doc.setFont(undefined, 'bold');
-                    doc.text('Detalle:', margin, yPos);
-                    doc.setFont(undefined, 'normal');
-                    const splitObservations = doc.splitTextToSize(observations, maxWidth - 10);
-                    splitObservations.forEach(line => {
-                        if (yPos > 250) {
-                            doc.addPage();
-                            yPos = margin;
-                        }
-                        doc.text(line, margin + 5, yPos + 5);
-                        yPos += 4; // Espacio reducido
-                    });
-                    yPos += 5;
-                }
-
-                // Tabla de productos compacta
-                yPos += 3;
-                doc.setFont(undefined, 'bold');
-                doc.setFillColor(67, 97, 238);
-                doc.setTextColor(255, 255, 255);
-                doc.rect(margin, yPos, maxWidth, 6, 'F'); // Altura reducida
-                
-                // Encabezados de tabla compactos
-                doc.text('Producto', margin + 3, yPos + 4);
-                doc.text('Ref.', margin + 70, yPos + 4);
-                doc.text('Unidad', margin + 85, yPos + 4);
-                doc.text('Cant.', margin + 105, yPos + 4);
-                doc.text('Unid. Tot.', margin + 125, yPos + 4);
-                yPos += 7;
-
-                doc.setFont(undefined, 'normal');
-                doc.setTextColor(0, 0, 0);
-                
-                // Variable para el total general de unidades
-                let totalGeneralUnidades = 0;
-                const rowHeight = 5; // Altura de fila reducida
-                
-                cartItems.forEach(item => {
-                    if (yPos > 280) {
-                        doc.addPage();
-                        yPos = margin;
-                        
-                        // Volver a dibujar encabezado de tabla en nueva página
-                        doc.setFont(undefined, 'bold');
-                        doc.setFillColor(67, 97, 238);
-                        doc.setTextColor(255, 255, 255);
-                        doc.rect(margin, yPos, maxWidth, 6, 'F');
-                        doc.text('Producto', margin + 3, yPos + 4);
-                        doc.text('Ref.', margin + 70, yPos + 4);
-                        doc.text('Unidad', margin + 85, yPos + 4);
-                        doc.text('Cant.', margin + 105, yPos + 4);
-                        doc.text('Unid. Tot.', margin + 125, yPos + 4);
-                        yPos += 7;
-                        doc.setFont(undefined, 'normal');
-                        doc.setTextColor(0, 0, 0);
-                    }
-                    
-                    // Calcular unidades totales para este ítem
-                    let totalUnits = 0;
-                    if (item.product.ref === 600) { // Tempera OSI
-                        if (item.unit === 'U') totalUnits = item.quantity;
-                        if (item.unit === 'DZ') totalUnits = item.quantity * 12;
-                        if (item.unit === 'BUL') totalUnits = item.quantity * 100;
-                    } else {
-                        if (item.unit === 'U') totalUnits = item.quantity;
-                        if (item.unit === 'DZ') totalUnits = item.quantity * 12;
-                        if (item.unit === 'BUL') totalUnits = item.quantity * 288;
-                    }
-                    
-                    totalGeneralUnidades += totalUnits;
-                    
-                    // Limitar longitud del nombre para ahorrar espacio
-                    const maxNameLength = 35;
-                    const productName = item.product.name.length > maxNameLength ? 
-                        item.product.name.substring(0, maxNameLength - 3) + '...' : item.product.name;
-                    
-                    doc.text(productName, margin + 3, yPos + 3);
-                    doc.text(item.product.ref.toString(), margin + 70, yPos + 3);
-                    doc.text(getUnitName(item.unit).substring(0, 3), margin + 85, yPos + 3); // Abreviar unidad a 3 caracteres
-                    doc.text(item.quantity.toString(), margin + 105, yPos + 3);
-                    doc.text(totalUnits.toString(), margin + 125, yPos + 3);
-                    
-                    // Línea divisoria sutil
-                    doc.setDrawColor(200, 200, 200);
-                    doc.line(margin, yPos + rowHeight, pageWidth - margin, yPos + rowHeight);
-                    
-                    yPos += rowHeight;
-                });
-
-                // Totales compactos
-                yPos += 5;
-                doc.setFont(undefined, 'bold');
-                doc.text(`Total de Productos: ${cartItems.length}`, margin, yPos);
-                doc.text(`Total de Unidades: ${totalGeneralUnidades}`, margin + 100, yPos);
-                yPos += 5;
-                
-                // Notas compactas
-                doc.setFontSize(8);
-                doc.setFont(undefined, 'normal');
-                doc.text("Nota: Tempera OSI (Ref. 600) - 1 bulto = 100 unidades", margin, yPos);
-                doc.text("Otras pinturas - 1 bulto = 288 unidades", margin, yPos + 3);
-                
-                // Pie de página compacto
-                yPos = 287;
-                doc.setFontSize(8);
-                doc.setTextColor(100, 100, 100);
-                doc.text('Pedidos - Pinturas OSI & SISI 2025.', pageWidth / 2, yPos, { align: 'center' });
-                doc.text(new Date().getFullYear().toString(), pageWidth / 2, yPos + 4, { align: 'center' });
-
-                // Generar blob para descarga
-                const pdfBlob = doc.output('blob');
-                currentPDFBlob = pdfBlob;
-                
-                // Generar nombre del archivo
-                currentFileName = `${clientName.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`;
-                
-                // Incrementar y guardar el número de pedido
-                nextOrderNumber++;
-                localStorage.setItem('lastOrderNumber', nextOrderNumber.toString());
-                
-                // Realizar acción después de generar el PDF
-                if (action === 'whatsapp') {
-                    sendWhatsApp(pdfBlob);
-                } else if (action === 'download') {
-                    // Descargar el PDF
-                    downloadPDF(pdfBlob, currentFileName);
-                    showNotification('PDF descargado correctamente');
-                }
-                
-                showLoading(false);
-            } catch (error) {
-                console.error("Error al generar PDF:", error);
-                showLoading(false);
-                showNotification('Error al generar el PDF', 'error');
+            // Crear texto del mensaje
+            let whatsappText = `*ORDEN DE PEDIDO - PINTURAS OSI & SISI*\n\n`;
+            whatsappText += `*Fecha:* ${new Date().toLocaleDateString()}\n`;
+            whatsappText += `*N° Pedido:* ${formattedOrderNumber}\n\n`;
+            whatsappText += `*Cliente:* ${clientName}\n`;
+            whatsappText += `*RIF:* ${clientRif}\n`;
+            whatsappText += `*Dirección:* ${clientAddress}\n`;
+            whatsappText += `*Teléfono:* ${clientPhone}\n`;
+            whatsappText += `*Horario:* ${clientSchedule}\n`;
+            if (observations) {
+                whatsappText += `*Detalle:* ${observations}\n`;
             }
-        }
 
-        // Descargar PDF
-        function downloadPDF(pdfBlob, fileName) {
-            const downloadLink = document.createElement('a');
-            downloadLink.href = URL.createObjectURL(pdfBlob);
-            downloadLink.download = fileName;
-            document.body.appendChild(downloadLink);
-            downloadLink.click();
-            document.body.removeChild(downloadLink);
-        }
+            whatsappText += `\n*DETALLE DEL PEDIDO:*\n`;
 
-        // Abrir WhatsApp manualmente
-        function openWhatsApp() {
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}`;
-            window.open(whatsappUrl, '_blank');
-        }
+            let totalGeneralUnidades = 0;
+            cartItems.forEach((item, index) => {
+                // Calcular unidades totales
+                let totalUnits = 0;
+                if (item.product.ref === 600) { // Tempera OSI
+                    if (item.unit === 'U') totalUnits = item.quantity;
+                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
+                    if (item.unit === 'BUL') totalUnits = item.quantity * 100;
+                } else {
+                    if (item.unit === 'U') totalUnits = item.quantity;
+                    if (item.unit === 'DZ') totalUnits = item.quantity * 12;
+                    if (item.unit === 'BUL') totalUnits = item.quantity * 288;
+                }
+                totalGeneralUnidades += totalUnits;
 
-        // Enviar por WhatsApp
-        function sendWhatsApp(pdfBlob) {
-            const clientName = document.getElementById('client-name').value.trim();
-            const formattedOrderNumber = (nextOrderNumber - 1).toString().padStart(5, '0');
-            const currentDate = new Date().toLocaleDateString();
-            
-            // Crear el archivo para compartir
-            const file = new File([pdfBlob], currentFileName, { type: 'application/pdf' });
-            
-            // Texto del mensaje
-            const messageText = `Pedido de ${clientName} - N° ${formattedOrderNumber}\nFecha: ${currentDate}`;
-            
-            // Verificar si el navegador soporta Web Share API (ideal para móviles)
-            if (navigator.share) {
-                navigator.share({
-                    title: 'Pedido de Pinturas OSI',
-                    text: messageText,
-                    files: [file]
-                })
-                .then(() => {
-                    showNotification('Pedido compartido con éxito');
-                    // Limpiar carrito después de enviar
-                    cartItems = [];
-                    updateCartCount();
-                    saveCartToStorage();
-                })
-                .catch(error => {
-                    console.error('Error al compartir:', error);
-                    // Si falla, intentamos con el método de enlace de WhatsApp
-                    openWhatsAppWithFile(messageText, file);
-                });
-            } else {
-                // Para navegadores que no soportan Web Share API (principalmente escritorio)
-                openWhatsAppWithFile(messageText, file);
-            }
-        }
+                whatsappText += `\n${index + 1}. *${item.product.name}* (Ref: ${item.product.ref})`;
+                whatsappText += `\n   - Gama: ${item.product.category.toUpperCase()}`;
+                whatsappText += `\n   - ${getUnitName(item.unit)}: ${item.quantity}`;
+                whatsappText += `\n   - Total Unidades: ${totalUnits}`;
+            });
 
-        function openWhatsAppWithFile(text, file) {
-            // Descargar el PDF para que el usuario lo tenga
-            downloadPDF(file, currentFileName);
+            whatsappText += `\n\n*RESUMEN:*\n`;
+            whatsappText += `Total Productos: ${cartItems.length}\n`;
+            whatsappText += `Total Unidades: ${totalGeneralUnidades}\n`;
+
+            whatsappText += `\n_Nota:_\n`;
+            whatsappText += `- Tempera OSI (Ref. 600): 1 bulto = 100 unidades\n`;
+            whatsappText += `- Otras pinturas: 1 bulto = 288 unidades\n`;
+
+            // Incrementar y guardar el número de pedido
+            nextOrderNumber++;
+            localStorage.setItem('lastOrderNumber', nextOrderNumber.toString());
             
-            // Construir URL de WhatsApp
-            const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
+            // Guardar el texto para enviar por WhatsApp
+            currentOrderText = whatsappText;
             
-            // Abrir WhatsApp en una nueva pestaña
-            window.open(whatsappUrl, '_blank');
-            
-            // Actualizar el modal de WhatsApp con instrucciones
-            document.getElementById('whatsapp-title').textContent = '¡Pedido listo para enviar!';
-            document.getElementById('whatsapp-message').textContent = 'El PDF con los detalles del pedido se ha generado correctamente.';
-            document.getElementById('whatsapp-instruction').textContent = 'Por favor, adjunte el archivo PDF descargado en el chat de WhatsApp.';
-            document.getElementById('whatsapp-alternative').textContent = 'Si WhatsApp no se abrió, por favor haga clic en el botón de abajo.';
-            
-            // Mostrar modal de WhatsApp
+            // Mostrar el mensaje en el modal de WhatsApp
+            document.getElementById('whatsapp-message-preview').textContent = whatsappText;
             document.getElementById('whatsapp-modal').style.display = 'flex';
             
-            // Limpiar carrito después de enviar
-            cartItems = [];
-            updateCartCount();
-            saveCartToStorage();
+            showLoading(false);
+        }
+
+        // Abrir WhatsApp con el mensaje generado
+        function openWhatsApp() {
+            if (!currentOrderText) {
+                showNotification('Primero debe generar el pedido', 'error');
+                return;
+            }
+            
+            const clientPhone = document.getElementById('client-phone').value.trim();
+            const phoneToUse = clientPhone ? clientPhone.replace(/\D/g, '') : WHATSAPP_NUMBER;
+            
+            const encodedText = encodeURIComponent(currentOrderText);
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const whatsappUrl = isMobile ? 
+                `whatsapp://send?phone=${phoneToUse}&text=${encodedText}` : 
+                `https://web.whatsapp.com/send?phone=${phoneToUse}&text=${encodedText}`;
+            
+            window.open(whatsappUrl, '_blank');
         }
 
         // Mostrar notificación
