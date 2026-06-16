@@ -405,6 +405,63 @@
             color: white !important;
         }
 
+
+        /* Botón de Envío Rápido */
+        .quick-checkout-container {
+            position: fixed;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            width: calc(100% - 40px);
+            max-width: 500px;
+            display: flex;
+            justify-content: center;
+            pointer-events: none; /* Let clicks pass through if container has padding */
+        }
+
+        .btn-quick-checkout {
+            width: 100%;
+            pointer-events: auto; /* Re-enable pointer events for the button itself */
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white !important;
+            font-size: 1.05rem;
+            font-weight: 700;
+            padding: 14px 20px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: pulse-checkout 2s infinite;
+        }
+
+        .btn-quick-checkout:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 15px 30px -5px rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .btn-quick-checkout:active {
+            transform: translateY(0) scale(1);
+        }
+
+        @keyframes pulse-checkout {
+            0% {
+                box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            }
+            50% {
+                box-shadow: 0 10px 30px 2px rgba(16, 185, 129, 0.6);
+            }
+            100% {
+                box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+            }
+        }
+
         /* SQL Script Box */
         .sql-script-box {
             margin-top: 15px;
@@ -1300,7 +1357,7 @@
     <div class="container">
         <header>
             <h1>Pinturas OSI & SISI</h1>
-            <p>Sistema Inteligente de Pedidos con Asistente de Voz y Supabase</p>
+            <p>Sistema Inteligente de Pedidos con Asistente de Voz</p>
         </header>
 
         <!-- CONTENEDOR DASHBOARD -->
@@ -1324,7 +1381,7 @@
                         <div class="db-config-header">
                             <div class="db-status-wrapper" onclick="toggleConfigBody()">
                                 <div class="db-status-dot offline" id="db-status-dot"></div>
-                                <span id="db-status-text">Supabase Desconectado (Modo Local)</span>
+                                <span id="db-status-text">Base de Datos Desconectada (Modo Local)</span>
                             </div>
                             <div style="display: flex; gap: 8px; align-items: center;">
                                 <button class="btn btn-sm btn-success" id="btn-install-pwa" style="display: none; padding: 4px 10px; font-size: 0.8rem; background: var(--secondary); color: white;" type="button">
@@ -1341,11 +1398,11 @@
                         
                         <div class="db-config-body" id="db-config-body" style="display: none;">
                             <div class="form-group">
-                                <label for="supabase-url-input">Supabase Project URL</label>
+                                <label for="supabase-url-input">URL de la Base de Datos</label>
                                 <input type="text" id="supabase-url-input" class="form-control" placeholder="https://xxxxxx.supabase.co">
                             </div>
                             <div class="form-group">
-                                <label for="supabase-key-input">Supabase Publishable Key (Anon)</label>
+                                <label for="supabase-key-input">Clave Pública de Acceso</label>
                                 <input type="password" id="supabase-key-input" class="form-control" placeholder="sb_publishable_...">
                             </div>
                             <div class="config-actions">
@@ -1357,7 +1414,7 @@
                             <!-- Script SQL -->
                             <div id="sql-script-box" class="sql-script-box" style="display: none;">
                                 <div class="sql-box-header">
-                                    <span>Ejecutar en consola SQL de Supabase:</span>
+                                    <span>Ejecutar en consola SQL de la Base de Datos:</span>
                                     <button class="btn-copy-sql" id="btn-copy-sql" type="button"><i class="fas fa-copy"></i> Copiar</button>
                                 </div>
                                 <pre><code id="sql-code">-- SQL TABLES SETUP
@@ -1444,7 +1501,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     <!-- Importador de clientes desde PDF -->
                     <div class="pdf-import-section" style="margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px;">
                         <h3 style="font-size: 1rem; font-weight: 700; color: var(--primary);"><i class="fas fa-file-import"></i> Importar Clientes desde PDF</h3>
-                        <p style="font-size: 0.8rem; color: var(--gray);">Carga el listado PDF de clientes para guardarlo en Supabase.</p>
+                        <p style="font-size: 0.8rem; color: var(--gray);">Carga el listado PDF de clientes para guardarlo en la Base de Datos.</p>
                         
                         <div class="pdf-drop-zone" id="pdf-drop-zone">
                             <i class="fas fa-file-pdf fa-2x"></i>
@@ -1502,6 +1559,13 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
                     <div id="categories-container" style="flex: 1; overflow-y: auto; max-height: 480px; padding-right: 5px;">
                         <!-- Las categorías se cargarán dinámicamente -->
+                    </div>
+
+                    <!-- Botón Flotante de Compra Rápida en Paso 2 -->
+                    <div id="quick-checkout-container" class="quick-checkout-container" style="display: none;">
+                        <button class="btn btn-success btn-quick-checkout" onclick="quickSendOrder()" type="button">
+                            <i class="fab fa-whatsapp"></i> Enviar Pedido Rápido (<span id="quick-cart-count">0</span>)
+                        </button>
                     </div>
                 </div>
 
@@ -1978,7 +2042,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     
                     dbStatus = "connected";
                     statusDot.className = "db-status-dot connected";
-                    statusText.textContent = "Conectado a Supabase";
+                    statusText.textContent = "Conectado a la Base de Datos";
                     
                     // Escuchar cambios de autenticación
                     supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -2001,7 +2065,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
                     loadSellers();
                 } catch (e) {
-                    console.error("Error inicializando Supabase:", e);
+                    console.error("Error inicializando Base de Datos:", e);
                     supabaseClient = null;
                     dbStatus = "error";
                     statusDot.className = "db-status-dot error";
@@ -2013,7 +2077,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 supabaseClient = null;
                 dbStatus = "offline";
                 statusDot.className = "db-status-dot offline";
-                statusText.textContent = "Supabase Desconectado (Modo Local)";
+                statusText.textContent = "Base de Datos Desconectada (Modo Local)";
                 updateGitHubAuthUI(null);
                 loadMockSellers();
             }
@@ -2139,7 +2203,10 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
         // Cargar Vendedores
         async function loadSellers() {
-            if (!supabaseClient) return;
+            if (!supabaseClient) {
+                loadMockSellers();
+                return;
+            }
             const select = document.getElementById('seller-select');
             try {
                 const { data, error } = await supabaseClient
@@ -2156,11 +2223,17 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         opt.textContent = v.nombre;
                         select.appendChild(opt);
                     });
+
+                    // Preseleccionar vendedor guardado
+                    const cachedSeller = localStorage.getItem('selected_seller');
+                    if (cachedSeller) {
+                        select.value = cachedSeller;
+                    }
                 } else {
                     loadMockSellers();
                 }
             } catch (e) {
-                console.error("Error al cargar vendedores de Supabase:", e);
+                console.error("Error al cargar vendedores de la base de datos:", e);
                 loadMockSellers();
             }
         }
@@ -2175,6 +2248,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 opt.textContent = s;
                 select.appendChild(opt);
             });
+
+            // Preseleccionar vendedor guardado
+            const cachedSeller = localStorage.getItem('selected_seller');
+            if (cachedSeller) {
+                select.value = cachedSeller;
+            }
         }
 
         // Agregar Vendedor nuevo
@@ -2335,6 +2414,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.querySelector(`.notebook-tab-${step}`).classList.add('active');
 
             currentStep = step;
+            updateQuickCheckoutButton();
 
             document.getElementById('step-indicator').textContent = `Paso ${step} de 3`;
             document.getElementById('prev-step-btn').style.visibility = step === 1 ? 'hidden' : 'visible';
@@ -2498,6 +2578,41 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             countEl.textContent = totalItems;
 
             renderCartTable();
+            updateQuickCheckoutButton();
+        }
+
+        // --- LÓGICA DE COMPRA RÁPIDA (STEP 2) ---
+        function updateQuickCheckoutButton() {
+            const container = document.getElementById('quick-checkout-container');
+            const countSpan = document.getElementById('quick-cart-count');
+            
+            if (currentStep === 2 && cartItems.length > 0) {
+                container.style.display = 'flex';
+                const totalItems = cartItems.reduce((acc, i) => acc + i.quantity, 0);
+                countSpan.textContent = totalItems === 1 ? '1 producto' : `${totalItems} productos`;
+            } else {
+                container.style.display = 'none';
+            }
+        }
+
+        async function quickSendOrder() {
+            const seller = document.getElementById('seller-select').value;
+            if (!seller) {
+                showNotification("Por favor seleccione un Vendedor", "error");
+                goToStep(1);
+                return;
+            }
+            if (!selectedClient) {
+                showNotification("Por favor busque y seleccione un Cliente", "error");
+                goToStep(1);
+                return;
+            }
+            if (cartItems.length === 0) {
+                showNotification("No hay productos en el carrito", "error");
+                return;
+            }
+            // Enviar pedido inmediatamente
+            await sendWhatsAppDirect();
         }
 
         function renderCartTable() {
@@ -2796,7 +2911,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         loadSellers();
                     }
 
-                    showNotification("Clientes guardados exitosamente en Supabase");
+                    showNotification("Clientes guardados exitosamente en la Base de Datos");
                 } else {
                     localClients = parsedPDFData.clients;
                     localStorage.setItem('local_clients_cache', JSON.stringify(localClients));
@@ -3349,6 +3464,14 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('client-search-input').addEventListener('input', handleClientSearch);
             document.getElementById('btn-clear-client').addEventListener('click', clearSelectedClient);
             document.getElementById('btn-add-seller').addEventListener('click', addSeller);
+            document.getElementById('seller-select').addEventListener('change', (e) => {
+                const seller = e.target.value;
+                if (seller) {
+                    localStorage.setItem('selected_seller', seller);
+                } else {
+                    localStorage.removeItem('selected_seller');
+                }
+            });
 
             document.getElementById('btn-clear-parsed').addEventListener('click', clearParsedPreview);
             document.getElementById('btn-upload-parsed').addEventListener('click', saveParsedClients);
@@ -3366,7 +3489,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 localStorage.setItem('supabase_key', document.getElementById('supabase-key-input').value.trim());
                 localStorage.removeItem('supabase_secret_key');
                 initSupabase();
-                showNotification("Configuración de Supabase guardada");
+                showNotification("Configuración de la Base de Datos guardada");
             });
 
             document.getElementById('btn-test-connection').addEventListener('click', testSupabaseConnection);
@@ -3396,7 +3519,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 showNotification("Por favor rellene URL y Key primero", "error");
                 return;
             }
-            showLoading(true, "Comprobando conexión con Supabase...");
+            showLoading(true, "Comprobando conexión con la Base de Datos...");
             try {
                 const client = window.supabase.createClient(url, key, {
                     auth: { persistSession: false }
