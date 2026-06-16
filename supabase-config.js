@@ -3,7 +3,6 @@
 // No lo elimines ni lo agregues a Git para evitar exponer claves en repositorios públicos.
 
 window.SUPABASE_CONFIG = {
-  url: "https://uxtxwoyfuinrmgqgkbzv.supabase.co/rest/v1/",
-  anonKey: "sb_publishable_Y6iWtmtbnk7FrxUxh8ZREA_dDQrPOE-",
-  secretKey: "sb_secret_OFFAXqIYLaqtgUhIWznA1A_H966ydDS"
+  url: "", // Introduce tu URL de Supabase aquí (ej. https://xxxx.supabase.co)
+  anonKey: "" // Introduce tu Anon Publishable Key aquí
 };
