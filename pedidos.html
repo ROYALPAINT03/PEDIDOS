@@ -4529,9 +4529,19 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             else panel.classList.remove('active');
         }
 
+        // Función para retrasar la ejecución (debounce)
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                const context = this;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(context, args), wait);
+            };
+        }
+
         // Setup Event Listeners
         function setupEventListeners() {
-            document.getElementById('client-search-input').addEventListener('input', handleClientSearch);
+            document.getElementById('client-search-input').addEventListener('input', debounce(handleClientSearch, 300));
             document.getElementById('btn-clear-client').addEventListener('click', clearSelectedClient);
             document.getElementById('btn-add-seller').addEventListener('click', addSeller);
             document.getElementById('seller-select').addEventListener('change', (e) => {
@@ -4543,7 +4553,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 }
             });
 
-            document.getElementById('product-search').addEventListener('input', filterProducts);
+            document.getElementById('product-search').addEventListener('input', debounce(filterProducts, 300));
             document.getElementById('category-filter').addEventListener('change', filterProducts);
 
             document.getElementById('floating-mic-btn').addEventListener('click', startSpeechRecognition);
