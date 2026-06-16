@@ -10,6 +10,7 @@
     <!-- Metatags y enlaces PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e3a8a">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="logosisi.jpg">
@@ -312,6 +313,96 @@
             gap: 10px;
             margin-top: 15px;
             flex-wrap: wrap;
+        }
+
+
+        /* GitHub Auth Panel */
+        .github-auth-panel {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
+        }
+
+        .github-user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+        }
+
+        .github-user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1.5px solid var(--glass-border);
+            object-fit: cover;
+        }
+
+        .github-user-details {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .github-user-name {
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .github-user-email {
+            font-size: 0.75rem;
+            color: var(--gray);
+        }
+
+        .btn-github-login {
+            background: #24292e;
+            color: #fff !important;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .btn-github-login:hover {
+            background: #444d56;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .btn-github-login:active {
+            transform: translateY(0);
+        }
+
+        .btn-github-logout {
+            background: transparent;
+            color: var(--secondary);
+            border: 1px solid var(--secondary);
+            border-radius: 6px;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .btn-github-logout:hover {
+            background: var(--secondary);
+            color: white !important;
         }
 
         /* SQL Script Box */
@@ -1242,6 +1333,11 @@
                                 <button class="btn-config-toggle" onclick="toggleConfigBody()" type="button"><i class="fas fa-cog"></i> Configurar</button>
                             </div>
                         </div>
+
+                        <!-- Panel de Autenticación de GitHub -->
+                        <div id="github-auth-panel" class="github-auth-panel" style="display: none;">
+                            <!-- Se renderiza dinámicamente mediante JS -->
+                        </div>
                         
                         <div class="db-config-body" id="db-config-body" style="display: none;">
                             <div class="form-group">
@@ -1251,10 +1347,6 @@
                             <div class="form-group">
                                 <label for="supabase-key-input">Supabase Publishable Key (Anon)</label>
                                 <input type="password" id="supabase-key-input" class="form-control" placeholder="sb_publishable_...">
-                            </div>
-                            <div class="form-group">
-                                <label for="supabase-secret-input">Supabase Secret Key (Service Role)</label>
-                                <input type="password" id="supabase-secret-input" class="form-control" placeholder="sb_secret_...">
                             </div>
                             <div class="config-actions">
                                 <button class="btn btn-primary btn-sm" id="btn-save-config" type="button"><i class="fas fa-save"></i> Guardar</button>
@@ -1827,7 +1919,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             // Recuperar configuración de Supabase y establecer valores por defecto
             let savedUrl = localStorage.getItem('supabase_url');
             let savedKey = localStorage.getItem('supabase_key');
-            let savedSecret = localStorage.getItem('supabase_secret_key');
 
             // Cargar configuración desde el archivo local supabase-config.js si está disponible
             if (window.SUPABASE_CONFIG) {
@@ -1839,10 +1930,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     savedKey = window.SUPABASE_CONFIG.anonKey;
                     localStorage.setItem('supabase_key', savedKey);
                 }
-                if (window.SUPABASE_CONFIG.secretKey) {
-                    savedSecret = window.SUPABASE_CONFIG.secretKey;
-                    localStorage.setItem('supabase_secret_key', savedSecret);
-                }
             }
 
             if (!savedUrl) {
@@ -1851,14 +1938,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             if (!savedKey) {
                 savedKey = "";
             }
-            if (!savedSecret) {
-                savedSecret = "";
-            }
 
             document.getElementById('supabase-url-input').value = savedUrl;
             document.getElementById('supabase-key-input').value = savedKey;
-            const secretInput = document.getElementById('supabase-secret-input');
-            if (secretInput) secretInput.value = savedSecret;
 
             initSupabase();
             loadCategories();
@@ -1868,19 +1950,55 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             goToStep(1);
         });
 
+        // Saneamiento de URL para evitar duplicación del path REST (/rest/v1)
+        function sanitizeSupabaseUrl(url) {
+            if (!url) return "";
+            return url.trim().replace(/\/rest\/v1\/?$/, "");
+        }
+
         // Configuración de Supabase
         function initSupabase() {
-            const url = document.getElementById('supabase-url-input').value.trim();
+            let url = document.getElementById('supabase-url-input').value.trim();
+            url = sanitizeSupabaseUrl(url);
+            document.getElementById('supabase-url-input').value = url;
+
             const key = document.getElementById('supabase-key-input').value.trim();
             const statusDot = document.getElementById('db-status-dot');
             const statusText = document.getElementById('db-status-text');
 
             if (url && key) {
                 try {
-                    supabaseClient = window.supabase.createClient(url, key);
+                    supabaseClient = window.supabase.createClient(url, key, {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: true
+                        }
+                    });
+                    
                     dbStatus = "connected";
                     statusDot.className = "db-status-dot connected";
                     statusText.textContent = "Conectado a Supabase";
+                    
+                    // Escuchar cambios de autenticación
+                    supabaseClient.auth.onAuthStateChange(async (event, session) => {
+                        updateGitHubAuthUI(session);
+                        if (session && session.user) {
+                            await checkAndRegisterSeller(session.user);
+                        } else {
+                            const select = document.getElementById('seller-select');
+                            if (select) select.value = "";
+                        }
+                    });
+                    
+                    // Comprobar estado inicial de sesión
+                    supabaseClient.auth.getSession().then(({ data: { session } }) => {
+                        updateGitHubAuthUI(session);
+                        if (session && session.user) {
+                            checkAndRegisterSeller(session.user);
+                        }
+                    });
+
                     loadSellers();
                 } catch (e) {
                     console.error("Error inicializando Supabase:", e);
@@ -1888,6 +2006,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     dbStatus = "error";
                     statusDot.className = "db-status-dot error";
                     statusText.textContent = "Error de Conexión";
+                    updateGitHubAuthUI(null);
                     loadMockSellers();
                 }
             } else {
@@ -1895,6 +2014,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 dbStatus = "offline";
                 statusDot.className = "db-status-dot offline";
                 statusText.textContent = "Supabase Desconectado (Modo Local)";
+                updateGitHubAuthUI(null);
                 loadMockSellers();
             }
         }
@@ -1902,6 +2022,119 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         function toggleConfigBody() {
             const body = document.getElementById('db-config-body');
             body.style.display = body.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // --- FUNCIONES DE AUTENTICACIÓN GITHUB (OPCIÓN B) ---
+        function updateGitHubAuthUI(session) {
+            const authPanel = document.getElementById('github-auth-panel');
+            if (!supabaseClient) {
+                authPanel.style.display = 'none';
+                return;
+            }
+            authPanel.style.display = 'flex';
+
+            if (session && session.user) {
+                const user = session.user;
+                const avatar = user.user_metadata.avatar_url || 'https://cdn-icons-png.flaticon.com/512/25/25231.png';
+                const name = user.user_metadata.full_name || user.user_metadata.user_name || user.email.split('@')[0];
+                const email = user.email;
+
+                authPanel.innerHTML = `
+                    <div class="github-user-info">
+                        <img src="${avatar}" class="github-user-avatar" alt="Avatar">
+                        <div class="github-user-details">
+                            <span class="github-user-name">${name.toUpperCase()}</span>
+                            <span class="github-user-email">${email}</span>
+                        </div>
+                    </div>
+                    <button class="btn-github-logout" onclick="logoutGitHub()" type="button">
+                        <i class="fas fa-sign-out-alt"></i> Salir
+                    </button>
+                `;
+            } else {
+                authPanel.innerHTML = `
+                    <div style="color: var(--gray); font-size: 0.82rem; display: flex; align-items: center; gap: 6px;">
+                        <i class="fas fa-lock"></i> Inicia sesión para guardar pedidos
+                    </div>
+                    <button class="btn-github-login" onclick="loginWithGitHub()" type="button">
+                        <i class="fab fa-github"></i> Conectar con GitHub
+                    </button>
+                `;
+            }
+        }
+
+        async function loginWithGitHub() {
+            if (!supabaseClient) return;
+            try {
+                showLoading(true, "Redirigiendo a GitHub...");
+                const { error } = await supabaseClient.auth.signInWithOAuth({
+                    provider: 'github',
+                    options: {
+                        redirectTo: window.location.origin + window.location.pathname
+                    }
+                });
+                if (error) throw error;
+            } catch (err) {
+                console.error("Error iniciando sesión con GitHub:", err);
+                showNotification("Error de inicio de sesión: " + err.message, "error");
+                showLoading(false);
+            }
+        }
+
+        async function logoutGitHub() {
+            if (!supabaseClient) return;
+            try {
+                showLoading(true, "Cerrando sesión...");
+                const { error } = await supabaseClient.auth.signOut();
+                if (error) throw error;
+                showNotification("Sesión cerrada");
+            } catch (err) {
+                console.error("Error cerrando sesión:", err);
+                showNotification("Error al cerrar sesión: " + err.message, "error");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function checkAndRegisterSeller(user) {
+            if (!supabaseClient) return;
+            const name = (user.user_metadata.full_name || user.user_metadata.user_name || user.email.split('@')[0]).toUpperCase();
+            
+            try {
+                // Verificar si ya existe en la tabla de vendedores
+                const { data, error } = await supabaseClient
+                    .from('vendedores')
+                    .select('nombre')
+                    .eq('nombre', name)
+                    .maybeSingle();
+
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+
+                if (!data) {
+                    // Si no existe, lo insertamos automáticamente
+                    const { error: insertError } = await supabaseClient
+                        .from('vendedores')
+                        .insert([{ nombre: name }]);
+                    
+                    if (insertError) {
+                        console.error("Error al registrar vendedor:", insertError);
+                    } else {
+                        showNotification(`Vendedor registrado automáticamente: ${name}`);
+                    }
+                }
+                
+                await loadSellers();
+                
+                const select = document.getElementById('seller-select');
+                if (select) {
+                    select.value = name;
+                    select.dispatchEvent(new Event('change'));
+                }
+            } catch (err) {
+                console.error("Error al verificar/registrar vendedor:", err);
+            }
         }
 
         // Cargar Vendedores
@@ -2534,18 +2767,15 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             showLoading(true, "Guardando clientes en base de datos...");
             try {
-                const secretKey = localStorage.getItem('supabase_secret_key');
-                const url = localStorage.getItem('supabase_url');
                 let writeClient = supabaseClient;
-                if (url && secretKey) {
-                    try {
-                        writeClient = window.supabase.createClient(url, secretKey);
-                    } catch (e) {
-                        console.warn("No se pudo crear cliente de escritura con Secret Key, usando public client:", e);
-                    }
-                }
 
                 if (writeClient) {
+                    // Verificar si el usuario está autenticado antes de insertar si RLS está habilitado para autenticados
+                    const { data: { session } } = await writeClient.auth.getSession();
+                    if (!session) {
+                        showNotification("Debes iniciar sesión con GitHub para guardar clientes en la base de datos remota", "warning");
+                    }
+
                     for (const client of parsedPDFData.clients) {
                         const { error } = await writeClient
                             .from('clientes')
@@ -2574,8 +2804,8 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 }
                 clearParsedPreview();
             } catch (err) {
-                console.error(err);
-                showNotification("Error al cargar clientes", "error");
+                console.error("Error guardando clientes:", err);
+                showNotification("Error al guardar clientes: " + err.message, "error");
             } finally {
                 showLoading(false);
             }
@@ -3130,9 +3360,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('voice-search-btn').addEventListener('click', startSpeechRecognition);
 
             document.getElementById('btn-save-config').addEventListener('click', () => {
-                localStorage.setItem('supabase_url', document.getElementById('supabase-url-input').value.trim());
+                const url = sanitizeSupabaseUrl(document.getElementById('supabase-url-input').value.trim());
+                document.getElementById('supabase-url-input').value = url;
+                localStorage.setItem('supabase_url', url);
                 localStorage.setItem('supabase_key', document.getElementById('supabase-key-input').value.trim());
-                localStorage.setItem('supabase_secret_key', document.getElementById('supabase-secret-input').value.trim());
+                localStorage.removeItem('supabase_secret_key');
                 initSupabase();
                 showNotification("Configuración de Supabase guardada");
             });
@@ -3155,7 +3387,10 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
         // Resto de métodos de soporte...
         async function testSupabaseConnection() {
-            const url = document.getElementById('supabase-url-input').value.trim();
+            let url = document.getElementById('supabase-url-input').value.trim();
+            url = sanitizeSupabaseUrl(url);
+            document.getElementById('supabase-url-input').value = url;
+
             const key = document.getElementById('supabase-key-input').value.trim();
             if (!url || !key) {
                 showNotification("Por favor rellene URL y Key primero", "error");
@@ -3163,7 +3398,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             }
             showLoading(true, "Comprobando conexión con Supabase...");
             try {
-                const client = window.supabase.createClient(url, key);
+                const client = window.supabase.createClient(url, key, {
+                    auth: { persistSession: false }
+                });
                 const { data, error } = await client.from('vendedores').select('nombre').limit(1);
                 if (error) throw error;
                 showNotification("¡Conexión establecida con éxito!");
