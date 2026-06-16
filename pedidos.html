@@ -3698,7 +3698,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'es-ES';
-            recognition.continuous = true;
+            recognition.continuous = false;
             recognition.interimResults = false;
 
             recognition.onstart = () => {
@@ -4022,12 +4022,16 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     updateCart();
                     speak("Eliminado " + removedName + " del pedido");
                     document.getElementById("voice-transcript").textContent = 'Eliminado: "' + removedName + '"';
-                    setTimeout(stopSpeechRecognition, 2000);
                 } else {
                     speak("No encontré ningún producto en el pedido para eliminar que coincida con " + target);
                     document.getElementById("voice-transcript").textContent = 'No se encontró para eliminar: "' + target + '"';
-                    setTimeout(stopSpeechRecognition, 2500);
                 }
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 2500);
                 return;
             }
 
@@ -4094,7 +4098,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     }
                     speak(confirmation);
                     document.getElementById("voice-transcript").textContent = confirmation;
-                    setTimeout(stopSpeechRecognition, 2000);
+                    setTimeout(() => {
+                        const voiceModal = document.getElementById('voice-modal');
+                        if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                            document.getElementById("voice-transcript").textContent = "Escuchando...";
+                        }
+                    }, 2500);
                     return;
                 }
             }
@@ -4102,20 +4111,35 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             if (cleanText.includes("ver carrito") || cleanText.includes("ver resumen") || cleanText.includes("ir a confirmacion") || cleanText.includes("ir a confirmación")) {
                 speak("Mostrando resumen del pedido");
                 goToStep(3);
-                setTimeout(stopSpeechRecognition, 1000);
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 2000);
                 return;
             }
             if (cleanText.includes("vaciar pedido") || cleanText.includes("limpiar pedido") || cleanText.includes("vaciar carrito")) {
                 speak("Vaciando pedido");
                 cartItems = [];
                 updateCart();
-                setTimeout(stopSpeechRecognition, 1000);
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 2000);
                 return;
             }
             if (cleanText.includes("enviar pedido") || cleanText.includes("enviar whatsapp")) {
                 speak("Enviando pedido por WhatsApp");
                 sendWhatsAppDirect();
-                setTimeout(stopSpeechRecognition, 1000);
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 2000);
                 return;
             }
             if (cleanText.startsWith("buscar ") || cleanText.startsWith("busca ")) {
@@ -4124,7 +4148,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 goToStep(2);
                 filterProducts();
                 speak("Buscando " + query);
-                setTimeout(stopSpeechRecognition, 1200);
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 2000);
                 return;
             }
 
@@ -4352,10 +4381,21 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 showNotification("Pedido actualizado por voz");
                 speak(msg);
                 document.getElementById("voice-transcript").textContent = msg;
-                setTimeout(stopSpeechRecognition, 3000);
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 3000);
             } else {
                 speak("No encontré productos o comandos que coincidan con tu solicitud. Por favor intenta de nuevo.");
                 document.getElementById("voice-transcript").textContent = 'No se detectó acción en: "' + text + '"';
+                setTimeout(() => {
+                    const voiceModal = document.getElementById('voice-modal');
+                    if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
+                        document.getElementById("voice-transcript").textContent = "Escuchando...";
+                    }
+                }, 3000);
             }
         }
 
