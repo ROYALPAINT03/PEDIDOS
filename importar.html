@@ -211,21 +211,21 @@
         }
 
         .btn-success {
-            background: #10b981;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #059669;
-        }
-
-        .btn-danger {
             background: var(--secondary);
             color: white;
         }
 
+        .btn-success:hover {
+            background: var(--secondary-light);
+        }
+
+        .btn-danger {
+            background: var(--gray);
+            color: white;
+        }
+
         .btn-danger:hover {
-            background: #991b1b;
+            background: var(--dark);
         }
 
         .table-wrapper {
@@ -291,7 +291,7 @@
             top: 20px;
             right: 20px;
             background: white;
-            border-left: 4px solid #10b981;
+            border-left: 4px solid var(--primary-light);
             padding: 12px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -308,7 +308,7 @@
 
         .notification i { font-size: 1.2rem; }
         .notification.error i { color: var(--secondary); }
-        .notification:not(.error) i { color: #10b981; }
+        .notification:not(.error) i { color: var(--primary-light); }
 
         .noti-content {
             display: flex;
