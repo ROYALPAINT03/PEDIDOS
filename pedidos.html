@@ -128,118 +128,122 @@
 
         /* --- DISEÑO ESTILO LIBRETA --- */
         .notebook {
-            background: #ffffff;
-            border-radius: 8px 24px 24px 8px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
             box-shadow: 
                 0 4px 6px rgba(0,0,0,0.02),
-                0 10px 20px rgba(15, 23, 42, 0.05),
-                0 20px 40px rgba(15, 23, 42, 0.08);
+                0 10px 20px rgba(15, 23, 42, 0.04),
+                0 20px 40px rgba(15, 23, 42, 0.06);
             min-height: 650px;
             position: relative;
             display: flex;
-            margin: 20px auto;
-            border-left: 18px solid var(--primary); /* Lomo azul de la libreta */
-        }
-
-        /* Anillos espirales de libreta (Desktop) */
-        .spiral-binding {
-            position: absolute;
-            left: -10px;
-            top: 25px;
-            bottom: 25px;
-            width: 20px;
-            display: flex;
             flex-direction: column;
-            justify-content: space-between;
-            z-index: 10;
-            pointer-events: none;
+            margin: 20px auto;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        .spiral-ring {
-            width: 28px;
-            height: 12px;
-            background: linear-gradient(to bottom, #f1f5f9 0%, #94a3b8 50%, #cbd5e1 100%);
-            border-radius: 6px;
-            box-shadow: 
-                0 2px 3px rgba(0,0,0,0.15),
-                inset 0 1px 1px rgba(255,255,255,0.9);
-            margin-left: -5px;
+        /* Quitamos por completo la espiral metálica */
+        .spiral-binding {
+            display: none !important;
         }
 
-        /* Hojas de la libreta */
+        /* Contenedor de páginas (Paso a Paso) */
         .notebook-pages {
             flex: 1;
-            padding: 35px 35px 35px 45px;
+            padding: 30px;
             position: relative;
-            background: #fff;
-            border-radius: 0 24px 24px 0;
-            border-left: 2px solid rgba(185, 28, 28, 0.35); /* Margen rojo escolar */
+            background: transparent;
+            border-radius: 0 0 24px 24px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* Hojas con renglones para notas */
+        /* Hojas / Pasos del formulario */
         .notebook-sheet {
             display: none;
             flex-direction: column;
             flex: 1;
-            animation: pageTurn 0.35s ease-out forwards;
+            animation: fadeInStep 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .notebook-sheet.active {
             display: flex;
         }
 
-        @keyframes pageTurn {
+        @keyframes fadeInStep {
             from {
                 opacity: 0;
-                transform: rotateY(-8deg) translateX(25px);
+                transform: translateY(15px);
             }
             to {
                 opacity: 1;
-                transform: rotateY(0deg) translateX(0);
+                transform: translateY(0);
             }
         }
 
-        /* Pestañas divisoras de la libreta */
+        /* --- REDISEÑO DE TABS A BARRA DE PASOS MODERNA (STEPS BAR) --- */
         .notebook-tabs {
-            position: absolute;
-            right: -48px;
-            top: 40px;
+            position: relative;
+            right: 0;
+            top: 0;
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
+            background: rgba(15, 23, 42, 0.03);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            border-radius: 24px 24px 0 0;
+            padding: 8px;
             gap: 8px;
             z-index: 5;
         }
 
         .notebook-tab {
-            width: 48px;
-            padding: 12px 4px;
-            background: #ffffff;
-            border: 1px solid rgba(30, 58, 138, 0.12);
-            border-left: none;
-            border-radius: 0 8px 8px 0;
+            flex: 1;
+            padding: 12px 8px;
+            background: transparent;
+            border: none;
+            border-radius: 16px;
             cursor: pointer;
-            font-size: 10px;
-            font-weight: 800;
+            font-size: 0.9rem;
+            font-weight: 700;
             text-align: center;
-            writing-mode: vertical-lr;
+            writing-mode: horizontal-tb;
             text-orientation: mixed;
-            box-shadow: 2px 2px 4px rgba(0,0,0,0.04);
-            transition: all 0.25s ease;
+            box-shadow: none;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .notebook-tab::before {
+            content: '';
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--gray);
+            transition: all 0.3s ease;
         }
 
         .notebook-tab.active {
             color: white;
-            width: 54px;
-            box-shadow: 3px 3px 6px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(30, 58, 138, 0.15);
         }
 
         .notebook-tab-1.active { background: var(--primary); }
         .notebook-tab-2.active { background: var(--primary-light); }
         .notebook-tab-3.active { background: var(--secondary); }
+        
+        .notebook-tab-1.active::before { background: white; }
+        .notebook-tab-2.active::before { background: white; }
+        .notebook-tab-3.active::before { background: white; }
 
         .notebook-footer {
             display: flex;
@@ -247,7 +251,7 @@
             align-items: center;
             margin-top: auto;
             padding-top: 25px;
-            border-top: 1px dashed rgba(0,0,0,0.08);
+            border-top: 1px solid rgba(15, 23, 42, 0.08);
         }
 
         /* Configuración Supabase */
@@ -1151,58 +1155,31 @@
             border-bottom: 1px solid #e2e8f0;
         }
 
-        /* --- RESPONSIVE NOTEBOOK STYLE --- */
+        /* --- RESPONSIVE DASHBOARD STYLE --- */
         @media (max-width: 768px) {
             body { padding: 10px; }
             header h1 { font-size: 1.7rem; }
             .notebook {
-                flex-direction: column;
-                border-left: none;
-                border-top: 15px solid var(--primary); /* Lomo arriba para flip-pad */
-                border-radius: 20px;
                 margin: 10px 0;
-            }
-            .spiral-binding {
-                left: 20px;
-                right: 20px;
-                top: -8px;
-                width: auto;
-                height: 16px;
-                flex-direction: row;
-            }
-            .spiral-ring {
-                width: 12px;
-                height: 24px;
-                margin-left: 0;
-                margin-top: -4px;
-                background: linear-gradient(to right, #f1f5f9 0%, #94a3b8 50%, #cbd5e1 100%);
+                border-radius: 16px;
             }
             .notebook-pages {
                 padding: 20px 15px;
-                border-left: none;
-                border-top: 2px solid rgba(185, 28, 28, 0.35); /* Margen arriba */
             }
             .notebook-tabs {
-                position: relative;
-                flex-direction: row;
-                top: 0;
-                right: 0;
-                justify-content: center;
-                margin-bottom: 15px;
+                padding: 6px;
                 gap: 4px;
+                border-radius: 16px 16px 0 0;
             }
             .notebook-tab {
-                writing-mode: horizontal-tb;
-                width: auto;
-                flex: 1;
-                padding: 8px 4px;
-                font-size: 9px;
-                border-radius: 6px 6px 0 0;
-                border-bottom: none;
+                padding: 10px 4px;
+                font-size: 0.75rem;
+                border-radius: 10px;
+                gap: 4px;
             }
-            .notebook-tab.active {
-                width: auto;
-                height: auto;
+            .notebook-tab::before {
+                width: 6px;
+                height: 6px;
             }
             .form-grid {
                 grid-template-columns: 1fr;
@@ -1231,30 +1208,18 @@
     <div class="container">
         <header>
             <h1>Pinturas OSI & SISI</h1>
-            <p>Sistema de Pedidos Estilo Libreta con Conexión Supabase</p>
+            <p>Sistema Inteligente de Pedidos con Asistente de Voz y Supabase</p>
         </header>
 
-        <!-- CONTENEDOR LIBRETA -->
+        <!-- CONTENEDOR DASHBOARD -->
         <div class="notebook">
-            <!-- Espirales metálicas -->
-            <div class="spiral-binding">
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-                <div class="spiral-ring"></div>
-            </div>
+            <!-- No spiral binder (Clean Dashboard) -->
 
-            <!-- Pestañas divisorias del cuaderno (TABS) -->
+            <!-- Barra horizontal de pasos (TABS) -->
             <div class="notebook-tabs">
-                <button class="notebook-tab notebook-tab-1 active" onclick="goToStep(1)">1. CLIENTE</button>
-                <button class="notebook-tab notebook-tab-2" onclick="goToStep(2)">2. PRODUCTOS</button>
-                <button class="notebook-tab notebook-tab-3" onclick="goToStep(3)">3. CONFIRMACIÓN</button>
+                <button class="notebook-tab notebook-tab-1 active" id="tab-1" onclick="goToStep(1)">1. CLIENTE</button>
+                <button class="notebook-tab notebook-tab-2" id="tab-2" onclick="goToStep(2)">2. PRODUCTOS</button>
+                <button class="notebook-tab notebook-tab-3" id="tab-3" onclick="goToStep(3)">3. RESUMEN</button>
             </div>
 
             <!-- Páginas internas -->
@@ -1283,8 +1248,12 @@
                                 <input type="text" id="supabase-url-input" class="form-control" placeholder="https://xxxxxx.supabase.co">
                             </div>
                             <div class="form-group">
-                                <label for="supabase-key-input">Supabase Anon Key</label>
-                                <input type="password" id="supabase-key-input" class="form-control" placeholder="Clave anónima pública">
+                                <label for="supabase-key-input">Supabase Publishable Key (Anon)</label>
+                                <input type="password" id="supabase-key-input" class="form-control" placeholder="sb_publishable_...">
+                            </div>
+                            <div class="form-group">
+                                <label for="supabase-secret-input">Supabase Secret Key (Service Role)</label>
+                                <input type="password" id="supabase-secret-input" class="form-control" placeholder="sb_secret_...">
                             </div>
                             <div class="config-actions">
                                 <button class="btn btn-primary btn-sm" id="btn-save-config" type="button"><i class="fas fa-save"></i> Guardar</button>
@@ -1504,9 +1473,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
                 <!-- Botones de Navegación del Cuaderno -->
                 <div class="notebook-footer">
-                    <button class="btn-page-nav" id="prev-step-btn" onclick="goToStep(currentStep - 1)"><i class="fas fa-arrow-left"></i> Hoja Anterior</button>
-                    <div style="font-weight: 700; color: var(--gray); font-size: 0.85rem;" id="step-indicator">Página 1 de 3</div>
-                    <button class="btn-page-nav next" id="next-step-btn" onclick="goToStep(currentStep + 1)">Hoja Siguiente <i class="fas fa-arrow-right"></i></button>
+                    <button class="btn-page-nav" id="prev-step-btn" onclick="goToStep(currentStep - 1)"><i class="fas fa-arrow-left"></i> Paso Anterior</button>
+                    <div style="font-weight: 700; color: var(--gray); font-size: 0.85rem;" id="step-indicator">Paso 1 de 3</div>
+                    <button class="btn-page-nav next" id="next-step-btn" onclick="goToStep(currentStep + 1)">Paso Siguiente <i class="fas fa-arrow-right"></i></button>
                 </div>
 
             </div>
@@ -1854,11 +1823,28 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 });
             });
 
-            // Recuperar configuración de Supabase
-            const savedUrl = localStorage.getItem('supabase_url') || "";
-            const savedKey = localStorage.getItem('supabase_key') || "";
+            // Recuperar configuración de Supabase y establecer valores por defecto
+            let savedUrl = localStorage.getItem('supabase_url');
+            let savedKey = localStorage.getItem('supabase_key');
+            let savedSecret = localStorage.getItem('supabase_secret_key');
+
+            if (!savedUrl) {
+                savedUrl = "https://Y6iWtmtbnk7FrxUxh8ZREA.supabase.co";
+                localStorage.setItem('supabase_url', savedUrl);
+            }
+            if (!savedKey) {
+                savedKey = "sb_publishable_Y6iWtmtbnk7FrxUxh8ZREA_dDQrPOE-";
+                localStorage.setItem('supabase_key', savedKey);
+            }
+            if (!savedSecret) {
+                savedSecret = "sb_secret_OFFAXqIYLaqtgUhIWznA1A_H966ydDS";
+                localStorage.setItem('supabase_secret_key', savedSecret);
+            }
+
             document.getElementById('supabase-url-input').value = savedUrl;
             document.getElementById('supabase-key-input').value = savedKey;
+            const secretInput = document.getElementById('supabase-secret-input');
+            if (secretInput) secretInput.value = savedSecret;
 
             initSupabase();
             loadCategories();
@@ -2103,7 +2089,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             currentStep = step;
 
-            document.getElementById('step-indicator').textContent = `Página ${step} de 3`;
+            document.getElementById('step-indicator').textContent = `Paso ${step} de 3`;
             document.getElementById('prev-step-btn').style.visibility = step === 1 ? 'hidden' : 'visible';
 
             const nextBtn = document.getElementById('next-step-btn');
@@ -2112,7 +2098,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 nextBtn.className = "btn-page-nav next";
                 nextBtn.onclick = sendWhatsAppDirect;
             } else {
-                nextBtn.innerHTML = 'Hoja Siguiente <i class="fas fa-arrow-right"></i>';
+                nextBtn.innerHTML = 'Paso Siguiente <i class="fas fa-arrow-right"></i>';
                 nextBtn.className = "btn-page-nav next";
                 nextBtn.onclick = () => goToStep(currentStep + 1);
             }
@@ -2534,9 +2520,20 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             showLoading(true, "Guardando clientes en base de datos...");
             try {
-                if (supabaseClient) {
+                const secretKey = localStorage.getItem('supabase_secret_key');
+                const url = localStorage.getItem('supabase_url');
+                let writeClient = supabaseClient;
+                if (url && secretKey) {
+                    try {
+                        writeClient = window.supabase.createClient(url, secretKey);
+                    } catch (e) {
+                        console.warn("No se pudo crear cliente de escritura con Secret Key, usando public client:", e);
+                    }
+                }
+
+                if (writeClient) {
                     for (const client of parsedPDFData.clients) {
-                        const { error } = await supabaseClient
+                        const { error } = await writeClient
                             .from('clientes')
                             .upsert({
                                 codigo: client.codigo,
@@ -2550,7 +2547,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
                     if (parsedPDFData.sellers.length > 0) {
                         for (const seller of parsedPDFData.sellers) {
-                            await supabaseClient.from('vendedores').upsert({ nombre: seller.toUpperCase() }, { onConflict: 'nombre' });
+                            await writeClient.from('vendedores').upsert({ nombre: seller.toUpperCase() }, { onConflict: 'nombre' });
                         }
                         loadSellers();
                     }
@@ -2898,94 +2895,149 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
         function parseVoiceCommand(text) {
             console.log("Comando voz recibido:", text);
+            
+            // Normalizar texto
+            let cleanText = text.toLowerCase()
+                               .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ")
+                               .replace(/\s+/g, " ")
+                               .trim();
+                               
+            const SPANISH_NUMBERS_MAP = {
+                "un": 1, "uno": 1, "una": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+                "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once": 11, "doce": 12,
+                "trece": 13, "catorce": 14, "quince": 15, "dieciseis": 16, "dieciséis": 16,
+                "diecisiete": 17, "dieciocho": 18, "diecinueve": 19, "veinte": 20, "veintiuno": 21,
+                "veintidós": 22, "veintidos": 22, "veintitres": 23, "veintitrés": 23, "treinta": 30,
+                "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70, "ochenta": 80,
+                "noventa": 90, "cien": 100, "ciento": 100
+            };
 
-            if (text.startsWith('buscar ') || text.startsWith('busca ')) {
-                const query = text.replace(/bu(scar|sca)\s+/, '').trim();
-                document.getElementById('product-search').value = query;
-                goToStep(2);
-                filterProducts();
-                speak(`Buscando ${query}`);
-                setTimeout(stopSpeechRecognition, 1200);
-                return;
-            }
-
-            if (text.includes('ver carrito') || text.includes('ver pedido') || text.includes('ir a confirmacion')) {
-                speak("Abriendo resumen");
+            // Buscar comandos globales en el texto
+            if (cleanText.includes("ver carrito") || cleanText.includes("ver resumen") || cleanText.includes("ir a confirmacion") || cleanText.includes("ir a confirmación")) {
+                speak("Mostrando resumen del pedido");
                 goToStep(3);
                 setTimeout(stopSpeechRecognition, 1000);
                 return;
             }
-
-            if (text.includes('limpiar busqueda') || text.includes('limpiar búsqueda') || text.includes('quitar filtro')) {
-                document.getElementById('product-search').value = '';
-                filterProducts();
-                speak("Filtros limpiados");
-                setTimeout(stopSpeechRecognition, 1000);
-                return;
-            }
-
-            if (text.includes('vaciar pedido') || text.includes('vaciar carrito') || text.includes('limpiar pedido')) {
+            if (cleanText.includes("vaciar pedido") || cleanText.includes("limpiar pedido") || cleanText.includes("vaciar carrito")) {
                 speak("Vaciando pedido");
                 cartItems = [];
                 updateCart();
                 setTimeout(stopSpeechRecognition, 1000);
                 return;
             }
-
-            if (text.includes('enviar pedido') || text.includes('enviar whatsapp')) {
-                speak("Enviando pedido");
+            if (cleanText.includes("enviar pedido") || cleanText.includes("enviar whatsapp")) {
+                speak("Enviando pedido por WhatsApp");
                 sendWhatsAppDirect();
                 setTimeout(stopSpeechRecognition, 1000);
                 return;
             }
+            if (cleanText.startsWith("buscar ") || cleanText.startsWith("busca ")) {
+                const query = cleanText.replace(/bu(scar|sca)\s+/, "").trim();
+                document.getElementById("product-search").value = query;
+                goToStep(2);
+                filterProducts();
+                speak("Buscando " + query);
+                setTimeout(stopSpeechRecognition, 1200);
+                return;
+            }
 
-            if (text.startsWith('agregar ') || text.startsWith('añadir ') || text.startsWith('pon ') || text.startsWith('poner ')) {
-                const actionRest = text.replace(/^(agregar|añadir|pon|poner)\s+/, '');
+            // Segmentación por cantidades y productos
+            const words = cleanText.split(" ");
+            const segments = [];
+            
+            let currentQty = null;
+            let currentQtyIdx = -1;
+            
+            for (let i = 0; i < words.length; i++) {
+                const w = words[i];
+                let val = null;
+                if (/^\d+$/.test(w)) {
+                    val = parseInt(w);
+                } else if (SPANISH_NUMBERS_MAP[w] !== undefined) {
+                    val = SPANISH_NUMBERS_MAP[w];
+                }
                 
-                let qty = 1;
-                let rest = actionRest;
-
-                const digitMatch = actionRest.match(/^(\d+)/);
-                if (digitMatch) {
-                    qty = parseInt(digitMatch[1]);
-                    rest = actionRest.replace(/^\d+\s*(de\s+)?/, '');
-                } else {
-                    for (const [w, n] of Object.entries(SPANISH_NUMBERS)) {
-                        const r = new RegExp(`^${w}\\s+(de\\s+)?`, 'i');
-                        if (r.test(actionRest)) {
-                            qty = n;
-                            rest = actionRest.replace(r, '');
-                            break;
-                        }
+                if (val !== null) {
+                    if (currentQty !== null) {
+                        const textPart = words.slice(currentQtyIdx + 1, i).join(" ");
+                        segments.push({ qty: currentQty, text: textPart });
                     }
+                    currentQty = val;
+                    currentQtyIdx = i;
                 }
+            }
+            
+            if (currentQty !== null) {
+                const textPart = words.slice(currentQtyIdx + 1).join(" ");
+                segments.push({ qty: currentQty, text: textPart });
+            }
 
-                let unit = 'U';
-                if (rest.match(/^(bulto|bultos|caja|cajas)\s*(de\s+)?/i)) {
+            if (segments.length === 0) {
+                speak("No logré entender qué deseas agregar. Por favor, menciona las cantidades y productos.");
+                document.getElementById("voice-transcript").textContent = 'No se detectaron cantidades en "' + text + '"';
+                return;
+            }
+
+            // Procesar cada segmento de cantidad y texto
+            const addedProducts = [];
+            segments.forEach(seg => {
+                let textPart = seg.text.trim();
+                let qty = seg.qty;
+                let unit = 'U'; // Unidad por defecto
+                
+                // Detectar unidad
+                if (/\b(bulto|bultos|caja|cajas)\b/i.test(textPart)) {
                     unit = 'BUL';
-                    rest = rest.replace(/^(bulto|bultos|caja|cajas)\s*(de\s+)?/i, '');
-                } else if (rest.match(/^(docena|docenas)\s*(de\s+)?/i)) {
+                    textPart = textPart.replace(/\b(bulto|bultos|caja|cajas)\b/ig, "");
+                } else if (/\b(docena|docenas)\b/i.test(textPart)) {
                     unit = 'DZ';
-                    rest = rest.replace(/^(docena|docenas)\s*(de\s+)?/i, '');
-                } else if (rest.match(/^(unidad|unidades|pote|potes)\s*(de\s+)?/i)) {
+                    textPart = textPart.replace(/\b(docena|docenas)\b/ig, "");
+                } else if (/\b(unidad|unidades|pote|potes|frasco|frascos)\b/i.test(textPart)) {
                     unit = 'U';
-                    rest = rest.replace(/^(unidad|unidades|pote|potes)\s*(de\s+)?/i, '');
+                    textPart = textPart.replace(/\b(unidad|unidades|pote|potes|frasco|frascos)\b/ig, "");
                 }
+                
+                // Eliminar conectores y palabras comunes
+                textPart = textPart.replace(/\b(de|y|del|con|también|tambien|quiero|pedir|agrega|agregar|añadir|anadir|pon|poner)\b/ig, "")
+                                   .replace(/\s+/g, " ")
+                                   .trim();
 
-                const productQuery = rest.trim();
-
-                if (productQuery.length > 1) {
+                if (textPart.length > 0) {
                     let bestMatch = null;
                     let topScore = 0;
-                    const tokens = productQuery.split(/\s+/).filter(t => t.length > 2);
+                    const searchTokens = textPart.split(" ").filter(t => t.length > 1);
 
                     allProducts.forEach(p => {
                         let score = 0;
                         const pName = p.name.toLowerCase();
+                        const pCat = p.category.toLowerCase();
+                        const pRef = p.ref.toString();
 
-                        if (p.ref.toString() === productQuery) score += 12;
-                        tokens.forEach(tok => { if (pName.includes(tok)) score += 3; });
-                        if (pName === productQuery) score += 15;
+                        if (pRef === textPart) {
+                            score += 20;
+                        }
+
+                        searchTokens.forEach(tok => {
+                            let cleanTok = tok;
+                            if (tok.endsWith('s') && tok.length > 3) {
+                                cleanTok = tok.slice(0, -1);
+                            }
+                            
+                            if (pName.includes(cleanTok)) {
+                                score += 5;
+                                if (new RegExp('\\b' + cleanTok + '\\b').test(pName)) {
+                                    score += 5;
+                                }
+                            }
+                            if (pCat.includes(cleanTok)) {
+                                score += 2;
+                            }
+                        });
+
+                        if (pName === textPart) {
+                            score += 30;
+                        }
 
                         if (score > topScore) {
                             topScore = score;
@@ -2993,27 +3045,30 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         }
                     });
 
-                    if (bestMatch && topScore >= 3) {
+                    if (bestMatch && topScore >= 4) {
                         const existing = cartItems.find(i => i.product.id === bestMatch.id && i.unit === unit);
                         if (existing) {
                             existing.quantity += qty;
                         } else {
                             cartItems.push({ product: bestMatch, unit: unit, quantity: qty });
                         }
-                        updateCart();
-                        const unitName = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
-                        const msg = `Agregado: ${qty} ${unitName} de ${bestMatch.name}`;
-                        showNotification(msg);
-                        speak(msg);
-                        document.getElementById('voice-transcript').textContent = `Agregado con éxito: ${qty} ${unitName} de ${bestMatch.name}`;
-                        setTimeout(stopSpeechRecognition, 1500);
-                        return;
+                        const unitText = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
+                        addedProducts.push(`${qty} ${unitText} de ${bestMatch.name}`);
                     }
                 }
-            }
+            });
 
-            document.getElementById('voice-transcript').textContent = "Comando no comprendido. Repite por favor.";
-            speak("Comando no comprendido");
+            if (addedProducts.length > 0) {
+                updateCart();
+                const msg = "Agregado: " + addedProducts.join(", ");
+                showNotification("Pedido actualizado por voz");
+                speak(msg);
+                document.getElementById("voice-transcript").textContent = msg;
+                setTimeout(stopSpeechRecognition, 2500);
+            } else {
+                speak("No encontré productos que coincidan con tu solicitud. Por favor intenta de nuevo.");
+                document.getElementById("voice-transcript").textContent = 'No se encontraron coincidencias para: "' + text + '"';
+            }
         }
 
         // --- MÉTODOS DE SOPORTE ---
@@ -3063,6 +3118,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('btn-save-config').addEventListener('click', () => {
                 localStorage.setItem('supabase_url', document.getElementById('supabase-url-input').value.trim());
                 localStorage.setItem('supabase_key', document.getElementById('supabase-key-input').value.trim());
+                localStorage.setItem('supabase_secret_key', document.getElementById('supabase-secret-input').value.trim());
                 initSupabase();
                 showNotification("Configuración de Supabase guardada");
             });
