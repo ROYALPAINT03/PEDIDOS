@@ -100,6 +100,39 @@
             overflow-x: hidden;
         }
 
+        /* Overlay Inicial */
+        #initial-loading {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #initial-loading.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        #initial-loading i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            animation: fa-spin 1s infinite linear;
+        }
+        #initial-loading h2 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: 800;
+        }
+        #initial-loading p {
+            color: var(--gray);
+            font-weight: 500;
+        }
+
         .container {
             max-width: 1100px;
             margin: 0 auto;
@@ -1528,6 +1561,12 @@
     </style>
 </head>
 <body>
+    <!-- Overlay Inicial de Carga -->
+    <div id="initial-loading">
+        <i class="fas fa-spinner"></i>
+        <h2>Pinturas OSI y SISI</h2>
+        <p>Cargando datos de conexión...</p>
+    </div>
     <!-- Fondo Parallax de Figuras -->
     <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; pointer-events: none; overflow: hidden;">
         <div style="position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.15; top: -10%; left: -10%; width: 450px; height: 450px; background: radial-gradient(circle, var(--primary) 0%, transparent 80%);"></div>
@@ -1650,6 +1689,14 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                     <option value="">Cargando vendedores...</option>
                                 </select>
                                 <button class="btn btn-primary" id="btn-add-seller" type="button" title="Añadir Vendedor" style="padding: 10px 14px;">+</button>
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="btn btn-secondary" id="btn-save-draft" type="button" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick="saveSellerDraft()">
+                                    <i class="fas fa-save"></i> Guardar Borrador
+                                </button>
+                                <button class="btn btn-secondary" id="btn-load-drafts" type="button" style="flex: 1; padding: 8px; font-size: 0.85rem;" onclick="openDraftsModal()">
+                                    <i class="fas fa-folder-open"></i> Mis Borradores
+                                </button>
                             </div>
                         </div>
 
@@ -1832,6 +1879,19 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
     </div>
 
     <!-- Modal Asistente de Voz -->
+    <!-- Modal Borradores -->
+    <div class="modal" id="drafts-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3>Mis Borradores</h3>
+                <button class="close-modal" onclick="closeDraftsModal()">&times;</button>
+            </div>
+            <div id="drafts-list" style="max-height: 400px; overflow-y: auto; padding-right: 10px;">
+                <!-- Lista de borradores aquí -->
+            </div>
+        </div>
+    </div>
+
     <div class="voice-modal" id="voice-modal">
         <div class="modal-content" style="max-width: 380px; text-align: center;">
             <div class="modal-header">
@@ -2493,6 +2553,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     if (cachedSeller) {
                         select.value = cachedSeller;
                     }
+                    hideInitialLoading();
                 } else {
                     loadMockSellers();
                 }
@@ -2517,6 +2578,18 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const cachedSeller = localStorage.getItem('selected_seller');
             if (cachedSeller) {
                 select.value = cachedSeller;
+            }
+
+            hideInitialLoading();
+        }
+
+        function hideInitialLoading() {
+            const loader = document.getElementById('initial-loading');
+            if (loader) {
+                loader.classList.add('hidden');
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                }, 500);
             }
         }
 
@@ -3895,10 +3968,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 let idx = 0;
                 while (idx < tokens.length) {
                     let token = tokens[idx];
+                    let isDigit = /^\d+$/.test(token);
                     let val = getNumValue(token);
 
                     if (val !== null) {
                         let accumulator = val;
+                        let lastWasDigit = isDigit;
                         idx++;
 
                         while (idx < tokens.length) {
@@ -3911,7 +3986,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                 nextToken = tokens[idx + 1];
                             }
 
+                            let nextIsDigit = /^\d+$/.test(nextToken);
                             let nextVal = getNumValue(nextToken);
+
                             if (nextVal !== null) {
                                 // DETECCION DE FRONTERA / DIFERENCIAL
                                 let nextIdxToCheckUnit = skippedY ? idx + 2 : idx + 1;
@@ -3919,14 +3996,19 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                     break;
                                 }
 
+                                // Si alguno de los dos tokens se dictó como un número literal (dígito), no se suman.
+                                // Esto evita que un código como "710" se sume a "2" para dar "712".
+                                if (lastWasDigit || nextIsDigit) {
+                                    break;
+                                }
+
                                 // NUEVA LOGICA DE VALIDACION DE SUMA
                                 // Solo sumamos si es una combinación válida en español
-                                // No sumamos códigos dictados uno por uno (ej. "siete" y "once" -> 7 y 11)
                                 let isValidAddition = false;
                                 if (accumulator % 100 === 0 && nextVal < 100) {
                                     isValidAddition = true; // ej. 100 + 20
-                                } else if (accumulator % 10 === 0 && nextVal < 10) {
-                                    isValidAddition = true; // ej. 30 + 2
+                                } else if (accumulator % 10 === 0 && (accumulator % 100) >= 20 && nextVal < 10) {
+                                    isValidAddition = true; // ej. 30 + 2 o 120 + 2
                                 }
 
                                 if (!isValidAddition) {
@@ -3939,6 +4021,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                     idx++;
                                 }
                                 accumulator += nextVal;
+                                lastWasDigit = nextIsDigit;
                             } else {
                                 break;
                             }
@@ -4547,6 +4630,172 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             if (installBtn) installBtn.style.display = 'none';
             showNotification("¡Aplicación instalada con éxito!");
         });
+        // --- SISTEMA DE BORRADORES Y BIOMETRÍA ---
+        async function authenticateBiometric(username) {
+            if (!window.PublicKeyCredential) {
+                return prompt("Biometría no soportada. Ingrese PIN maestro para acceder:") === "1234";
+            }
+            
+            const isRegistered = localStorage.getItem('biometric_' + username);
+            const hostname = window.location.hostname || "localhost";
+            
+            try {
+                const challenge = new Uint8Array(32);
+                window.crypto.getRandomValues(challenge);
+                
+                if (!isRegistered) {
+                    // Registrar nueva huella/rostro para el vendedor
+                    const credential = await navigator.credentials.create({
+                        publicKey: {
+                            challenge: challenge,
+                            rp: { name: "Pinturas OSI", id: hostname },
+                            user: {
+                                id: new Uint8Array(16),
+                                name: username,
+                                displayName: username
+                            },
+                            pubKeyCredParams: [{ type: "public-key", alg: -7 }],
+                            authenticatorSelection: { userVerification: "required" },
+                            timeout: 60000
+                        }
+                    });
+                    if (credential) {
+                        localStorage.setItem('biometric_' + username, 'true');
+                        return true;
+                    }
+                } else {
+                    // Autenticar vendedor existente
+                    const assertion = await navigator.credentials.get({
+                        publicKey: {
+                            challenge: challenge,
+                            rpId: hostname,
+                            userVerification: "required",
+                            timeout: 60000
+                        }
+                    });
+                    if (assertion) return true;
+                }
+            } catch (e) {
+                console.error("Biometric error", e);
+                // Si el entorno no lo permite (ej. protocolo file:///) o el usuario cancela, caemos a PIN
+                const pin = prompt("Dispositivo no permite FaceID/Huella en este momento. Ingrese PIN maestro:");
+                return pin === "1234";
+            }
+            return false;
+        }
+
+        function saveSellerDraft() {
+            const seller = document.getElementById('seller-select').value;
+            if (!seller) {
+                showNotification("Seleccione un vendedor primero", "error");
+                return;
+            }
+            if (cartItems.length === 0) {
+                showNotification("El pedido está vacío", "error");
+                return;
+            }
+
+            const drafts = JSON.parse(localStorage.getItem('drafts_' + seller) || '[]');
+            const date = new Date().toLocaleString();
+            
+            drafts.push({
+                id: Date.now(),
+                date: date,
+                client: selectedClient,
+                items: cartItems
+            });
+
+            localStorage.setItem('drafts_' + seller, JSON.stringify(drafts));
+            showNotification("Borrador guardado exitosamente");
+            
+            // Limpiar carrito actual
+            cartItems = [];
+            selectedClient = null;
+            updateCart();
+            document.getElementById('selected-client-card').style.display = 'none';
+        }
+
+        function renderDraftsList(seller) {
+            const drafts = JSON.parse(localStorage.getItem('drafts_' + seller) || '[]');
+            const listDiv = document.getElementById('drafts-list');
+            
+            if (drafts.length === 0) {
+                listDiv.innerHTML = '<p style="text-align:center; color: var(--gray); margin-top:20px;">No hay borradores guardados para este vendedor.</p>';
+            } else {
+                listDiv.innerHTML = drafts.map(d => `
+                    <div style="border: 1px solid rgba(30, 58, 138, 0.15); padding: 12px; margin-bottom: 12px; border-radius: 8px; background: var(--light);">
+                        <div style="font-weight:bold; color:var(--primary); font-size: 1.05rem;">${d.client ? d.client.nombre : 'Sin Cliente Seleccionado'}</div>
+                        <div style="font-size:0.85rem; color: var(--gray); margin-bottom: 10px; margin-top: 4px;"><i class="far fa-clock"></i> ${d.date} &bull; ${d.items.length} producto(s)</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 0.85rem; flex: 1;" onclick="loadDraft(${d.id})"><i class="fas fa-folder-open"></i> Retomar Pedido</button>
+                            <button class="btn btn-secondary" style="background:#e53935; border:none; color:white; padding: 6px 12px; font-size: 0.85rem;" onclick="deleteDraft(${d.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        async function openDraftsModal() {
+            const seller = document.getElementById('seller-select').value;
+            if (!seller) {
+                showNotification("Seleccione un vendedor para ver sus borradores", "error");
+                return;
+            }
+
+            showLoading(true, "Verificando identidad con FaceID/Huella...");
+            const authOk = await authenticateBiometric(seller);
+            showLoading(false);
+
+            if (!authOk) {
+                showNotification("Autenticación fallida o cancelada", "error");
+                return;
+            }
+
+            renderDraftsList(seller);
+            document.getElementById('drafts-modal').style.display = 'flex';
+        }
+
+        function closeDraftsModal() {
+            document.getElementById('drafts-modal').style.display = 'none';
+        }
+
+        function loadDraft(id) {
+            const seller = document.getElementById('seller-select').value;
+            let drafts = JSON.parse(localStorage.getItem('drafts_' + seller) || '[]');
+            const draft = drafts.find(d => d.id === id);
+            
+            if (draft) {
+                cartItems = draft.items;
+                selectedClient = draft.client;
+                if (selectedClient) {
+                    document.getElementById('details-code').textContent = selectedClient.codigo || "";
+                    document.getElementById('details-name').textContent = selectedClient.nombre;
+                    document.getElementById('details-zone').textContent = selectedClient.zona || "";
+                    document.getElementById('selected-client-card').style.display = 'block';
+                } else {
+                    document.getElementById('selected-client-card').style.display = 'none';
+                }
+                updateCart();
+                closeDraftsModal();
+                showNotification("Borrador cargado exitosamente");
+                
+                // Si el borrador se cargó, lo ideal es eliminarlo de la lista para que no haya duplicados si lo vuelve a guardar
+                deleteDraftSilently(id, seller);
+            }
+        }
+
+        function deleteDraftSilently(id, seller) {
+            let drafts = JSON.parse(localStorage.getItem('drafts_' + seller) || '[]');
+            drafts = drafts.filter(d => d.id !== id);
+            localStorage.setItem('drafts_' + seller, JSON.stringify(drafts));
+        }
+
+        function deleteDraft(id) {
+            if (!confirm("¿Seguro que desea eliminar este borrador permanentemente?")) return;
+            const seller = document.getElementById('seller-select').value;
+            deleteDraftSilently(id, seller);
+            renderDraftsList(seller);
+        }
     </script>
 </body>
 </html>
