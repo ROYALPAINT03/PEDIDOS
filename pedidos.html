@@ -18,6 +18,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <style>
@@ -1828,17 +1829,30 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             let savedKey = localStorage.getItem('supabase_key');
             let savedSecret = localStorage.getItem('supabase_secret_key');
 
+            // Cargar configuración desde el archivo local supabase-config.js si está disponible
+            if (window.SUPABASE_CONFIG) {
+                if (window.SUPABASE_CONFIG.url) {
+                    savedUrl = window.SUPABASE_CONFIG.url;
+                    localStorage.setItem('supabase_url', savedUrl);
+                }
+                if (window.SUPABASE_CONFIG.anonKey) {
+                    savedKey = window.SUPABASE_CONFIG.anonKey;
+                    localStorage.setItem('supabase_key', savedKey);
+                }
+                if (window.SUPABASE_CONFIG.secretKey) {
+                    savedSecret = window.SUPABASE_CONFIG.secretKey;
+                    localStorage.setItem('supabase_secret_key', savedSecret);
+                }
+            }
+
             if (!savedUrl) {
-                savedUrl = "https://Y6iWtmtbnk7FrxUxh8ZREA.supabase.co";
-                localStorage.setItem('supabase_url', savedUrl);
+                savedUrl = "";
             }
             if (!savedKey) {
-                savedKey = "sb_publishable_Y6iWtmtbnk7FrxUxh8ZREA_dDQrPOE-";
-                localStorage.setItem('supabase_key', savedKey);
+                savedKey = "";
             }
             if (!savedSecret) {
-                savedSecret = "sb_secret_OFFAXqIYLaqtgUhIWznA1A_H966ydDS";
-                localStorage.setItem('supabase_secret_key', savedSecret);
+                savedSecret = "";
             }
 
             document.getElementById('supabase-url-input').value = savedUrl;
