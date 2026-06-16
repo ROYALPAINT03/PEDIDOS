@@ -3828,7 +3828,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         function parseVoiceCommand(text) {
             console.log("Comando voz recibido:", text);
             
-            // Normalizar texto
+            // Normalizar texto inicial
             let cleanText = text.toLowerCase()
                                .replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ")
                                .replace(/\s+/g, " ")
@@ -3839,10 +3839,104 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 "seis": 6, "siete": 7, "ocho": 8, "nueve": 9, "diez": 10, "once": 11, "doce": 12,
                 "trece": 13, "catorce": 14, "quince": 15, "dieciseis": 16, "dieciséis": 16,
                 "diecisiete": 17, "dieciocho": 18, "diecinueve": 19, "veinte": 20, "veintiuno": 21,
-                "veintidós": 22, "veintidos": 22, "veintitres": 23, "veintitrés": 23, "treinta": 30,
-                "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70, "ochenta": 80,
-                "noventa": 90, "cien": 100, "ciento": 100
+                "veintiun": 21, "veintiún": 21, "veintidos": 22, "veintidós": 22, "veintitres": 23, "veintitrés": 23,
+                "veinticuatro": 24, "veinticinco": 25, "veintiseis": 26, "veintiséis": 26, "veintisiete": 27,
+                "veintiocho": 28, "veintinueve": 29, "treinta": 30, "cuarenta": 40, "cincuenta": 50,
+                "sesenta": 60, "setenta": 70, "ochenta": 80, "noventa": 90, "cien": 100, "ciento": 100
             };
+
+            // Traduce palabras de números en español a dígitos con detección de fronteras ("diferenciales")
+            function replaceSpanishNumberWords(txt) {
+                if (!txt) return "";
+                const tokens = txt.split(/\s+/);
+                const output = [];
+                
+                const HUNDREDS = {
+                    "cien": 100, "ciento": 100, "doscientos": 200, "trescientos": 300,
+                    "cuatrocientos": 400, "quinientos": 500, "seiscientos": 600,
+                    "setecientos": 700, "ochocientos": 800, "novecientos": 900
+                };
+                const TENS = {
+                    "diez": 10, "once": 11, "doce": 12, "trece": 13, "catorce": 14, "quince": 15,
+                    "dieciseis": 16, "dieciséis": 16, "diecisiete": 17, "dieciocho": 18, "diecinueve": 19,
+                    "veinte": 20, "veintiuno": 21, "veintiun": 21, "veintiún": 21, "veintidos": 22, "veintidós": 22,
+                    "veintitres": 23, "veintitrés": 23, "veinticuatro": 24, "veinticinco": 25, "veintiseis": 26,
+                    "veintiséis": 26, "veintisiete": 27, "veintiocho": 28, "veintinueve": 29, "treinta": 30,
+                    "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70, "ochenta": 80,
+                    "noventa": 90
+                };
+                const UNITS = {
+                    "un": 1, "uno": 1, "una": 1, "dos": 2, "tres": 3, "cuatro": 4, "cinco": 5,
+                    "seis": 6, "siete": 7, "ocho": 8, "nueve": 9
+                };
+                
+                const UNITS_LOWER = [
+                    "bulto", "bultos", "caja", "cajas", "bul", 
+                    "docena", "docenas", "doc", "docs", "dz", 
+                    "unidad", "unidades", "unidads", "pote", "potes", 
+                    "frasco", "frascos", "u", "unid"
+                ];
+
+                function isUnit(w) {
+                    if (!w) return false;
+                    const clean = w.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim();
+                    return UNITS_LOWER.includes(clean);
+                }
+
+                function getNumValue(w) {
+                    if (!w) return null;
+                    if (/^\d+$/.test(w)) return parseInt(w, 10);
+                    if (HUNDREDS[w] !== undefined) return HUNDREDS[w];
+                    if (TENS[w] !== undefined) return TENS[w];
+                    if (UNITS[w] !== undefined) return UNITS[w];
+                    return null;
+                }
+
+                let idx = 0;
+                while (idx < tokens.length) {
+                    let token = tokens[idx];
+                    let val = getNumValue(token);
+
+                    if (val !== null) {
+                        let accumulator = val;
+                        idx++;
+
+                        while (idx < tokens.length) {
+                            let nextToken = tokens[idx];
+                            
+                            // Si el siguiente token es "y", verificamos si conecta números
+                            if (nextToken === "y" && idx + 1 < tokens.length && getNumValue(tokens[idx + 1]) !== null) {
+                                idx++; // saltar "y"
+                                nextToken = tokens[idx];
+                            }
+
+                            let nextVal = getNumValue(nextToken);
+                            if (nextVal !== null) {
+                                // DETECCION DE FRONTERA / DIFERENCIAL
+                                // Si la siguiente palabra (nextVal) es una cantidad que precede a una unidad (ej. "un bulto" o "dos docenas"),
+                                // entonces detenemos la acumulación del número actual para mantenerlos separados.
+                                if (idx + 1 < tokens.length && isUnit(tokens[idx + 1])) {
+                                    break;
+                                }
+
+                                accumulator += nextVal;
+                                idx++;
+                            } else {
+                                break;
+                            }
+                        }
+                        output.push(accumulator.toString());
+                    } else {
+                        output.push(token);
+                        idx++;
+                    }
+                }
+                return output.join(" ");
+            }
+
+            // Normalizar las palabras numéricas en español a dígitos antes del procesamiento general
+            cleanText = replaceSpanishNumberWords(cleanText);
+            console.log("Texto normalizado a dígitos:", cleanText);
 
             // Helper para parsear cantidad en español o dígito a número
             function parseVoiceQty(qtyStr) {
@@ -4042,13 +4136,27 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const unitRegexPart = "(?:bultos?|cajas?|bul|docenas?|doc|docs?|dz|unidades?|potes?|frascos?|unidad?|unid?|u)";
             const refKeywordRegexPart = "(?:ref|referencia|código|codigo|nro|número|numero)";
 
-            // Patrón A: [Cantidad] [Unidad] (de la)? (ref)? [Referencia]
-            // Ejemplo: "1 docena ref 600", "2 bultos de la 701"
-            const patternA = new RegExp('\\b(' + qtyRegexPart + ')\\s+(' + unitRegexPart + ')\\s*(?:de\\s+la\\s+|de\\s+)?(?:' + refKeywordRegexPart + '\\s+)?([0-9]+)\\b', 'gi');
+            // Patrón A: [Cantidad] [Unidad] [Opcional: de la / del / etc.] [Opcional: ref] [Referencia]
+            // Ejemplos: "1 bulto 600", "2 docenas de la 701", "1 unidad de la ref 448"
+            const patternA = new RegExp(
+                '\\b(' + qtyRegexPart + ')\\s+' +
+                '(' + unitRegexPart + ')' +
+                '(?:\\s+(?:de\\s+la\\s+|de\\s+el\\s+|de\\s+|del\\s+))?' +
+                '\\s+' + // Al menos un espacio antes de la referencia o la palabra clave
+                '(?:' + refKeywordRegexPart + '\\s+)?' +
+                '([0-9]+)\\b', 
+                'gi'
+            );
             
-            // Patrón B: (ref)? [Referencia] [Cantidad] [Unidad]
-            // Ejemplo: "ref 600 1 docena", "600 dos bultos"
-            const patternB = new RegExp('\\b(?:' + refKeywordRegexPart + '\\s+)?([0-9]+)\\s+(' + qtyRegexPart + ')\\s+(' + unitRegexPart + ')\\b', 'gi');
+            // Patrón B: [Opcional: ref] [Referencia] [Cantidad] [Unidad]
+            // Ejemplos: "600 1 bulto", "ref 701 dos docenas"
+            const patternB = new RegExp(
+                '\\b(?:' + refKeywordRegexPart + '\\s+)?' +
+                '([0-9]+)\\s+' +
+                '(' + qtyRegexPart + ')\\s+' +
+                '(' + unitRegexPart + ')\\b', 
+                'gi'
+            );
 
             // 1. Procesar Coincidencias de Patrón A
             cleanText = cleanText.replace(patternA, (match, qtyStr, unitStr, refStr) => {
