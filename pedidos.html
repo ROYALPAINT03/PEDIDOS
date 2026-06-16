@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- Metatags y enlaces PWA -->
-    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -20,7 +19,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.5.28/dist/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase-config.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
@@ -868,6 +866,192 @@
         .category-badge.category-perlados { background: var(--perlados-pastel); color: var(--perlados-text); }
         .category-badge.category-neon { background: var(--neon-pastel); color: var(--neon-text); }
 
+        /* Quick Actions on Product Card */
+        .product-card-actions {
+            margin-top: 10px;
+            width: 100%;
+        }
+        .btn-quick-add {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--primary-pastel);
+            color: var(--primary);
+            border: 1.5px solid var(--primary-light);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        .btn-quick-add:hover {
+            background: var(--primary);
+            color: white;
+        }
+        .quick-qty-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--secondary-pastel);
+            border: 1.5px solid var(--secondary-light);
+            border-radius: 8px;
+            padding: 4px;
+            width: 100%;
+        }
+        .quick-qty-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        .quick-qty-btn:hover {
+            background: var(--secondary-light);
+        }
+        .quick-qty-val {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        /* Estilos del Visualizador de Pedido (Overlay Glassmorphic) */
+        .order-preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .order-preview-container {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 20px;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+            width: 100%;
+            max-width: 700px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: modalFadeIn 0.3s ease-out;
+        }
+
+        .order-preview-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--primary);
+            color: white;
+        }
+
+        .order-preview-header h2 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-preview-btn {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: color 0.2s;
+            line-height: 1;
+        }
+
+        .close-preview-btn:hover {
+            color: white;
+        }
+
+        .order-preview-content {
+            padding: 24px;
+            overflow-y: auto;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .order-preview-card {
+            background: #ffffff;
+            border: 1px solid rgba(15, 23, 42, 0.06);
+            border-radius: 12px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .order-preview-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: var(--secondary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .order-preview-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 5px;
+            font-size: 0.9rem;
+        }
+
+        .client-info h3, .order-preview-card h3 {
+            font-size: 1rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .client-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .order-preview-actions {
+            padding: 20px 24px;
+            border-top: 1px solid rgba(15, 23, 42, 0.06);
+            display: flex;
+            gap: 12px;
+            background: #f8fafc;
+        }
+
         /* Botones e Interacciones */
         .btn {
             padding: 10px 18px;
@@ -1498,41 +1682,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         </div>
                     </div>
 
-                    <!-- Importador de clientes desde PDF -->
-                    <div class="pdf-import-section" style="margin-top: 20px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 15px;">
-                        <h3 style="font-size: 1rem; font-weight: 700; color: var(--primary);"><i class="fas fa-file-import"></i> Importar Clientes desde PDF</h3>
-                        <p style="font-size: 0.8rem; color: var(--gray);">Carga el listado PDF de clientes para guardarlo en la Base de Datos.</p>
-                        
-                        <div class="pdf-drop-zone" id="pdf-drop-zone">
-                            <i class="fas fa-file-pdf fa-2x"></i>
-                            <p>Arrastre el listado PDF aquí o <span>busque el archivo</span></p>
-                            <input type="file" id="pdf-file-input" accept=".pdf" style="display: none;">
-                        </div>
-
-                        <!-- Vista Previa de Carga de Clientes -->
-                        <div id="pdf-parsed-preview" class="pdf-parsed-preview" style="display: none;">
-                            <div class="preview-header-bar">
-                                <h3>Clientes Detectados (<span id="parsed-count">0</span>)</h3>
-                                <div class="preview-actions-bar">
-                                    <button class="btn btn-sm btn-success" id="btn-upload-parsed" type="button"><i class="fas fa-cloud-upload-alt"></i> Guardar en BD</button>
-                                    <button class="btn btn-sm btn-danger" id="btn-clear-parsed" type="button">Cancelar</button>
-                                </div>
-                            </div>
-                            <div class="table-wrapper">
-                                <table class="preview-parsed-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Cód</th>
-                                            <th>Cliente</th>
-                                            <th>RIF</th>
-                                            <th>Zona</th>
-                                            <th>Teléfonos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="parsed-clients-table-body"></tbody>
-                                </table>
-                            </div>
-                        </div>
+                    <!-- Enlace para importar clientes desde PDF -->
+                    <div style="margin-top: 25px; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 20px; text-align: center;">
+                        <a href="importar.html" class="btn" style="background: var(--primary-pastel); color: var(--primary) !important; border: 1.5px solid var(--glass-border); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; border-radius: 10px; transition: all 0.2s ease;">
+                            <i class="fas fa-file-import"></i> Importar Clientes desde PDF
+                        </a>
                     </div>
                 </div>
 
@@ -1599,10 +1753,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                 <option value="BOLIVAR" selected>Bolívar</option>
                                 <option value="DOLAR">Dólar</option>
                             </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="client-phone-input"><i class="fab fa-whatsapp"></i> Teléfono Destino WhatsApp</label>
-                            <input type="tel" id="client-phone-input" class="form-control" placeholder="Ej: 584243757335">
                         </div>
                     </div>
 
@@ -1719,6 +1869,72 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         </div>
     </div>
 
+    <!-- Overlay de Visualización de Pedido por URL -->
+    <div id="order-preview-overlay" class="order-preview-overlay" style="display: none;">
+        <div class="order-preview-container">
+            <div class="order-preview-header">
+                <h2><i class="fas fa-file-invoice"></i> Resumen de Pedido Recibido</h2>
+                <button class="close-preview-btn" onclick="closeOrderPreviewOverlay()">&times;</button>
+            </div>
+            
+            <div class="order-preview-content">
+                <div class="order-preview-card">
+                    <div class="order-preview-badge">ORDEN #<span id="preview-order-number">00001</span></div>
+                    <div class="order-preview-meta-grid">
+                        <div><strong>Vendedor:</strong> <span id="preview-order-seller">Nizar Jamal</span></div>
+                        <div><strong>Fecha:</strong> <span id="preview-order-date">16/06/2026</span></div>
+                        <div><strong>Pago:</strong> <span id="preview-order-payment">Bolívar</span></div>
+                    </div>
+                </div>
+
+                <div class="order-preview-card client-info">
+                    <h3><i class="fas fa-user"></i> Datos del Cliente</h3>
+                    <div class="client-info-grid">
+                        <div><strong>Nombre:</strong> <span id="preview-client-name">CLIENTE DE PRUEBA</span></div>
+                        <div><strong>Código:</strong> <span id="preview-client-code">C-1234</span></div>
+                        <div><strong>RIF:</strong> <span id="preview-client-rif">E-00000000</span></div>
+                        <div><strong>Zona:</strong> <span id="preview-client-zone">CENTRO</span></div>
+                        <div><strong>Teléfono:</strong> <span id="preview-client-phone">0412-0000000</span></div>
+                    </div>
+                </div>
+
+                <div class="order-preview-card">
+                    <h3><i class="fas fa-box"></i> Detalle de Productos</h3>
+                    <div class="cart-table-wrapper">
+                        <table class="cart-table">
+                            <thead>
+                                <tr>
+                                    <th>Ref</th>
+                                    <th>Producto</th>
+                                    <th>Presentación</th>
+                                    <th>Cant</th>
+                                    <th>Total Unidades</th>
+                                </tr>
+                            </thead>
+                            <tbody id="preview-products-body">
+                                <!-- Se llena dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="order-preview-summary" style="margin-top: 15px; display: flex; justify-content: space-between; font-weight: 800; font-size: 1.05rem; border-top: 1px dashed rgba(15,23,42,0.1); padding-top: 10px;">
+                        <span>Total de Referencias: <span id="preview-total-refs">0</span></span>
+                        <span>Total Unidades: <span id="preview-total-units">0</span></span>
+                    </div>
+                </div>
+
+                <div class="order-preview-card" id="preview-notes-card" style="display: none;">
+                    <h3><i class="fas fa-comment-dots"></i> Observaciones</h3>
+                    <p id="preview-order-notes" style="font-style: italic; color: var(--dark);"></p>
+                </div>
+            </div>
+
+            <div class="order-preview-actions">
+                <button class="btn btn-success" id="btn-preview-pdf-download" style="flex: 1; justify-content: center;"><i class="fas fa-download"></i> Descargar PDF del Pedido</button>
+                <button class="btn btn-primary" onclick="closeOrderPreviewOverlay()"><i class="fas fa-times"></i> Cerrar y ir a la App</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Spinner Cargando -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
@@ -1734,9 +1950,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     .catch(err => console.error('Error al registrar Service Worker:', err));
             });
         }
-
-        // Inicialización de PDF.js Worker
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
         // Variables Globales (supabaseClient en lugar de supabase para evitar colisiones)
         let supabaseClient = null;
@@ -1973,6 +2186,21 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
         // Al iniciar
         document.addEventListener('DOMContentLoaded', () => {
+            // Check if viewOrder is in the URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const viewOrderData = urlParams.get('viewOrder');
+            if (viewOrderData) {
+                try {
+                    // Decodificar Base64 manejando caracteres UTF-8
+                    const decoded = JSON.parse(decodeURIComponent(escape(atob(viewOrderData))));
+                    if (decoded) {
+                        showOrderPreviewOverlay(decoded);
+                    }
+                } catch (e) {
+                    console.error("Error decodificando parámetro viewOrder:", e);
+                }
+            }
+
             // Aplanar productos
             categories.forEach(cat => {
                 cat.products.forEach(p => {
@@ -2051,7 +2279,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                             await checkAndRegisterSeller(session.user);
                         } else {
                             const select = document.getElementById('seller-select');
-                            if (select) select.value = "";
+                            const cached = localStorage.getItem('selected_seller');
+                            if (select) {
+                                if (cached) select.value = cached;
+                                else select.value = "";
+                            }
                         }
                     });
                     
@@ -2367,26 +2599,13 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('details-phone').textContent = client.telefono || "PENDIENTE";
             document.getElementById('selected-client-card').style.display = 'block';
 
-            // Auto-popular teléfono destino en página 3
-            if (client.telefono && client.telefono !== "PENDIENTE" && client.telefono !== "PENDIENTE SOLICITAR") {
-                const cleanPhone = client.telefono.replace(/\D/g, '');
-                let finalPhone = cleanPhone;
-                if (cleanPhone.startsWith('0')) {
-                    finalPhone = '58' + cleanPhone.substring(1);
-                } else if (!cleanPhone.startsWith('58') && cleanPhone.length > 5) {
-                    finalPhone = '58' + cleanPhone;
-                }
-                document.getElementById('client-phone-input').value = finalPhone;
-            } else {
-                document.getElementById('client-phone-input').value = DEFAULT_WHATSAPP_DEST;
-            }
+            // (Removido ya que el teléfono de destino es fijo: DEFAULT_WHATSAPP_DEST)
         }
 
         function clearSelectedClient() {
             selectedClient = null;
             document.getElementById('client-search-input').value = '';
             document.getElementById('selected-client-card').style.display = 'none';
-            document.getElementById('client-phone-input').value = DEFAULT_WHATSAPP_DEST;
         }
 
         // --- SISTEMA SECUENCIAL LIBRETA ---
@@ -2472,17 +2691,90 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             products.forEach(p => {
                 const card = document.createElement('div');
                 card.className = 'product-card';
+                
+                const cartItem = cartItems.find(item => item.product.id === p.id);
+                const qtyInCart = cartItem ? cartItem.quantity : 0;
+                const unitInCart = cartItem ? cartItem.unit : 'U';
+
                 card.innerHTML = `
-                    <div class="image-container">
-                        <img src="${p.image}" alt="${p.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎨</text></svg>'">
+                    <div class="image-container-clickable" style="width:100%; display:flex; flex-direction:column; align-items:center;">
+                        <div class="image-container" style="width:100%;">
+                            <img src="${p.image}" alt="${p.name}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🎨</text></svg>'">
+                        </div>
+                        <h3>${p.name}</h3>
+                        <span class="ref">Ref. ${p.ref}</span>
+                        <span class="category-badge category-${color}">${p.category.toUpperCase()}</span>
                     </div>
-                    <h3>${p.name}</h3>
-                    <span class="ref">Ref. ${p.ref}</span>
-                    <span class="category-badge category-${color}">${p.category.toUpperCase()}</span>
+                    <div class="product-card-actions">
+                        ${qtyInCart > 0 ? `
+                            <div class="quick-qty-selector">
+                                <button class="quick-qty-btn minus-btn" type="button">-</button>
+                                <span class="quick-qty-val">${qtyInCart} ${unitInCart}</span>
+                                <button class="quick-qty-btn plus-btn" type="button">+</button>
+                            </div>
+                        ` : `
+                            <button class="btn-quick-add add-btn" type="button"><i class="fas fa-plus"></i> Añadir</button>
+                        `}
+                    </div>
                 `;
-                card.addEventListener('click', () => openUnitModal(p));
+
+                // Clicking the image/info part opens the modal
+                card.querySelector('.image-container-clickable').addEventListener('click', () => {
+                    openUnitModal(p);
+                });
+
+                // Add button listeners
+                const actionsDiv = card.querySelector('.product-card-actions');
+                
+                const addBtn = actionsDiv.querySelector('.add-btn');
+                if (addBtn) {
+                    addBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        addProductDirect(p);
+                    });
+                }
+
+                const minusBtn = actionsDiv.querySelector('.minus-btn');
+                if (minusBtn) {
+                    minusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        changeProductQtyDirect(p.id, -1);
+                    });
+                }
+
+                const plusBtn = actionsDiv.querySelector('.plus-btn');
+                if (plusBtn) {
+                    plusBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        changeProductQtyDirect(p.id, 1);
+                    });
+                }
+
                 grid.appendChild(card);
             });
+        }
+
+        function addProductDirect(product) {
+            cartItems.push({
+                product: product,
+                unit: 'U',
+                quantity: 1
+            });
+            updateCart();
+            showNotification(`${product.name} añadido`);
+        }
+
+        function changeProductQtyDirect(productId, amt) {
+            const idx = cartItems.findIndex(item => item.product.id === productId);
+            if (idx !== -1) {
+                cartItems[idx].quantity += amt;
+                if (cartItems[idx].quantity < 1) {
+                    const name = cartItems[idx].product.name;
+                    cartItems.splice(idx, 1);
+                    showNotification(`${name} removido`, "error");
+                }
+                updateCart();
+            }
         }
 
         // Búsqueda en catálogo
@@ -2579,6 +2871,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             renderCartTable();
             updateQuickCheckoutButton();
+            if (typeof filterProducts === 'function') {
+                filterProducts();
+            }
         }
 
         // --- LÓGICA DE COMPRA RÁPIDA (STEP 2) ---
@@ -2681,250 +2976,8 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             }
         }
 
-        // --- IMPORTACIÓN DE CLIENTES PDF ---
-        const dropZone = document.getElementById('pdf-drop-zone');
-        const fileInput = document.getElementById('pdf-file-input');
-
-        dropZone.addEventListener('click', () => fileInput.click());
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.background = '#fff'; });
-        dropZone.addEventListener('dragleave', () => { dropZone.style.background = 'var(--primary-pastel)'; });
-        dropZone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropZone.style.background = 'var(--primary-pastel)';
-            const files = e.dataTransfer.files;
-            if (files.length > 0) processClientPDF(files[0]);
-        });
-
-        fileInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) processClientPDF(e.target.files[0]);
-        });
-
-        let parsedPDFData = null;
-
-        async function processClientPDF(file) {
-            if (file.type !== "application/pdf") {
-                showNotification("Por favor cargue un archivo PDF válido", "error");
-                return;
-            }
-
-            showLoading(true, "Analizando PDF de Clientes...");
-            try {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let text = "";
-
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    const page = await pdf.getPage(i);
-                    const textContent = await page.getTextContent();
-                    
-                    const items = textContent.items;
-                    const lines = {};
-                    items.forEach(item => {
-                        const y = Math.round(item.transform[5]);
-                        if (!lines[y]) lines[y] = [];
-                        lines[y].push(item);
-                    });
-
-                    const sortedY = Object.keys(lines).map(Number).sort((a,b) => b - a);
-                    sortedY.forEach(y => {
-                        const lineItems = lines[y].sort((a,b) => a.transform[4] - b.transform[4]);
-                        const lineStr = lineItems.map(item => item.str).join(" ");
-                        if (lineStr.trim()) text += lineStr + "\n";
-                    });
-                }
-
-                parsedPDFData = parseClientPDFText(text);
-
-                if (parsedPDFData.clients.length === 0) {
-                    showNotification("No se detectaron clientes en el formato del PDF", "error");
-                    document.getElementById('pdf-parsed-preview').style.display = 'none';
-                } else {
-                    showNotification(`Se detectaron ${parsedPDFData.clients.length} clientes`);
-                    renderParsedClientsPreview(parsedPDFData.clients);
-                }
-
-            } catch (err) {
-                console.error("Error al procesar PDF:", err);
-                showNotification("Error al abrir o leer el PDF", "error");
-            } finally {
-                showLoading(false);
-            }
-        }
-
-        function parseClientPDFText(rawText) {
-            const lines = rawText.split('\n');
-            const clients = [];
-            const sellers = new Set();
-            
-            let currentSeller = "";
-            let currentZone = "";
-
-            const sellerRegex = /^\s*(\d{3})\s+([A-Z\s]{3,})$/;
-            const zoneRegex = /^\s*([A-Z\.\s]{3,})\s+(\d{3})\s*$/;
-            const rifRegex = /\b([JVEG]-\d{8}-\d)\b/i;
-            const codeRegex = /^\s*(\d{3,5})\s+/;
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-
-                if (line.includes("NUM CLIENTE RIF") || line.includes("REPORTE DE CLIENTES") || line.includes("ROYAL PAINT")) {
-                    continue;
-                }
-
-                const sellerMatch = line.match(sellerRegex);
-                if (sellerMatch && !line.includes("LIMIT") && !line.includes("NUM")) {
-                    const sName = sellerMatch[2].trim();
-                    if (sName !== "CLIENTE" && sName !== "RIF" && sName !== "ZONA" && sName !== "TELEFONOS") {
-                        currentSeller = sName;
-                        sellers.add(sName);
-                        continue;
-                    }
-                }
-
-                const zoneMatch = line.match(zoneRegex);
-                if (zoneMatch) {
-                    const zName = zoneMatch[1].trim();
-                    if (zName !== "CLIENTE" && zName !== "RIF" && zName !== "ZONA" && zName !== "TELEFONOS") {
-                        currentZone = zName;
-                        continue;
-                    }
-                }
-
-                const codeMatch = line.match(codeRegex);
-                const rifMatch = line.match(rifRegex);
-
-                if (codeMatch && rifMatch) {
-                    const code = codeMatch[1];
-                    const rif = rifMatch[1];
-                    
-                    const rifIdx = line.indexOf(rif);
-                    const partBeforeRif = line.substring(0, rifIdx).trim();
-                    const partAfterRif = line.substring(rifIdx + rif.length).trim();
-
-                    const name = partBeforeRif.replace(codeRegex, '').trim();
-                    const infoStr = partAfterRif.replace(/\s+\d+[\d\.,]*$/, '').trim();
-
-                    let zone = currentZone;
-                    let phone = "";
-
-                    const phoneMatch = infoStr.match(/\b(0\d{3}[-\s]?\d{7,8}(?:\s+\d+\s+0\d{3}[-\s]?\d{7,8})?)\b/i) || 
-                                       infoStr.match(/\b(04\d{2}[-\s]?\d{7})\b/i);
-
-                    if (phoneMatch) {
-                        phone = phoneMatch[0];
-                        const phoneIdx = infoStr.indexOf(phone);
-                        const zonePart = infoStr.substring(0, phoneIdx).trim();
-                        if (zonePart) zone = zonePart;
-                    } else if (infoStr.includes("PENDIENTE")) {
-                        phone = "PENDIENTE SOLICITAR";
-                        const pendIdx = infoStr.indexOf("PENDIENTE");
-                        const zonePart = infoStr.substring(0, pendIdx).trim();
-                        if (zonePart) zone = zonePart;
-                    } else {
-                        if (currentZone) {
-                            zone = currentZone;
-                            phone = infoStr.replace(currentZone, '').trim();
-                        } else {
-                            const words = infoStr.split(/\s+/);
-                            if (words.length > 1) {
-                                zone = words[0];
-                                phone = words.slice(1).join(" ");
-                            } else {
-                                zone = infoStr;
-                            }
-                        }
-                    }
-
-                    clients.push({
-                        codigo: code,
-                        nombre: name,
-                        rif: rif,
-                        zona: zone || currentZone || "GENERAL",
-                        telefono: phone || "PENDIENTE"
-                    });
-                }
-            }
-
-            return { clients, sellers: Array.from(sellers) };
-        }
-
-        function renderParsedClientsPreview(list) {
-            const tbody = document.getElementById('parsed-clients-table-body');
-            tbody.innerHTML = '';
-
-            list.forEach(c => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${c.codigo}</td>
-                    <td><strong>${c.nombre}</strong></td>
-                    <td>${c.rif}</td>
-                    <td>${c.zona}</td>
-                    <td>${c.telefono}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('parsed-count').textContent = list.length;
-            document.getElementById('pdf-parsed-preview').style.display = 'block';
-        }
-
-        function clearParsedPreview() {
-            parsedPDFData = null;
-            document.getElementById('parsed-clients-table-body').innerHTML = '';
-            document.getElementById('pdf-parsed-preview').style.display = 'none';
-            document.getElementById('pdf-file-input').value = '';
-        }
-
-        // Subir clientes parseados a Supabase / LocalCache
-        async function saveParsedClients() {
-            if (!parsedPDFData || parsedPDFData.clients.length === 0) return;
-
-            showLoading(true, "Guardando clientes en base de datos...");
-            try {
-                let writeClient = supabaseClient;
-
-                if (writeClient) {
-                    // Verificar si el usuario está autenticado antes de insertar si RLS está habilitado para autenticados
-                    const { data: { session } } = await writeClient.auth.getSession();
-                    if (!session) {
-                        showNotification("Debes iniciar sesión con GitHub para guardar clientes en la base de datos remota", "warning");
-                    }
-
-                    for (const client of parsedPDFData.clients) {
-                        const { error } = await writeClient
-                            .from('clientes')
-                            .upsert({
-                                codigo: client.codigo,
-                                nombre: client.nombre,
-                                rif: client.rif,
-                                zona: client.zona,
-                                telefono: client.telefono
-                            });
-                        if (error) console.error("Error al subir cliente", client, error);
-                    }
-
-                    if (parsedPDFData.sellers.length > 0) {
-                        for (const seller of parsedPDFData.sellers) {
-                            await writeClient.from('vendedores').upsert({ nombre: seller.toUpperCase() }, { onConflict: 'nombre' });
-                        }
-                        loadSellers();
-                    }
-
-                    showNotification("Clientes guardados exitosamente en la Base de Datos");
-                } else {
-                    localClients = parsedPDFData.clients;
-                    localStorage.setItem('local_clients_cache', JSON.stringify(localClients));
-                    showNotification("Clientes guardados localmente");
-                }
-                clearParsedPreview();
-            } catch (err) {
-                console.error("Error guardando clientes:", err);
-                showNotification("Error al guardar clientes: " + err.message, "error");
-            } finally {
-                showLoading(false);
-            }
-        }
+        // --- IMPORTACIÓN DE CLIENTES PDF TRASLADADA ---
+        // (La funcionalidad de importación ahora reside en importar.html)
 
         // --- DRAFTS / BORRADORES ---
         function saveDraftLocal() {
@@ -3017,10 +3070,36 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             const paymentMethod = document.getElementById('payment-method').value;
             const observations = document.getElementById('observations').value.trim();
-            const phoneDest = document.getElementById('client-phone-input').value.trim();
+            const phoneDest = DEFAULT_WHATSAPP_DEST;
 
             const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
             
+            // Generate the encoded order data for sharing
+            const orderData = {
+                n: formattedOrderNumber,
+                s: seller,
+                c: {
+                    n: selectedClient.nombre,
+                    c: selectedClient.codigo,
+                    z: selectedClient.zona,
+                    r: selectedClient.rif || '',
+                    t: selectedClient.telefono || ''
+                },
+                p: paymentMethod,
+                o: observations,
+                d: new Date().toLocaleDateString(),
+                i: cartItems.map(item => ({
+                    id: item.product.id,
+                    n: item.product.name,
+                    r: item.product.ref,
+                    u: item.unit,
+                    q: item.quantity
+                }))
+            };
+            
+            const base64Str = btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
+            const shareUrl = `https://royalpaint03.github.io/PEDIDOS/pedidos.html?viewOrder=${encodeURIComponent(base64Str)}`;
+
             let msg = `🎨 *PINTURAS OSI & SISI - ORDEN DE PEDIDO* 🎨\n`;
             msg += `-------------------------------------------\n`;
             msg += `📝 *Orden N°:* #${formattedOrderNumber}\n`;
@@ -3047,6 +3126,8 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             msg += `-------------------------------------------\n`;
             msg += `🔢 *Items:* ${cartItems.length} | *Total Unidades:* ${totalGeneralUnidades}\n`;
             msg += `-------------------------------------------\n`;
+            msg += `🔗 *Ver y Descargar Pedido:*\n${shareUrl}\n`;
+            msg += `-------------------------------------------\n`;
             msg += `Generado por Libreta de Pedidos Digital.`;
 
             if (supabaseClient) {
@@ -3062,7 +3143,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         productos: cartItems
                     }]);
                 } catch (e) {
-                    console.error("Error al registrar pedido en base de datos Supabase:", e);
+                    console.error("Error al registrar pedido en base de datos:", e);
                 }
             }
 
@@ -3082,6 +3163,81 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             goToStep(1);
         }
 
+        // Función reutilizable para generar PDF a partir de datos estructurados de orden
+        function generatePDF(order) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("Outfit", "normal");
+            
+            doc.setFillColor(30, 58, 138);
+            doc.rect(0, 0, 210, 35, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(20);
+            doc.text("PINTURAS OSI & SISI", 15, 22);
+            doc.setFontSize(10);
+            doc.text(`ORDEN DE PEDIDO #${order.n}`, 155, 22);
+
+            doc.setTextColor(15, 23, 42);
+            doc.setFontSize(10);
+            let y = 45;
+            doc.text(`Vendedor: ${order.s}`, 15, y);
+            doc.text(`Fecha: ${order.d || new Date().toLocaleDateString()}`, 150, y);
+            y += 8;
+            doc.text(`Cliente: ${order.c.n} (${order.c.r || 'N/A'})`, 15, y);
+            doc.text(`Zona: ${order.c.z}`, 150, y);
+            y += 8;
+            doc.text(`Método de Pago: ${order.p === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}`, 15, y);
+            if (order.c.t) doc.text(`Teléfono: ${order.c.t}`, 150, y);
+            y += 10;
+
+            if (order.o) {
+                doc.setFont(undefined, 'bold');
+                doc.text("Observaciones:", 15, y);
+                doc.setFont(undefined, 'normal');
+                doc.text(order.o, 45, y);
+                y += 10;
+            }
+
+            const headers = [["Ref", "Producto", "Presentación", "Cantidad", "Total Unidades"]];
+            const data = order.i.map(item => {
+                let totalUnits = item.q;
+                if (item.u === 'DZ') totalUnits = item.q * 12;
+                if (item.u === 'BUL') {
+                    totalUnits = item.q * (item.r === 600 ? 100 : 288);
+                }
+                return [
+                    item.r,
+                    item.n,
+                    getUnitName(item.u),
+                    item.q,
+                    totalUnits
+                ];
+            });
+
+            doc.autoTable({
+                startY: y,
+                head: headers,
+                body: data,
+                theme: 'striped',
+                headStyles: { fillColor: [30, 58, 138] },
+                margin: { left: 15, right: 15 }
+            });
+
+            const finalY = doc.lastAutoTable.finalY + 15;
+            const totalUnidades = order.i.reduce((acc, item) => {
+                let u = item.q;
+                if (item.u === 'DZ') u *= 12;
+                if (item.u === 'BUL') u *= (item.r === 600 ? 100 : 288);
+                return acc + u;
+            }, 0);
+
+            doc.text(`Total de Referencias: ${order.i.length}`, 15, finalY);
+            doc.text(`Total General Unidades: ${totalUnidades}`, 130, finalY);
+
+            doc.save(`Pedido_${order.c.n.replace(/\s+/g, '_')}_${order.n}.pdf`);
+        }
+
         function downloadPDFDirect() {
             const seller = document.getElementById('seller-select').value;
             if (!seller || !selectedClient) {
@@ -3097,78 +3253,96 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const observations = document.getElementById('observations').value.trim();
             const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
 
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            const order = {
+                n: formattedOrderNumber,
+                s: seller,
+                c: {
+                    n: selectedClient.nombre,
+                    c: selectedClient.codigo,
+                    z: selectedClient.zona,
+                    r: selectedClient.rif || '',
+                    t: selectedClient.telefono || ''
+                },
+                p: paymentMethod,
+                o: observations,
+                d: new Date().toLocaleDateString(),
+                i: cartItems.map(item => ({
+                    id: item.product.id,
+                    n: item.product.name,
+                    r: item.product.ref,
+                    u: item.unit,
+                    q: item.quantity
+                }))
+            };
 
-            doc.setFont("Outfit", "normal");
-            
-            doc.setFillColor(30, 58, 138);
-            doc.rect(0, 0, 210, 35, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(20);
-            doc.text("PINTURAS OSI & SISI", 15, 22);
-            doc.setFontSize(10);
-            doc.text(`ORDEN DE PEDIDO #${formattedOrderNumber}`, 155, 22);
-
-            doc.setTextColor(15, 23, 42);
-            doc.setFontSize(10);
-            let y = 45;
-            doc.text(`Vendedor: ${seller}`, 15, y);
-            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 150, y);
-            y += 8;
-            doc.text(`Cliente: ${selectedClient.nombre} (${selectedClient.rif})`, 15, y);
-            doc.text(`Zona: ${selectedClient.zona}`, 150, y);
-            y += 8;
-            doc.text(`Método de Pago: ${paymentMethod}`, 15, y);
-            if (selectedClient.telefono) doc.text(`Teléfono: ${selectedClient.telefono}`, 150, y);
-            y += 10;
-
-            if (observations) {
-                doc.setFont(undefined, 'bold');
-                doc.text("Observaciones:", 15, y);
-                doc.setFont(undefined, 'normal');
-                doc.text(observations, 45, y);
-                y += 10;
-            }
-
-            const headers = [["Ref", "Producto", "Presentación", "Cantidad", "Total Unidades"]];
-            const data = cartItems.map(item => {
-                let totalUnits = item.quantity;
-                if (item.unit === 'DZ') totalUnits = item.quantity * 12;
-                if (item.unit === 'BUL') {
-                    totalUnits = item.quantity * (item.product.ref === 600 ? 100 : 288);
-                }
-                return [
-                    item.product.ref,
-                    item.product.name,
-                    getUnitName(item.unit),
-                    item.quantity,
-                    totalUnits
-                ];
-            });
-
-            doc.autoTable({
-                startY: y,
-                head: headers,
-                body: data,
-                theme: 'striped',
-                headStyles: { fillColor: [30, 58, 138] },
-                margin: { left: 15, right: 15 }
-            });
-
-            const finalY = doc.lastAutoTable.finalY + 15;
-            const totalUnidades = cartItems.reduce((acc, i) => {
-                let u = i.quantity;
-                if (i.unit === 'DZ') u *= 12;
-                if (i.unit === 'BUL') u *= (i.product.ref === 600 ? 100 : 288);
-                return acc + u;
-            }, 0);
-
-            doc.text(`Total de Referencias: ${cartItems.length}`, 15, finalY);
-            doc.text(`Total General Unidades: ${totalUnidades}`, 130, finalY);
-
-            doc.save(`Pedido_${selectedClient.nombre.replace(/\s+/g, '_')}_${formattedOrderNumber}.pdf`);
+            generatePDF(order);
             showNotification("PDF descargado correctamente");
+        }
+
+        // Lógica de visualización y control del Overlay de visualización de pedidos por URL
+        let activeDecodedOrder = null;
+
+        function showOrderPreviewOverlay(order) {
+            activeDecodedOrder = order;
+            
+            document.getElementById('preview-order-number').textContent = order.n;
+            document.getElementById('preview-order-seller').textContent = order.s;
+            document.getElementById('preview-order-date').textContent = order.d || new Date().toLocaleDateString();
+            document.getElementById('preview-order-payment').textContent = order.p === 'BOLIVAR' ? 'Bolívar' : 'Dólar';
+            
+            document.getElementById('preview-client-name').textContent = order.c.n;
+            document.getElementById('preview-client-code').textContent = order.c.c;
+            document.getElementById('preview-client-rif').textContent = order.c.r || "N/A";
+            document.getElementById('preview-client-zone').textContent = order.c.z;
+            document.getElementById('preview-client-phone').textContent = order.c.t || "N/A";
+            
+            const tbody = document.getElementById('preview-products-body');
+            tbody.innerHTML = '';
+            
+            let totalGeneralUnidades = 0;
+            order.i.forEach(item => {
+                let totalUnits = item.q;
+                if (item.u === 'DZ') totalUnits = item.q * 12;
+                if (item.u === 'BUL') {
+                    totalUnits = item.q * (item.r === 600 ? 100 : 288);
+                }
+                totalGeneralUnidades += totalUnits;
+                
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${item.r}</strong></td>
+                    <td>${item.n}</td>
+                    <td><span style="font-weight:600;">${getUnitName(item.u)}</span></td>
+                    <td>${item.q}</td>
+                    <td><strong>${totalUnits}</strong></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.getElementById('preview-total-refs').textContent = order.i.length;
+            document.getElementById('preview-total-units').textContent = totalGeneralUnidades;
+            
+            const notesCard = document.getElementById('preview-notes-card');
+            if (order.o) {
+                notesCard.style.display = 'block';
+                document.getElementById('preview-order-notes').textContent = order.o;
+            } else {
+                notesCard.style.display = 'none';
+            }
+            
+            document.getElementById('order-preview-overlay').style.display = 'flex';
+            
+            // Configurar botón de PDF en el preview
+            document.getElementById('btn-preview-pdf-download').onclick = () => {
+                generatePDF(order);
+                showNotification("PDF generado correctamente");
+            };
+        }
+
+        function closeOrderPreviewOverlay() {
+            document.getElementById('order-preview-overlay').style.display = 'none';
+            const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.pushState({ path: newUrl }, '', newUrl);
         }
 
         // --- ASISTENTE DE VOZ (SPEECH RECOGNITION API) ---
@@ -3270,6 +3444,115 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 "cuarenta": 40, "cincuenta": 50, "sesenta": 60, "setenta": 70, "ochenta": 80,
                 "noventa": 90, "cien": 100, "ciento": 100
             };
+
+            // Comando ELIMINAR por voz
+            if (cleanText.startsWith("eliminar") || cleanText.startsWith("quitar") || cleanText.startsWith("borrar") || cleanText.startsWith("remover")) {
+                let target = cleanText.replace(/^(eliminar|quitar|borrar|remover)\s+/, "").trim();
+                let matchedIdx = -1;
+                let bestScore = 0;
+                
+                // Buscar por coincidencia exacta de código/ref
+                matchedIdx = cartItems.findIndex(item => item.product.ref.toString() === target || target.includes(item.product.ref.toString()));
+                
+                if (matchedIdx === -1) {
+                    // Buscar coincidencia en nombre del producto
+                    cartItems.forEach((item, idx) => {
+                        const pName = item.product.name.toLowerCase();
+                        let score = 0;
+                        const tokens = target.split(" ").filter(t => t.length > 1);
+                        tokens.forEach(tok => {
+                            if (pName.includes(tok)) score += 5;
+                        });
+                        if (score > bestScore) {
+                            bestScore = score;
+                            matchedIdx = idx;
+                        }
+                    });
+                }
+                
+                if (matchedIdx !== -1 && (bestScore >= 4 || target.includes(cartItems[matchedIdx].product.ref.toString()))) {
+                    const removedName = cartItems[matchedIdx].product.name;
+                    cartItems.splice(matchedIdx, 1);
+                    updateCart();
+                    speak("Eliminado " + removedName + " del pedido");
+                    document.getElementById("voice-transcript").textContent = 'Eliminado: "' + removedName + '"';
+                    setTimeout(stopSpeechRecognition, 2000);
+                } else {
+                    speak("No encontré ningún producto en el pedido para eliminar que coincida con " + target);
+                    document.getElementById("voice-transcript").textContent = 'No se encontró para eliminar: "' + target + '"';
+                    setTimeout(stopSpeechRecognition, 2500);
+                }
+                return;
+            }
+
+            // Comando FILTRAR por voz (gamas / colores)
+            const containsFiltrar = cleanText.includes("filtrar") || cleanText.includes("mostrar") || cleanText.includes("buscar") || cleanText.includes("busca") || cleanText.includes("ver");
+            const containsGama = cleanText.includes("gama") || cleanText.includes("línea") || cleanText.includes("linea");
+            
+            if (containsFiltrar || containsGama || cleanText.startsWith("todos los") || cleanText.startsWith("todas las")) {
+                let detectedGama = "";
+                let searchTerms = cleanText;
+
+                const gamaMapping = {
+                    "envejecedor": "envejecedores",
+                    "envejecedores": "envejecedores",
+                    "escarchado": "gel",
+                    "gel": "gel",
+                    "metalico": "metalicos",
+                    "metálico": "metalicos",
+                    "metalicos": "metalicos",
+                    "metálicos": "metalicos",
+                    "tela neon": "neon",
+                    "neon": "neon",
+                    "neón": "neon",
+                    "tela": "tela",
+                    "perlado": "perlados",
+                    "perlados": "perlados",
+                    "sisi": "sisi",
+                    "osi": "osi",
+                    "tempera": "tempera",
+                    "témpera": "tempera"
+                };
+
+                for (const key in gamaMapping) {
+                    if (cleanText.includes(key)) {
+                        detectedGama = gamaMapping[key];
+                        searchTerms = searchTerms.replace(new RegExp(`\\b(gama|linea|línea)?\\s*${key}s?\\b`, 'g'), "");
+                        break;
+                    }
+                }
+
+                searchTerms = searchTerms
+                    .replace(/\b(mostrar|filtrar|buscar|busca|ver|todos|todas|los|las|de|la|del)\b/ig, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+
+                if (detectedGama || searchTerms.length > 0) {
+                    const filterSelect = document.getElementById('category-filter');
+                    if (detectedGama) {
+                        filterSelect.value = detectedGama;
+                    } else {
+                        filterSelect.value = "";
+                    }
+
+                    document.getElementById('product-search').value = searchTerms;
+                    goToStep(2);
+                    filterProducts();
+
+                    let confirmation = "Filtrando catálogo";
+                    if (detectedGama) {
+                        const optionText = filterSelect.options[filterSelect.selectedIndex].text;
+                        confirmation += ` para la línea ${optionText}`;
+                    }
+                    if (searchTerms) {
+                        confirmation += ` por el término "${searchTerms}"`;
+                    }
+                    speak(confirmation);
+                    document.getElementById("voice-transcript").textContent = confirmation;
+                    setTimeout(stopSpeechRecognition, 2000);
+                    return;
+                }
+            }
 
             // Buscar comandos globales en el texto
             if (cleanText.includes("ver carrito") || cleanText.includes("ver resumen") || cleanText.includes("ir a confirmacion") || cleanText.includes("ir a confirmación")) {
@@ -3472,9 +3755,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     localStorage.removeItem('selected_seller');
                 }
             });
-
-            document.getElementById('btn-clear-parsed').addEventListener('click', clearParsedPreview);
-            document.getElementById('btn-upload-parsed').addEventListener('click', saveParsedClients);
 
             document.getElementById('product-search').addEventListener('input', filterProducts);
             document.getElementById('category-filter').addEventListener('change', filterProducts);
