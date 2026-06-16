@@ -2321,8 +2321,8 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     });
                     
                     dbStatus = "connected";
-                    statusDot.className = "db-status-dot connected";
-                    statusText.textContent = "Conectado a la Base de Datos";
+                    if (statusDot) statusDot.className = "db-status-dot connected";
+                    if (statusText) statusText.textContent = "Conectado a la Base de Datos";
                     
                     // Escuchar cambios de autenticación
                     supabaseClient.auth.onAuthStateChange(async (event, session) => {
@@ -2359,16 +2359,16 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     console.error("Error inicializando Base de Datos:", e);
                     supabaseClient = null;
                     dbStatus = "error";
-                    statusDot.className = "db-status-dot error";
-                    statusText.textContent = "Error de Conexión";
+                    if (statusDot) statusDot.className = "db-status-dot error";
+                    if (statusText) statusText.textContent = "Error de Conexión";
                     updateGitHubAuthUI(null);
                     
                 }
             } else {
                 supabaseClient = null;
                 dbStatus = "offline";
-                statusDot.className = "db-status-dot offline";
-                statusText.textContent = "Base de Datos Desconectada (Modo Local)";
+                if (statusDot) statusDot.className = "db-status-dot offline";
+                if (statusText) statusText.textContent = "Base de Datos Desconectada (Modo Local)";
                 updateGitHubAuthUI(null);
                 
             }
