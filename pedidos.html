@@ -3224,11 +3224,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 // Formato ultra-comprimido (Array de primer nivel)
                 if (data && Array.isArray(data) && data.length >= 7) {
                     const client = {
-                        nombre: data[2][0],
-                        codigo: data[2][1],
-                        zona: data[2][2],
-                        rif: data[2][3],
-                        telefono: data[2][4]
+                        n: data[2][0],
+                        c: data[2][1],
+                        z: data[2][2],
+                        r: data[2][3],
+                        t: data[2][4]
                     };
                     const payment = data[3] === 'B' ? 'BOLIVAR' : 'DOLAR';
                     const items = data[6].map(itemArr => {
@@ -3266,11 +3266,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 // Formato comprimido intermedio (Objeto con c como Array)
                 if (data && Array.isArray(data.c)) {
                     const client = {
-                        nombre: data.c[0],
-                        codigo: data.c[1],
-                        zona: data.c[2],
-                        rif: data.c[3],
-                        telefono: data.c[4]
+                        n: data.c[0],
+                        c: data.c[1],
+                        z: data.c[2],
+                        r: data.c[3],
+                        t: data.c[4]
                     };
                     
                     const payment = data.p === 'B' ? 'BOLIVAR' : 'DOLAR';
@@ -3298,13 +3298,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     return {
                         n: data.n,
                         s: data.s,
-                        c: {
-                            n: client.nombre,
-                            c: client.codigo,
-                            z: client.zona,
-                            r: client.rif,
-                            t: client.telefono
-                        },
+                        c: client,
                         p: payment,
                         o: data.o,
                         d: data.d,
@@ -3462,7 +3456,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
 
-            doc.setFont("Outfit", "normal");
+            doc.setFont("helvetica", "normal");
             
             doc.setFillColor(30, 58, 138);
             doc.rect(0, 0, 210, 35, 'F');
