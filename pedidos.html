@@ -3903,24 +3903,42 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
                         while (idx < tokens.length) {
                             let nextToken = tokens[idx];
+                            let skippedY = false;
                             
                             // Si el siguiente token es "y", verificamos si conecta números
                             if (nextToken === "y" && idx + 1 < tokens.length && getNumValue(tokens[idx + 1]) !== null) {
-                                idx++; // saltar "y"
-                                nextToken = tokens[idx];
+                                skippedY = true;
+                                nextToken = tokens[idx + 1];
                             }
 
                             let nextVal = getNumValue(nextToken);
                             if (nextVal !== null) {
                                 // DETECCION DE FRONTERA / DIFERENCIAL
-                                // Si la siguiente palabra (nextVal) es una cantidad que precede a una unidad (ej. "un bulto" o "dos docenas"),
-                                // entonces detenemos la acumulación del número actual para mantenerlos separados.
-                                if (idx + 1 < tokens.length && isUnit(tokens[idx + 1])) {
+                                let nextIdxToCheckUnit = skippedY ? idx + 2 : idx + 1;
+                                if (nextIdxToCheckUnit < tokens.length && isUnit(tokens[nextIdxToCheckUnit])) {
                                     break;
                                 }
 
+                                // NUEVA LOGICA DE VALIDACION DE SUMA
+                                // Solo sumamos si es una combinación válida en español
+                                // No sumamos códigos dictados uno por uno (ej. "siete" y "once" -> 7 y 11)
+                                let isValidAddition = false;
+                                if (accumulator % 100 === 0 && nextVal < 100) {
+                                    isValidAddition = true; // ej. 100 + 20
+                                } else if (accumulator % 10 === 0 && nextVal < 10) {
+                                    isValidAddition = true; // ej. 30 + 2
+                                }
+
+                                if (!isValidAddition) {
+                                    break;
+                                }
+
+                                if (skippedY) {
+                                    idx += 2;
+                                } else {
+                                    idx++;
+                                }
                                 accumulator += nextVal;
-                                idx++;
                             } else {
                                 break;
                             }
