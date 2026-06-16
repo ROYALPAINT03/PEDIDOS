@@ -24,14 +24,14 @@
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            /* Palette estrictamente Azul, Rojo y Blanco */
+            /* Palette estrictamente Azul y Blanco */
             --primary: #1e3a8a;       /* Azul Oscuro Principal */
             --primary-light: #3b82f6; /* Azul Claro de Acento */
             --primary-pastel: #eff6ff;/* Fondo Azul Muy Suave */
             
-            --secondary: #b91c1c;     /* Rojo Principal */
-            --secondary-light: #ef4444; /* Rojo Acento */
-            --secondary-pastel: #fef2f2;/* Fondo Rojo Muy Suave */
+            --secondary: #0284c7;     /* Sky Blue */
+            --secondary-light: #38bdf8; /* Sky Blue Acento */
+            --secondary-pastel: #f0f9ff;/* Fondo Sky Blue Muy Suave */
             
             --dark: #0f172a;          /* Texto Oscuro */
             --light: #f8fafc;         /* Gris Muy Claro */
@@ -43,38 +43,38 @@
             --glass-blur: blur(12px);
             --glass-shadow: 0 8px 32px 0 rgba(15, 23, 42, 0.06);
             
-            /* Colores de Categoría Mapeados estrictamente a Azul/Rojo */
+            /* Colores de Categoría Mapeados estrictamente a Azul */
             --osi: #1e3a8a;
             --osi-pastel: #eff6ff;
             --osi-text: #1e3a8a;
             
-            --sisi: #b91c1c;
-            --sisi-pastel: #fef2f2;
-            --sisi-text: #b91c1c;
+            --sisi: #2563eb;
+            --sisi-pastel: #eff6ff;
+            --sisi-text: #2563eb;
             
-            --metalicos: #1e3a8a;
-            --metalicos-pastel: #eff6ff;
-            --metalicos-text: #1e3a8a;
+            --metalicos: #0369a1;
+            --metalicos-pastel: #f0f9ff;
+            --metalicos-text: #0369a1;
             
-            --tela: #b91c1c;
-            --tela-pastel: #fef2f2;
-            --tela-text: #b91c1c;
+            --tela: #1d4ed8;
+            --tela-pastel: #eff6ff;
+            --tela-text: #1d4ed8;
             
-            --gel: #1e3a8a;
-            --gel-pastel: #eff6ff;
-            --gel-text: #1e3a8a;
+            --gel: #0284c7;
+            --gel-pastel: #f0f9ff;
+            --gel-text: #0284c7;
             
-            --envejecedores: #b91c1c;
-            --envejecedores-pastel: #fef2f2;
-            --envejecedores-text: #b91c1c;
+            --envejecedores: #0f172a;
+            --envejecedores-pastel: #f8fafc;
+            --envejecedores-text: #0f172a;
             
-            --perlados: #1e3a8a;
-            --perlados-pastel: #eff6ff;
-            --perlados-text: #1e3a8a;
+            --perlados: #06b6d4;
+            --perlados-pastel: #ecfeff;
+            --perlados-text: #06b6d4;
             
-            --neon: #b91c1c;
-            --neon-pastel: #fef2f2;
-            --neon-text: #b91c1c;
+            --neon: #0891b2;
+            --neon-pastel: #ecfeff;
+            --neon-text: #0891b2;
         }
 
         * {
@@ -89,9 +89,9 @@
             background-color: #ffffff;
             background-image: 
                 radial-gradient(at 0% 0%, rgba(30, 58, 138, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(185, 28, 28, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(30, 58, 138, 0.06) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(185, 28, 28, 0.06) 0px, transparent 50%);
+                radial-gradient(at 0% 100%, rgba(14, 165, 233, 0.06) 0px, transparent 50%);
             background-attachment: fixed;
             min-height: 100vh;
             padding: 20px;
@@ -256,12 +256,7 @@
 
         /* Configuración Supabase */
         .db-config-section {
-            background: var(--light);
-            border: 1px solid var(--glass-border);
-            border-radius: 14px;
-            padding: 12px 18px;
-            margin-bottom: 20px;
-            font-size: 0.88rem;
+            display: none !important;
         }
 
         .db-config-header {
@@ -1076,14 +1071,14 @@
         .btn-primary { background: var(--primary); color: white; }
         .btn-primary:hover { background: var(--primary-light); }
 
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; }
+        .btn-success { background: var(--secondary); color: white; }
+        .btn-success:hover { background: var(--secondary-light); }
 
         .btn-warning { background: var(--secondary-light); color: white; }
         .btn-warning:hover { background: var(--secondary); }
 
-        .btn-danger { background: var(--secondary); color: white; }
-        .btn-danger:hover { background: #991b1b; }
+        .btn-danger { background: var(--gray); color: white; }
+        .btn-danger:hover { background: var(--dark); }
 
         .btn-draft {
             background: #e2e8f0;
@@ -1307,12 +1302,12 @@
             z-index: 2000;
             transform: translateX(180%);
             transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-            border-left: 5px solid #10b981;
+            border-left: 5px solid var(--primary-light);
         }
 
         .notification.show { transform: translateX(0); }
         .notification.error { border-left-color: var(--secondary); }
-        .notification i { font-size: 20px; color: #10b981; }
+        .notification i { font-size: 20px; color: var(--primary-light); }
         .notification.error i { color: var(--secondary); }
 
         /* Barra de acción flotante */
@@ -1400,6 +1395,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
         }
 
         .voice-mic-icon {
@@ -1681,13 +1677,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                             <p><strong><i class="fas fa-phone"></i> Teléfono:</strong> <span id="details-phone">0412-1910897</span></p>
                         </div>
                     </div>
-
-                    <!-- Enlace para importar clientes desde PDF -->
-                    <div style="margin-top: 25px; border-top: 1px solid rgba(15, 23, 42, 0.08); padding-top: 20px; text-align: center;">
-                        <a href="importar.html" class="btn" style="background: var(--primary-pastel); color: var(--primary) !important; border: 1.5px solid var(--glass-border); text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; border-radius: 10px; transition: all 0.2s ease;">
-                            <i class="fas fa-file-import"></i> Importar Clientes desde PDF
-                        </a>
-                    </div>
                 </div>
 
                 <!-- HOJA 2: CATÁLOGO DE PRODUCTOS -->
@@ -1792,7 +1781,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
     <!-- Barra de acciones flotante flotante (Micrófono + Carrito) -->
     <div class="floating-action-bar">
         <button class="floating-btn floating-btn-voice" id="floating-mic-btn" type="button" title="Asistente de Voz"><i class="fas fa-microphone"></i></button>
-        <button class="floating-btn floating-btn-cart" id="floating-cart" type="button" title="Ver pedido" onclick="goToStep(3)">
+        <button class="floating-btn floating-btn-cart" id="floating-cart" type="button" title="Ver pedido" onclick="goToStep(3)" style="display: none;">
             <i class="fas fa-shopping-cart"></i>
             <div class="cart-count" id="cart-count">0</div>
         </button>
@@ -1849,13 +1838,25 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 <h3>Asistente de Voz</h3>
                 <button class="close-modal" onclick="stopSpeechRecognition()">&times;</button>
             </div>
-            <div class="voice-status-icon">
+            <div class="voice-status-icon" onclick="toggleVoicePauseResume()" title="Tocar para Pausar/Reanudar" style="cursor: pointer;">
                 <div class="voice-wave-ring ring-1"></div>
                 <div class="voice-wave-ring ring-2"></div>
                 <i class="fas fa-microphone voice-mic-icon"></i>
             </div>
             <h4 id="voice-status-text" style="font-weight:800; margin-bottom: 8px;">Escuchando...</h4>
-            <p style="font-size: 0.8rem; color: var(--gray); margin-bottom: 15px;">Di por ejemplo: "Agregar 5 docenas de Blanco OSI" o "Buscar Azul"</p>
+            <p style="font-size: 0.82rem; color: var(--gray); margin-bottom: 12px; font-weight: 500;">
+                <i class="fas fa-info-circle"></i> Toca el micrófono para Pausar/Reanudar.
+            </p>
+            <div style="background: rgba(15, 23, 42, 0.03); border-radius: 10px; padding: 12px; margin-bottom: 15px; text-align: left; font-size: 0.76rem; border: 1px solid rgba(15,23,42,0.05);">
+                <strong style="display:block; color:var(--primary); margin-bottom: 6px;"><i class="fas fa-keyboard"></i> Guía Rápida de Comandos:</strong>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 4px; padding-left: 0;">
+                    <li>• <strong>Agregar:</strong> <em>"5 docenas de Blanco OSI"</em> o <em>"2 bultos de Ref 600"</em></li>
+                    <li>• <strong>Similitudes:</strong> di <em>"osi"</em> para línea OSI, o <em>"tempera"</em> para témperas</li>
+                    <li>• <strong>Filtrar gama/color:</strong> <em>"todos los azules de gama tela"</em>, <em>"gama sisi"</em> o <em>"mostrar rojos"</em></li>
+                    <li>• <strong>Remover:</strong> <em>"eliminar fucsia"</em> o <em>"quitar ref 331"</em></li>
+                    <li>• <strong>Acciones:</strong> <em>"ver carrito"</em>, <em>"vaciar pedido"</em> o <em>"enviar WhatsApp"</em></li>
+                </ul>
+            </div>
             <div class="voice-transcript" id="voice-transcript">Esperando comando...</div>
         </div>
     </div>
@@ -1935,6 +1936,41 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         </div>
     </div>
 
+    <!-- Modal de Creación de Cliente -->
+    <div class="modal" id="client-modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Crear Nuevo Cliente</h3>
+                <button class="close-modal" onclick="closeClientModal()">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="new-client-code">Código del Cliente</label>
+                <input type="text" id="new-client-code" class="form-control" placeholder="Ej: C-1234">
+            </div>
+            <div class="form-group">
+                <label for="new-client-name">Nombre / Razón Social</label>
+                <input type="text" id="new-client-name" class="form-control" placeholder="Ej: INVERSIONES RAMOS C.A.">
+            </div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="new-client-rif">RIF (Opcional)</label>
+                    <input type="text" id="new-client-rif" class="form-control" placeholder="Ej: J-12345678-9">
+                </div>
+                <div class="form-group">
+                    <label for="new-client-zone">Zona</label>
+                    <input type="text" id="new-client-zone" class="form-control" placeholder="Ej: CENTRO">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="new-client-phone">Teléfono (Opcional)</label>
+                <input type="tel" id="new-client-phone" class="form-control" placeholder="Ej: 0412-1234567">
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%; margin-top: 15px;" onclick="saveNewClient()"><i class="fas fa-save"></i> Guardar Cliente</button>
+        </div>
+    </div>
+
     <!-- Spinner Cargando -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
@@ -1963,6 +1999,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         let modalQty = 1;
         let nextOrderNumber = localStorage.getItem('lastOrderNumber') ? parseInt(localStorage.getItem('lastOrderNumber')) : 1;
         let isListening = false;
+        let isVoicePaused = false;
         let recognition;
 
         const DEFAULT_WHATSAPP_DEST = "584243757335";
@@ -2190,14 +2227,9 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const urlParams = new URLSearchParams(window.location.search);
             const viewOrderData = urlParams.get('viewOrder');
             if (viewOrderData) {
-                try {
-                    // Decodificar Base64 manejando caracteres UTF-8
-                    const decoded = JSON.parse(decodeURIComponent(escape(atob(viewOrderData))));
-                    if (decoded) {
-                        showOrderPreviewOverlay(decoded);
-                    }
-                } catch (e) {
-                    console.error("Error decodificando parámetro viewOrder:", e);
+                const decoded = decodeOrder(viewOrderData);
+                if (decoded) {
+                    showOrderPreviewOverlay(decoded);
                 }
             }
 
@@ -2567,7 +2599,17 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             suggestions.innerHTML = '';
 
             if (list.length === 0) {
-                suggestions.innerHTML = '<div style="padding:10px; color:var(--gray); text-align:center;">No se encontraron clientes</div>';
+                const query = document.getElementById('client-search-input').value.trim();
+                suggestions.innerHTML = `
+                    <div style="padding:10px; color:var(--gray); text-align:center;">
+                        No se encontraron clientes para "${query}"
+                    </div>
+                    <div style="padding: 10px; border-top: 1px solid rgba(15, 23, 42, 0.08); text-align: center;">
+                        <button class="btn btn-primary btn-sm" type="button" onclick="openClientModal('${escape(query)}')">
+                            <i class="fas fa-plus"></i> Crear Cliente "${query}"
+                        </button>
+                    </div>
+                `;
                 suggestions.style.display = 'block';
                 return;
             }
@@ -2583,6 +2625,23 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 item.addEventListener('click', () => selectClient(c));
                 suggestions.appendChild(item);
             });
+
+            // Permanent option to create new client at the bottom
+            const createOption = document.createElement('div');
+            createOption.className = 'suggestion-item';
+            createOption.style.borderTop = '1px solid rgba(15, 23, 42, 0.08)';
+            createOption.style.background = 'var(--primary-pastel)';
+            createOption.style.color = 'var(--primary)';
+            createOption.style.textAlign = 'center';
+            createOption.innerHTML = `
+                <strong><i class="fas fa-plus"></i> ¿No aparece? Crear Cliente Nuevo</strong>
+            `;
+            createOption.addEventListener('click', () => {
+                const query = document.getElementById('client-search-input').value.trim();
+                openClientModal(query);
+            });
+            suggestions.appendChild(createOption);
+
             suggestions.style.display = 'block';
         }
 
@@ -2598,8 +2657,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('details-rif').textContent = client.rif || "N/A";
             document.getElementById('details-phone').textContent = client.telefono || "PENDIENTE";
             document.getElementById('selected-client-card').style.display = 'block';
-
-            // (Removido ya que el teléfono de destino es fijo: DEFAULT_WHATSAPP_DEST)
         }
 
         function clearSelectedClient() {
@@ -2608,13 +2665,75 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             document.getElementById('selected-client-card').style.display = 'none';
         }
 
+        // --- FUNCIONES DE CREACIÓN DE CLIENTE NUEVO ---
+        function openClientModal(initialName = "") {
+            document.getElementById('new-client-name').value = initialName.toUpperCase();
+            
+            // Generar código único temporal para el cliente
+            const randSuffix = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('new-client-code').value = `C-${randSuffix}`;
+            document.getElementById('new-client-rif').value = "";
+            document.getElementById('new-client-zone').value = "";
+            document.getElementById('new-client-phone').value = "";
+            
+            document.getElementById('client-modal').style.display = 'flex';
+        }
+
+        function closeClientModal() {
+            document.getElementById('client-modal').style.display = 'none';
+        }
+
+        async function saveNewClient() {
+            const code = document.getElementById('new-client-code').value.trim().toUpperCase();
+            const name = document.getElementById('new-client-name').value.trim().toUpperCase();
+            const rif = document.getElementById('new-client-rif').value.trim().toUpperCase();
+            const zone = document.getElementById('new-client-zone').value.trim().toUpperCase();
+            const phone = document.getElementById('new-client-phone').value.trim();
+
+            if (!code || !name || !zone) {
+                showNotification("Código, Nombre y Zona son requeridos", "error");
+                return;
+            }
+
+            showLoading(true, "Guardando cliente...");
+            try {
+                if (supabaseClient) {
+                    const { error } = await supabaseClient.from('clientes').insert([{
+                        codigo: code,
+                        nombre: name,
+                        rif: rif,
+                        zona: zone,
+                        telefono: phone
+                    }]);
+                    if (error) throw error;
+                }
+
+                const newClient = { codigo: code, nombre: name, rif: rif, zona: zone, telefono: phone };
+                
+                // Agregar al listado local cache si no está presente
+                if (!localClients.some(c => c.codigo === code)) {
+                    localClients.push(newClient);
+                    localStorage.setItem('local_clients_cache', JSON.stringify(localClients));
+                }
+
+                selectClient(newClient);
+                closeClientModal();
+                showNotification(`Cliente "${name}" guardado y seleccionado`);
+            } catch (err) {
+                console.error("Error al crear cliente:", err);
+                showNotification("No se pudo guardar el cliente en la base de datos", "error");
+            } finally {
+                showLoading(false);
+            }
+        }
+
         // --- SISTEMA SECUENCIAL LIBRETA ---
         let currentStep = 1;
         function goToStep(step) {
             if (step < 1 || step > 3) return;
 
-            // Validar paso 1
-            if (step === 2 && currentStep === 1) {
+            // Validar si intenta avanzar desde el Paso 1
+            if (step > 1) {
                 const seller = document.getElementById('seller-select').value;
                 if (!seller) {
                     showNotification("Por favor seleccione un Vendedor", "error");
@@ -2622,6 +2741,14 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 }
                 if (!selectedClient) {
                     showNotification("Por favor busque y seleccione un Cliente", "error");
+                    return;
+                }
+            }
+
+            // Validar si intenta ir al Resumen (Paso 3)
+            if (step === 3) {
+                if (cartItems.length === 0) {
+                    showNotification("No hay productos en el carrito", "error");
                     return;
                 }
             }
@@ -2634,6 +2761,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             currentStep = step;
             updateQuickCheckoutButton();
+
+            // Toggle visibility of the floating cart button: ONLY in step 2 (Productos)
+            const floatingCart = document.getElementById('floating-cart');
+            if (floatingCart) {
+                floatingCart.style.display = (step === 2) ? 'flex' : 'none';
+            }
 
             document.getElementById('step-indicator').textContent = `Paso ${step} de 3`;
             document.getElementById('prev-step-btn').style.visibility = step === 1 ? 'hidden' : 'visible';
@@ -3057,6 +3190,161 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         }
 
         // --- ENVIAR WHATSAPP / GENERAR PDF ---
+        
+        // Comprime y codifica el pedido para generar una URL mucho más corta (usando arrays posicionales)
+        function encodeOrder(order) {
+            const compactArray = [
+                order.n,
+                order.s,
+                [
+                    order.c.n,
+                    order.c.c,
+                    order.c.z,
+                    order.c.r || '',
+                    order.c.t || ''
+                ],
+                order.p === 'BOLIVAR' ? 'B' : 'D',
+                order.o || '',
+                order.d,
+                order.i.map(item => [
+                    item.id,
+                    item.u,
+                    item.q
+                ])
+            ];
+            return btoa(unescape(encodeURIComponent(JSON.stringify(compactArray))));
+        }
+
+        // Decodifica el pedido en Base64 soportando formato ultra-comprimido (array posicional) y anteriores
+        function decodeOrder(base64Str) {
+            try {
+                const jsonStr = decodeURIComponent(escape(atob(base64Str)));
+                const data = JSON.parse(jsonStr);
+                
+                // Formato ultra-comprimido (Array de primer nivel)
+                if (data && Array.isArray(data) && data.length >= 7) {
+                    const client = {
+                        nombre: data[2][0],
+                        codigo: data[2][1],
+                        zona: data[2][2],
+                        rif: data[2][3],
+                        telefono: data[2][4]
+                    };
+                    const payment = data[3] === 'B' ? 'BOLIVAR' : 'DOLAR';
+                    const items = data[6].map(itemArr => {
+                        const productId = itemArr[0];
+                        const unit = itemArr[1];
+                        const qty = itemArr[2];
+                        
+                        // Buscar en el catálogo
+                        const prod = allProducts.find(p => p.id === productId) || {
+                            id: productId,
+                            name: `Pintura Ref. ${productId}`,
+                            ref: productId
+                        };
+                        
+                        return {
+                            id: prod.id,
+                            n: prod.name,
+                            r: prod.ref,
+                            u: unit,
+                            q: qty
+                        };
+                    });
+                    
+                    return {
+                        n: data[0],
+                        s: data[1],
+                        c: client,
+                        p: payment,
+                        o: data[4],
+                        d: data[5],
+                        i: items
+                    };
+                }
+                
+                // Formato comprimido intermedio (Objeto con c como Array)
+                if (data && Array.isArray(data.c)) {
+                    const client = {
+                        nombre: data.c[0],
+                        codigo: data.c[1],
+                        zona: data.c[2],
+                        rif: data.c[3],
+                        telefono: data.c[4]
+                    };
+                    
+                    const payment = data.p === 'B' ? 'BOLIVAR' : 'DOLAR';
+                    
+                    const items = data.i.map(itemArr => {
+                        const productId = itemArr[0];
+                        const unit = itemArr[1];
+                        const qty = itemArr[2];
+                        
+                        const prod = allProducts.find(p => p.id === productId) || {
+                            id: productId,
+                            name: `Pintura Ref. ${productId}`,
+                            ref: productId
+                        };
+                        
+                        return {
+                            id: prod.id,
+                            n: prod.name,
+                            r: prod.ref,
+                            u: unit,
+                            q: qty
+                        };
+                    });
+                    
+                    return {
+                        n: data.n,
+                        s: data.s,
+                        c: {
+                            n: client.nombre,
+                            c: client.codigo,
+                            z: client.zona,
+                            r: client.rif,
+                            t: client.telefono
+                        },
+                        p: payment,
+                        o: data.o,
+                        d: data.d,
+                        i: items
+                    };
+                }
+                
+                // Compatibilidad con formato original (Objeto con diccionarios)
+                if (data && data.c && typeof data.c === 'object') {
+                    const items = data.i.map(item => ({
+                        id: item.id || item.product.id,
+                        n: item.n || item.product.name,
+                        r: item.r || item.product.ref,
+                        u: item.u || item.unit,
+                        q: item.q || item.quantity
+                    }));
+                    return {
+                        n: data.n,
+                        s: data.s,
+                        c: {
+                            n: data.c.n || data.c.nombre,
+                            c: data.c.c || data.c.codigo,
+                            z: data.c.z || data.c.zona,
+                            r: data.c.r || data.c.rif,
+                            t: data.c.t || data.c.telefono
+                        },
+                        p: data.p || data.paymentMethod,
+                        o: data.o || data.observations,
+                        d: data.d || new Date().toLocaleDateString(),
+                        i: items
+                    };
+                }
+                
+                return data;
+            } catch (e) {
+                console.error("Error al decodificar el pedido de la URL:", e);
+                return null;
+            }
+        }
+
         async function sendWhatsAppDirect() {
             const seller = document.getElementById('seller-select').value;
             if (!seller || !selectedClient) {
@@ -3074,8 +3362,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
             const formattedOrderNumber = nextOrderNumber.toString().padStart(5, '0');
             
-            // Generate the encoded order data for sharing
-            const orderData = {
+            const order = {
                 n: formattedOrderNumber,
                 s: seller,
                 c: {
@@ -3097,37 +3384,44 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 }))
             };
             
-            const base64Str = btoa(unescape(encodeURIComponent(JSON.stringify(orderData))));
+            const base64Str = encodeOrder(order);
             const shareUrl = `https://royalpaint03.github.io/PEDIDOS/pedidos.html?viewOrder=${encodeURIComponent(base64Str)}`;
 
-            let msg = `🎨 *PINTURAS OSI & SISI - ORDEN DE PEDIDO* 🎨\n`;
-            msg += `-------------------------------------------\n`;
-            msg += `📝 *Orden N°:* #${formattedOrderNumber}\n`;
-            msg += `📅 *Fecha:* ${new Date().toLocaleDateString()}\n`;
+            // Formato de texto del mensaje de WhatsApp más limpio, profesional y legible por escrito
+            let msg = `🛒 *PEDIDO PINTURAS OSI & SISI - #${formattedOrderNumber}*\n`;
+            msg += `===================================\n`;
             msg += `👤 *Vendedor:* ${seller}\n`;
             msg += `🤝 *Cliente:* ${selectedClient.nombre} (C-${selectedClient.codigo})\n`;
             msg += `📍 *Zona:* ${selectedClient.zona}\n`;
-            msg += `💳 *Pago:* ${paymentMethod === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}\n`;
-            if (observations) msg += `💬 *Notas:* ${observations}\n`;
-            msg += `-------------------------------------------\n`;
-            msg += `📦 *PRODUCTOS DETALLE:*\n`;
+            msg += `💳 *Método de Pago:* ${paymentMethod === 'BOLIVAR' ? 'Bolívares (Bs.)' : 'Dólares ($)'}\n`;
+            if (observations) {
+                msg += `💬 *Observaciones:* ${observations}\n`;
+            }
+            msg += `===================================\n`;
+            msg += `📦 *DETALLE DEL PEDIDO:*\n\n`;
 
             let totalGeneralUnidades = 0;
-            cartItems.forEach((item, idx) => {
+            cartItems.forEach((item) => {
                 let totalUnits = item.quantity;
                 if (item.unit === 'DZ') totalUnits = item.quantity * 12;
                 if (item.unit === 'BUL') {
                     totalUnits = item.quantity * (item.product.ref === 600 ? 100 : 288);
                 }
                 totalGeneralUnidades += totalUnits;
-                msg += `${idx + 1}. *${item.product.name}* (Ref. ${item.product.ref})\n`;
-                msg += `   Cant: ${item.quantity} [${getUnitName(item.unit)}] (${totalUnits} unidades)\n`;
+                
+                const unitName = item.quantity === 1 
+                    ? (item.unit === 'BUL' ? 'Bulto' : (item.unit === 'DZ' ? 'Docena' : 'Unidad'))
+                    : (item.unit === 'BUL' ? 'Bultos' : (item.unit === 'DZ' ? 'Docenas' : 'Unidades'));
+                
+                msg += `• *${item.quantity} ${unitName}* - ${item.product.name} (Ref: ${item.product.ref}) [${totalUnits} und]\n`;
             });
-            msg += `-------------------------------------------\n`;
-            msg += `🔢 *Items:* ${cartItems.length} | *Total Unidades:* ${totalGeneralUnidades}\n`;
-            msg += `-------------------------------------------\n`;
-            msg += `🔗 *Ver y Descargar Pedido:*\n${shareUrl}\n`;
-            msg += `-------------------------------------------\n`;
+            msg += `\n===================================\n`;
+            msg += `📊 *RESUMEN TOTAL:*\n`;
+            msg += `• Renglones: ${cartItems.length}\n`;
+            msg += `• Total Unidades: ${totalGeneralUnidades}\n`;
+            msg += `===================================\n`;
+            msg += `🔗 *Ver o Descargar PDF del Pedido:*\n${shareUrl}\n`;
+            msg += `===================================\n`;
             msg += `Generado por Libreta de Pedidos Digital.`;
 
             if (supabaseClient) {
@@ -3357,42 +3651,60 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'es-ES';
-            recognition.continuous = false;
+            recognition.continuous = true;
             recognition.interimResults = false;
 
             recognition.onstart = () => {
                 isListening = true;
-                updateVoiceUI(true);
+                updateVoiceUI(!isVoicePaused);
             };
 
             recognition.onresult = (e) => {
-                const text = e.results[0][0].transcript.toLowerCase();
-                document.getElementById('voice-transcript').textContent = `Escuché: "${e.results[0][0].transcript}"`;
+                if (isVoicePaused) return; // Ignorar comandos si está pausado
+                
+                const text = e.results[e.results.length - 1][0].transcript.toLowerCase().trim();
+                document.getElementById('voice-transcript').textContent = `Escuché: "${e.results[e.results.length - 1][0].transcript}"`;
                 parseVoiceCommand(text);
             };
 
             recognition.onerror = (e) => {
                 console.error("Error reconocimiento de voz", e);
-                showNotification("Error en reconocimiento de voz", "error");
-                updateVoiceUI(false);
+                if (e.error !== 'no-speech' && e.error !== 'aborted') {
+                    showNotification("Error en reconocimiento de voz", "error");
+                }
             };
 
             recognition.onend = () => {
                 isListening = false;
-                setTimeout(() => { if (!isListening) updateVoiceUI(false); }, 1000);
+                // Si la ventana modal sigue visible, re-inicializamos automáticamente el micrófono
+                // para mantener la sesión viva sin pedir permisos repetidamente.
+                const voiceModal = document.getElementById('voice-modal');
+                if (voiceModal && voiceModal.style.display === 'flex') {
+                    try {
+                        recognition.start();
+                    } catch (err) {
+                        console.warn("Re-intento de inicio de micrófono fallido:", err);
+                    }
+                } else {
+                    updateVoiceUI(false);
+                }
             };
         }
 
         function startSpeechRecognition() {
             if (!recognition) return;
+            isVoicePaused = false;
+            
             if (isListening) {
-                recognition.stop();
+                stopSpeechRecognition();
                 return;
             }
+
             try {
                 document.getElementById('voice-transcript').textContent = "Escuchando...";
                 document.getElementById('voice-status-text').textContent = "Escuchando...";
                 document.getElementById('voice-modal').style.display = 'flex';
+                updateVoiceUI(true);
                 recognition.start();
             } catch (e) {
                 console.error(e);
@@ -3400,19 +3712,59 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         }
 
         function stopSpeechRecognition() {
-            if (recognition && isListening) recognition.stop();
             document.getElementById('voice-modal').style.display = 'none';
+            if (recognition) {
+                try {
+                    recognition.stop();
+                } catch (e) {}
+            }
+            isListening = false;
+            isVoicePaused = false;
+            updateVoiceUI(false);
         }
 
-        function updateVoiceUI(listening) {
+        function toggleVoicePauseResume() {
+            if (!recognition) return;
+            isVoicePaused = !isVoicePaused;
+            updateVoiceUI(!isVoicePaused);
+            
+            const transcriptEl = document.getElementById('voice-transcript');
+            if (isVoicePaused) {
+                speak("Reconocimiento pausado");
+                transcriptEl.textContent = "Pausado. Haz clic en el micrófono para reanudar.";
+            } else {
+                speak("Reconocimiento reanudado");
+                transcriptEl.textContent = "Escuchando...";
+            }
+        }
+
+        function updateVoiceUI(active) {
             const txt = document.getElementById('voice-status-text');
             const rings = document.querySelectorAll('.voice-wave-ring');
-            if (listening) {
+            const micIcon = document.querySelector('.voice-mic-icon');
+            
+            if (active) {
                 txt.textContent = "Escuchando...";
-                rings.forEach(r => r.style.animationPlayState = 'running');
+                rings.forEach(r => {
+                    r.style.display = 'block';
+                    r.style.animationPlayState = 'running';
+                });
+                if (micIcon) {
+                    micIcon.style.color = 'var(--primary)';
+                    micIcon.style.opacity = '1';
+                }
             } else {
-                txt.textContent = "Inactivo";
-                rings.forEach(r => r.style.animationPlayState = 'paused');
+                txt.textContent = isVoicePaused ? "Pausado" : "Inactivo";
+                rings.forEach(r => {
+                    r.style.animationPlayState = 'paused';
+                    if (isVoicePaused) {
+                        r.style.display = 'none';
+                    }
+                });
+                if (micIcon) {
+                    micIcon.style.color = '#cbd5e1';
+                    micIcon.style.opacity = '0.6';
+                }
             }
         }
 
@@ -3650,6 +4002,27 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     let topScore = 0;
                     const searchTokens = textPart.split(" ").filter(t => t.length > 1);
 
+                    const synonymMappings = {
+                        "osi": "osi",
+                        "sisi": "sisi",
+                        "tempera": "tempera",
+                        "témpera": "tempera",
+                        "temperas": "tempera",
+                        "témperas": "tempera",
+                        "tela": "tela",
+                        "neon": "neon",
+                        "neón": "neon",
+                        "gel": "gel",
+                        "metalico": "metalicos",
+                        "metálico": "metalicos",
+                        "metalicos": "metalicos",
+                        "metálicos": "metalicos",
+                        "perlado": "perlados",
+                        "perlados": "perlados",
+                        "envejecedor": "envejecedores",
+                        "envejecedores": "envejecedores"
+                    };
+
                     allProducts.forEach(p => {
                         let score = 0;
                         const pName = p.name.toLowerCase();
@@ -3672,7 +4045,12 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                                     score += 5;
                                 }
                             }
-                            if (pCat.includes(cleanTok)) {
+                            
+                            // Boost por sinónimos de categoría
+                            const mappedCat = synonymMappings[cleanTok];
+                            if (mappedCat && pCat === mappedCat) {
+                                score += 8;
+                            } else if (pCat.includes(cleanTok)) {
                                 score += 2;
                             }
                         });
