@@ -2,7 +2,6 @@ const CACHE_NAME = 'pedidos-osi-sisi-v1';
 const ASSETS = [
   './',
   './pedidos.html',
-  './pedidosnew.html',
   './logosisi.jpg',
   './logoosi.jpg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
