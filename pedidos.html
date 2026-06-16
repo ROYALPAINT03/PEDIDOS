@@ -2223,6 +2223,13 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
 
         // Al iniciar
         document.addEventListener('DOMContentLoaded', () => {
+            // Aplanar productos primero para que la decodificación de pedidos encuentre los nombres
+            categories.forEach(cat => {
+                cat.products.forEach(p => {
+                    allProducts.push({ ...p, color: cat.color });
+                });
+            });
+
             // Check if viewOrder is in the URL query parameters
             const urlParams = new URLSearchParams(window.location.search);
             const viewOrderData = urlParams.get('viewOrder');
@@ -2232,13 +2239,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     showOrderPreviewOverlay(decoded);
                 }
             }
-
-            // Aplanar productos
-            categories.forEach(cat => {
-                cat.products.forEach(p => {
-                    allProducts.push({ ...p, color: cat.color });
-                });
-            });
 
             // Recuperar configuración de Supabase y establecer valores por defecto
             let savedUrl = localStorage.getItem('supabase_url');
@@ -3469,22 +3469,68 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             doc.setTextColor(15, 23, 42);
             doc.setFontSize(10);
             let y = 45;
-            doc.text(`Vendedor: ${order.s}`, 15, y);
-            doc.text(`Fecha: ${order.d || new Date().toLocaleDateString()}`, 150, y);
-            y += 8;
-            doc.text(`Cliente: ${order.c.n} (${order.c.r || 'N/A'})`, 15, y);
-            doc.text(`Zona: ${order.c.z}`, 150, y);
-            y += 8;
-            doc.text(`Método de Pago: ${order.p === 'BOLIVAR' ? 'Bolívar' : 'Dólar'}`, 15, y);
-            if (order.c.t) doc.text(`Teléfono: ${order.c.t}`, 150, y);
-            y += 10;
 
+            // Fila 1: Fecha & Vendedor (Con wrapping)
+            doc.setFont("helvetica", "bold");
+            doc.text("Fecha:", 15, y);
+            doc.setFont("helvetica", "normal");
+            doc.text(order.d || new Date().toLocaleDateString(), 30, y);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Vendedor:", 115, y);
+            doc.setFont("helvetica", "normal");
+            const splitSeller = doc.splitTextToSize(order.s || 'N/A', 65);
+            doc.text(splitSeller, 135, y);
+            
+            y += Math.max(8, splitSeller.length * 5);
+
+            // Fila 2: Cliente & Zona (Con wrapping)
+            doc.setFont("helvetica", "bold");
+            doc.text("Cliente:", 15, y);
+            doc.setFont("helvetica", "normal");
+            const clientText = `${order.c.n} (${order.c.r || 'N/A'})`;
+            const splitClient = doc.splitTextToSize(clientText, 80);
+            doc.text(splitClient, 30, y);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Zona:", 115, y);
+            doc.setFont("helvetica", "normal");
+            const splitZone = doc.splitTextToSize(order.c.z || 'N/A', 65);
+            doc.text(splitZone, 135, y);
+
+            y += Math.max(8, splitClient.length * 5, splitZone.length * 5);
+
+            // Fila 3: Pago & Teléfono
+            doc.setFont("helvetica", "bold");
+            doc.text("Pago:", 15, y);
+            doc.setFont("helvetica", "normal");
+            const payText = order.p === 'BOLIVAR' ? 'Bolívar' : 'Dólar';
+            doc.text(payText, 30, y);
+
+            doc.setFont("helvetica", "bold");
+            doc.text("Teléfono:", 115, y);
+            doc.setFont("helvetica", "normal");
+            const splitPhone = doc.splitTextToSize(order.c.t || 'N/A', 65);
+            doc.text(splitPhone, 135, y);
+
+            y += Math.max(8, splitPhone.length * 5);
+
+            // Observaciones (si existen, con wrapping y dinámico)
             if (order.o) {
-                doc.setFont(undefined, 'bold');
+                doc.setFont("helvetica", "bold");
                 doc.text("Observaciones:", 15, y);
-                doc.setFont(undefined, 'normal');
-                doc.text(order.o, 45, y);
-                y += 10;
+                doc.setFont("helvetica", "normal");
+                const splitObs = doc.splitTextToSize(order.o, 150);
+                doc.text(splitObs, 45, y);
+                y += Math.max(10, splitObs.length * 5);
+            } else {
+                y += 2;
+            }
+
+            // Si los datos empujaron demasiado hacia abajo, iniciamos la tabla en una página nueva
+            if (y > 270) {
+                doc.addPage();
+                y = 20;
             }
 
             const headers = [["Ref", "Producto", "Presentación", "Cantidad", "Total Unidades"]];
@@ -3512,7 +3558,13 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 margin: { left: 15, right: 15 }
             });
 
-            const finalY = doc.lastAutoTable.finalY + 15;
+            let finalY = doc.lastAutoTable.finalY + 15;
+            const pageHeight = doc.internal.pageSize.height;
+            if (finalY > pageHeight - 20) {
+                doc.addPage();
+                finalY = 20;
+            }
+
             const totalUnidades = order.i.reduce((acc, item) => {
                 let u = item.q;
                 if (item.u === 'DZ') u *= 12;
@@ -3520,6 +3572,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 return acc + u;
             }, 0);
 
+            doc.setFont("helvetica", "bold");
             doc.text(`Total de Referencias: ${order.i.length}`, 15, finalY);
             doc.text(`Total General Unidades: ${totalUnidades}`, 130, finalY);
 
@@ -3791,17 +3844,70 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 "noventa": 90, "cien": 100, "ciento": 100
             };
 
-            // Comando ELIMINAR por voz
+            // Helper para parsear cantidad en español o dígito a número
+            function parseVoiceQty(qtyStr) {
+                qtyStr = qtyStr.toLowerCase().trim();
+                if (/^\d+$/.test(qtyStr)) {
+                    return parseInt(qtyStr, 10);
+                }
+                return SPANISH_NUMBERS_MAP[qtyStr] || 1;
+            }
+
+            // Helper para mapear texto de unidad a su código
+            function parseVoiceUnit(unitStr) {
+                unitStr = unitStr.toLowerCase().trim();
+                if (/\b(bulto|bultos|caja|cajas|bul)\b/i.test(unitStr)) {
+                    return 'BUL';
+                }
+                if (/\b(docena|docenas|doc|docs|dz)\b/i.test(unitStr)) {
+                    return 'DZ';
+                }
+                return 'U';
+            }
+
+            // --- DETECTAR Y EXTRAER MÉTODO DE PAGO ---
+            let paymentMatch = null;
+            const paymentRegex = /\b(método de pago|metodo de pago|pago)\s+(en\s+)?(bolívares|bolivares|bs|dólares|dolares|dolar|dólar|divisas)\b/gi;
+            const paymentRegexForCapture = /\b(método de pago|metodo de pago|pago)\s+(en\s+)?(bolívares|bolivares|bs|dólares|dolares|dolar|dólar|divisas)\b/i;
+            const matchPay = cleanText.match(paymentRegexForCapture);
+            if (matchPay) {
+                const currency = matchPay[3].toLowerCase();
+                if (currency.includes('bolivar') || currency === 'bs') {
+                    paymentMatch = 'BOLIVAR';
+                } else if (currency.includes('dolar') || currency.includes('divisa')) {
+                    paymentMatch = 'DOLAR';
+                }
+                
+                if (paymentMatch) {
+                    document.getElementById('payment-method').value = paymentMatch;
+                }
+                // Remover el fragmento del método de pago del texto
+                cleanText = cleanText.replace(paymentRegex, ' ');
+            }
+
+            // --- DETECTAR Y EXTRAER OBSERVACIONES ---
+            let observationsMatch = null;
+            const observationsRegex = /\b(observación|observacion|observaciones|nota|notas|comentario|comentarios)\s+(.*)$/i;
+            const matchObs = cleanText.match(observationsRegex);
+            if (matchObs) {
+                observationsMatch = matchObs[2].trim();
+                document.getElementById('observations').value = observationsMatch;
+                // Remover el fragmento de observaciones del texto
+                cleanText = cleanText.replace(observationsRegex, ' ');
+            }
+
+            // Limpiar espacios extra
+            cleanText = cleanText.replace(/\s+/g, " ").trim();
+
+            // --- COMANDOS COMUNES DE ACCIÓN ---
             if (cleanText.startsWith("eliminar") || cleanText.startsWith("quitar") || cleanText.startsWith("borrar") || cleanText.startsWith("remover")) {
                 let target = cleanText.replace(/^(eliminar|quitar|borrar|remover)\s+/, "").trim();
                 let matchedIdx = -1;
                 let bestScore = 0;
                 
-                // Buscar por coincidencia exacta de código/ref
                 matchedIdx = cartItems.findIndex(item => item.product.ref.toString() === target || target.includes(item.product.ref.toString()));
                 
                 if (matchedIdx === -1) {
-                    // Buscar coincidencia en nombre del producto
                     cartItems.forEach((item, idx) => {
                         const pName = item.product.name.toLowerCase();
                         let score = 0;
@@ -3831,7 +3937,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 return;
             }
 
-            // Comando FILTRAR por voz (gamas / colores)
             const containsFiltrar = cleanText.includes("filtrar") || cleanText.includes("mostrar") || cleanText.includes("buscar") || cleanText.includes("busca") || cleanText.includes("ver");
             const containsGama = cleanText.includes("gama") || cleanText.includes("línea") || cleanText.includes("linea");
             
@@ -3900,7 +4005,6 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 }
             }
 
-            // Buscar comandos globales en el texto
             if (cleanText.includes("ver carrito") || cleanText.includes("ver resumen") || cleanText.includes("ir a confirmacion") || cleanText.includes("ir a confirmación")) {
                 speak("Mostrando resumen del pedido");
                 goToStep(3);
@@ -3930,158 +4034,220 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 return;
             }
 
-            // Segmentación por cantidades y productos
-            const words = cleanText.split(" ");
-            const segments = [];
-            
-            let currentQty = null;
-            let currentQtyIdx = -1;
-            
-            for (let i = 0; i < words.length; i++) {
-                const w = words[i];
-                let val = null;
-                if (/^\d+$/.test(w)) {
-                    val = parseInt(w);
-                } else if (SPANISH_NUMBERS_MAP[w] !== undefined) {
-                    val = SPANISH_NUMBERS_MAP[w];
-                }
-                
-                if (val !== null) {
-                    if (currentQty !== null) {
-                        const textPart = words.slice(currentQtyIdx + 1, i).join(" ");
-                        segments.push({ qty: currentQty, text: textPart });
-                    }
-                    currentQty = val;
-                    currentQtyIdx = i;
-                }
-            }
-            
-            if (currentQty !== null) {
-                const textPart = words.slice(currentQtyIdx + 1).join(" ");
-                segments.push({ qty: currentQty, text: textPart });
-            }
-
-            if (segments.length === 0) {
-                speak("No logré entender qué deseas agregar. Por favor, menciona las cantidades y productos.");
-                document.getElementById("voice-transcript").textContent = 'No se detectaron cantidades en "' + text + '"';
-                return;
-            }
-
-            // Procesar cada segmento de cantidad y texto
+            // --- DETECCION DE PRODUCTOS POR REFERENCIA Y CANTIDAD ---
             const addedProducts = [];
-            segments.forEach(seg => {
-                let textPart = seg.text.trim();
-                let qty = seg.qty;
-                let unit = 'U'; // Unidad por defecto
+
+            // Expresión regular para números y palabras en español
+            const qtyRegexPart = "(?:[0-9]+|un|uno|una|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|once|doce|trece|catorce|quince|dieciseis|dieciséis|diecisiete|dieciocho|diecinueve|veinte|veintiuno|veintidós|veintidos|veintitres|veintitrés|treinta|cuarenta|cincuenta|sesenta|setenta|ochenta|noventa|cien|ciento)";
+            const unitRegexPart = "(?:bultos?|cajas?|bul|docenas?|doc|docs?|dz|unidades?|potes?|frascos?|unidad?|unid?|u)";
+            const refKeywordRegexPart = "(?:ref|referencia|código|codigo|nro|número|numero)";
+
+            // Patrón A: [Cantidad] [Unidad] (de la)? (ref)? [Referencia]
+            // Ejemplo: "1 docena ref 600", "2 bultos de la 701"
+            const patternA = new RegExp('\\b(' + qtyRegexPart + ')\\s+(' + unitRegexPart + ')\\s*(?:de\\s+la\\s+|de\\s+)?(?:' + refKeywordRegexPart + '\\s+)?([0-9]+)\\b', 'gi');
+            
+            // Patrón B: (ref)? [Referencia] [Cantidad] [Unidad]
+            // Ejemplo: "ref 600 1 docena", "600 dos bultos"
+            const patternB = new RegExp('\\b(?:' + refKeywordRegexPart + '\\s+)?([0-9]+)\\s+(' + qtyRegexPart + ')\\s+(' + unitRegexPart + ')\\b', 'gi');
+
+            // 1. Procesar Coincidencias de Patrón A
+            cleanText = cleanText.replace(patternA, (match, qtyStr, unitStr, refStr) => {
+                const qty = parseVoiceQty(qtyStr);
+                const unit = parseVoiceUnit(unitStr);
+                const prod = allProducts.find(p => p.ref.toString() === refStr || p.id.toString() === refStr);
+                if (prod) {
+                    const existing = cartItems.find(i => i.product.id === prod.id && i.unit === unit);
+                    if (existing) {
+                        existing.quantity += qty;
+                    } else {
+                        cartItems.push({ product: prod, unit: unit, quantity: qty });
+                    }
+                    const unitText = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
+                    addedProducts.push(`${qty} ${unitText} de ${prod.name}`);
+                }
+                return " ";
+            });
+
+            // 2. Procesar Coincidencias de Patrón B
+            cleanText = cleanText.replace(patternB, (match, refStr, qtyStr, unitStr) => {
+                const qty = parseVoiceQty(qtyStr);
+                const unit = parseVoiceUnit(unitStr);
+                const prod = allProducts.find(p => p.ref.toString() === refStr || p.id.toString() === refStr);
+                if (prod) {
+                    const existing = cartItems.find(i => i.product.id === prod.id && i.unit === unit);
+                    if (existing) {
+                        existing.quantity += qty;
+                    } else {
+                        cartItems.push({ product: prod, unit: unit, quantity: qty });
+                    }
+                    const unitText = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
+                    addedProducts.push(`${qty} ${unitText} de ${prod.name}`);
+                }
+                return " ";
+            });
+
+            // Limpiar espacios extra tras la remoción de patrones de referencia
+            cleanText = cleanText.replace(/\s+/g, " ").trim();
+
+            // 3. Fallback: Procesar con el algoritmo original si quedan palabras significativas
+            const remainingWords = cleanText.split(" ")
+                .map(w => w.trim())
+                .filter(w => w.length > 0 && !["y", "de", "del", "con", "el", "la", "los", "las", "un", "una", "en"].includes(w));
+
+            if (remainingWords.length > 0) {
+                const words = cleanText.split(" ");
+                const segments = [];
                 
-                // Detectar unidad
-                if (/\b(bulto|bultos|caja|cajas)\b/i.test(textPart)) {
-                    unit = 'BUL';
-                    textPart = textPart.replace(/\b(bulto|bultos|caja|cajas)\b/ig, "");
-                } else if (/\b(docena|docenas)\b/i.test(textPart)) {
-                    unit = 'DZ';
-                    textPart = textPart.replace(/\b(docena|docenas)\b/ig, "");
-                } else if (/\b(unidad|unidades|pote|potes|frasco|frascos)\b/i.test(textPart)) {
-                    unit = 'U';
-                    textPart = textPart.replace(/\b(unidad|unidades|pote|potes|frasco|frascos)\b/ig, "");
+                let currentQty = null;
+                let currentQtyIdx = -1;
+                
+                for (let i = 0; i < words.length; i++) {
+                    const w = words[i];
+                    let val = null;
+                    if (/^\d+$/.test(w)) {
+                        val = parseInt(w);
+                    } else if (SPANISH_NUMBERS_MAP[w] !== undefined) {
+                        val = SPANISH_NUMBERS_MAP[w];
+                    }
+                    
+                    if (val !== null) {
+                        if (currentQty !== null) {
+                            const textPart = words.slice(currentQtyIdx + 1, i).join(" ");
+                            segments.push({ qty: currentQty, text: textPart });
+                        }
+                        currentQty = val;
+                        currentQtyIdx = i;
+                    }
                 }
                 
-                // Eliminar conectores y palabras comunes
-                textPart = textPart.replace(/\b(de|y|del|con|también|tambien|quiero|pedir|agrega|agregar|añadir|anadir|pon|poner)\b/ig, "")
-                                   .replace(/\s+/g, " ")
-                                   .trim();
+                if (currentQty !== null) {
+                    const textPart = words.slice(currentQtyIdx + 1).join(" ");
+                    segments.push({ qty: currentQty, text: textPart });
+                }
 
-                if (textPart.length > 0) {
-                    let bestMatch = null;
-                    let topScore = 0;
-                    const searchTokens = textPart.split(" ").filter(t => t.length > 1);
+                segments.forEach(seg => {
+                    let textPart = seg.text.trim();
+                    let qty = seg.qty;
+                    let unit = 'U';
+                    
+                    if (/\b(bulto|bultos|caja|cajas)\b/i.test(textPart)) {
+                        unit = 'BUL';
+                        textPart = textPart.replace(/\b(bulto|bultos|caja|cajas)\b/ig, "");
+                    } else if (/\b(docena|docenas)\b/i.test(textPart)) {
+                        unit = 'DZ';
+                        textPart = textPart.replace(/\b(docena|docenas)\b/ig, "");
+                    } else if (/\b(unidad|unidades|pote|potes|frasco|frascos)\b/i.test(textPart)) {
+                        unit = 'U';
+                        textPart = textPart.replace(/\b(unidad|unidades|pote|potes|frasco|frascos)\b/ig, "");
+                    }
+                    
+                    textPart = textPart.replace(/\b(de|y|del|con|también|tambien|quiero|pedir|agrega|agregar|añadir|anadir|pon|poner)\b/ig, "")
+                                       .replace(/\s+/g, " ")
+                                       .trim();
 
-                    const synonymMappings = {
-                        "osi": "osi",
-                        "sisi": "sisi",
-                        "tempera": "tempera",
-                        "témpera": "tempera",
-                        "temperas": "tempera",
-                        "témperas": "tempera",
-                        "tela": "tela",
-                        "neon": "neon",
-                        "neón": "neon",
-                        "gel": "gel",
-                        "metalico": "metalicos",
-                        "metálico": "metalicos",
-                        "metalicos": "metalicos",
-                        "metálicos": "metalicos",
-                        "perlado": "perlados",
-                        "perlados": "perlados",
-                        "envejecedor": "envejecedores",
-                        "envejecedores": "envejecedores"
-                    };
+                    if (textPart.length > 0) {
+                        let bestMatch = null;
+                        let topScore = 0;
+                        const searchTokens = textPart.split(" ").filter(t => t.length > 1);
 
-                    allProducts.forEach(p => {
-                        let score = 0;
-                        const pName = p.name.toLowerCase();
-                        const pCat = p.category.toLowerCase();
-                        const pRef = p.ref.toString();
+                        const synonymMappings = {
+                            "osi": "osi",
+                            "sisi": "sisi",
+                            "tempera": "tempera",
+                            "témpera": "tempera",
+                            "temperas": "tempera",
+                            "témperas": "tempera",
+                            "tela": "tela",
+                            "neon": "neon",
+                            "neón": "neon",
+                            "gel": "gel",
+                            "metalico": "metalicos",
+                            "metálico": "metalicos",
+                            "metalicos": "metalicos",
+                            "metálicos": "metalicos",
+                            "perlado": "perlados",
+                            "perlados": "perlados",
+                            "envejecedor": "envejecedores",
+                            "envejecedores": "envejecedores"
+                        };
 
-                        if (pRef === textPart) {
-                            score += 20;
-                        }
+                        allProducts.forEach(p => {
+                            let score = 0;
+                            const pName = p.name.toLowerCase();
+                            const pCat = p.category.toLowerCase();
+                            const pRef = p.ref.toString();
 
-                        searchTokens.forEach(tok => {
-                            let cleanTok = tok;
-                            if (tok.endsWith('s') && tok.length > 3) {
-                                cleanTok = tok.slice(0, -1);
+                            if (pRef === textPart) {
+                                score += 20;
                             }
-                            
-                            if (pName.includes(cleanTok)) {
-                                score += 5;
-                                if (new RegExp('\\b' + cleanTok + '\\b').test(pName)) {
-                                    score += 5;
+
+                            searchTokens.forEach(tok => {
+                                let cleanTok = tok;
+                                if (tok.endsWith('s') && tok.length > 3) {
+                                    cleanTok = tok.slice(0, -1);
                                 }
+                                
+                                if (pName.includes(cleanTok)) {
+                                    score += 5;
+                                    if (new RegExp('\\b' + cleanTok + '\\b').test(pName)) {
+                                        score += 5;
+                                    }
+                                }
+                                
+                                const mappedCat = synonymMappings[cleanTok];
+                                if (mappedCat && pCat === mappedCat) {
+                                    score += 8;
+                                } else if (pCat.includes(cleanTok)) {
+                                    score += 2;
+                                }
+                            });
+
+                            if (pName === textPart) {
+                                score += 30;
                             }
-                            
-                            // Boost por sinónimos de categoría
-                            const mappedCat = synonymMappings[cleanTok];
-                            if (mappedCat && pCat === mappedCat) {
-                                score += 8;
-                            } else if (pCat.includes(cleanTok)) {
-                                score += 2;
+
+                            if (score > topScore) {
+                                topScore = score;
+                                bestMatch = p;
                             }
                         });
 
-                        if (pName === textPart) {
-                            score += 30;
+                        if (bestMatch && topScore >= 4) {
+                            const existing = cartItems.find(i => i.product.id === bestMatch.id && i.unit === unit);
+                            if (existing) {
+                                existing.quantity += qty;
+                            } else {
+                                cartItems.push({ product: bestMatch, unit: unit, quantity: qty });
+                            }
+                            const unitText = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
+                            addedProducts.push(`${qty} ${unitText} de ${bestMatch.name}`);
                         }
-
-                        if (score > topScore) {
-                            topScore = score;
-                            bestMatch = p;
-                        }
-                    });
-
-                    if (bestMatch && topScore >= 4) {
-                        const existing = cartItems.find(i => i.product.id === bestMatch.id && i.unit === unit);
-                        if (existing) {
-                            existing.quantity += qty;
-                        } else {
-                            cartItems.push({ product: bestMatch, unit: unit, quantity: qty });
-                        }
-                        const unitText = unit === 'BUL' ? 'bulto(s)' : (unit === 'DZ' ? 'docena(s)' : 'unidad(es)');
-                        addedProducts.push(`${qty} ${unitText} de ${bestMatch.name}`);
                     }
-                }
-            });
+                });
+            }
 
+            // --- RETROALIMENTACIÓN DE VOZ COMBINADA ---
+            const feedbackParts = [];
+            if (paymentMatch) {
+                feedbackParts.push("Método de pago: " + (paymentMatch === 'BOLIVAR' ? 'Bolívares' : 'Dólares'));
+            }
+            if (observationsMatch) {
+                feedbackParts.push("Observaciones guardadas");
+            }
             if (addedProducts.length > 0) {
                 updateCart();
-                const msg = "Agregado: " + addedProducts.join(", ");
+                feedbackParts.push("Agregado: " + addedProducts.join(", "));
+            }
+
+            if (feedbackParts.length > 0) {
+                const msg = feedbackParts.join(". ");
                 showNotification("Pedido actualizado por voz");
                 speak(msg);
                 document.getElementById("voice-transcript").textContent = msg;
-                setTimeout(stopSpeechRecognition, 2500);
+                setTimeout(stopSpeechRecognition, 3000);
             } else {
-                speak("No encontré productos que coincidan con tu solicitud. Por favor intenta de nuevo.");
-                document.getElementById("voice-transcript").textContent = 'No se encontraron coincidencias para: "' + text + '"';
+                speak("No encontré productos o comandos que coincidan con tu solicitud. Por favor intenta de nuevo.");
+                document.getElementById("voice-transcript").textContent = 'No se detectó acción en: "' + text + '"';
             }
         }
 
