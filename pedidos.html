@@ -4873,7 +4873,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 const ai = new GoogleGenAI({ apiKey: apiKey });
                 
                 const response = await ai.models.generateContent({
-                    model: "gemini-3.5-flash",
+                    model: "gemini-1.5-flash",
                     contents: [
                         promptText,
                         { inlineData: { mimeType: "image/jpeg", data: base64Image } }
