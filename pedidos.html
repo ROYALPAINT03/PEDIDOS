@@ -4456,8 +4456,14 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     }
                 }, 3000);
             } else {
-                speak("No encontré productos o comandos que coincidan con tu solicitud. Por favor intenta de nuevo.");
-                document.getElementById("voice-transcript").textContent = 'No se detectó acción en: "' + text + '"';
+                // Si no se detectó una acción específica o cantidad, usamos el texto completo como término de búsqueda
+                const fallbackQuery = text.trim();
+                document.getElementById('product-search').value = fallbackQuery;
+                goToStep(2);
+                filterProducts();
+                speak("Buscando " + fallbackQuery);
+                document.getElementById("voice-transcript").textContent = 'Buscando: "' + fallbackQuery + '"';
+                
                 setTimeout(() => {
                     const voiceModal = document.getElementById('voice-modal');
                     if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
