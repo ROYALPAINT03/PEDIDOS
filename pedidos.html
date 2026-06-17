@@ -4255,8 +4255,7 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const patternA = new RegExp(
                 '\\b(' + qtyRegexPart + ')\\s+' +
                 '(' + unitRegexPart + ')' +
-                '(?:\\s+(?:de\\s+la\\s+|de\\s+el\\s+|de\\s+|del\\s+))?' +
-                '\\s+' + // Al menos un espacio antes de la referencia o la palabra clave
+                '(?:\\s+(?:de\\s+la|de\\s+el|de|del))?\\s+' +
                 '(?:' + refKeywordRegexPart + '\\s+)?' +
                 '([0-9]+)\\b', 
                 'gi'
@@ -4269,6 +4268,13 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 '([0-9]+)\\s+' +
                 '(' + qtyRegexPart + ')\\s+' +
                 '(' + unitRegexPart + ')\\b', 
+                'gi'
+            );
+
+            // Patrón C: Solo código o referencia (asumimos 1 unidad)
+            // Ejemplos: "710", "el 710", "ref 710"
+            const patternC = new RegExp(
+                '\\b(?:el\\s+|la\\s+)?(?:' + refKeywordRegexPart + '\\s+)?([0-9]+)\\b',
                 'gi'
             );
 
@@ -4308,10 +4314,27 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 return " ";
             });
 
+            // 3. Procesar Coincidencias de Patrón C (Solo código)
+            cleanText = cleanText.replace(patternC, (match, refStr) => {
+                const qty = 1;
+                const unit = 'U';
+                const prod = allProducts.find(p => p.ref.toString() === refStr || p.id.toString() === refStr);
+                if (prod) {
+                    const existing = cartItems.find(i => i.product.id === prod.id && i.unit === unit);
+                    if (existing) {
+                        existing.quantity += qty;
+                    } else {
+                        cartItems.push({ product: prod, unit: unit, quantity: qty });
+                    }
+                    addedProducts.push(`${qty} unidad(es) de ${prod.name}`);
+                }
+                return " ";
+            });
+
             // Limpiar espacios extra tras la remoción de patrones de referencia
             cleanText = cleanText.replace(/\s+/g, " ").trim();
 
-            // 3. Fallback: Procesar con el algoritmo original si quedan palabras significativas
+            // 4. Fallback: Procesar con el algoritmo original si quedan palabras significativas
             const remainingWords = cleanText.split(" ")
                 .map(w => w.trim())
                 .filter(w => w.length > 0 && !["y", "de", "del", "con", "el", "la", "los", "las", "un", "una", "en"].includes(w));
@@ -4320,31 +4343,49 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 const words = cleanText.split(" ");
                 const segments = [];
                 
-                let currentQty = null;
-                let currentQtyIdx = -1;
-                
+                let hasNumbers = false;
                 for (let i = 0; i < words.length; i++) {
                     const w = words[i];
-                    let val = null;
-                    if (/^\d+$/.test(w)) {
-                        val = parseInt(w);
-                    } else if (SPANISH_NUMBERS_MAP[w] !== undefined) {
-                        val = SPANISH_NUMBERS_MAP[w];
-                    }
-                    
-                    if (val !== null) {
-                        if (currentQty !== null) {
-                            const textPart = words.slice(currentQtyIdx + 1, i).join(" ");
-                            segments.push({ qty: currentQty, text: textPart });
-                        }
-                        currentQty = val;
-                        currentQtyIdx = i;
+                    if (/^\d+$/.test(w) || SPANISH_NUMBERS_MAP[w] !== undefined) {
+                        hasNumbers = true;
+                        break;
                     }
                 }
-                
-                if (currentQty !== null) {
-                    const textPart = words.slice(currentQtyIdx + 1).join(" ");
-                    segments.push({ qty: currentQty, text: textPart });
+
+                if (!hasNumbers) {
+                    // Si no hay números (ej. "rojo sisi"), asume 1 unidad para todo el texto
+                    segments.push({ qty: 1, text: cleanText });
+                } else {
+                    let currentQty = null;
+                    let currentQtyIdx = -1;
+                    
+                    for (let i = 0; i < words.length; i++) {
+                        const w = words[i];
+                        let val = null;
+                        if (/^\d+$/.test(w)) {
+                            val = parseInt(w);
+                        } else if (SPANISH_NUMBERS_MAP[w] !== undefined) {
+                            val = SPANISH_NUMBERS_MAP[w];
+                        }
+                        
+                        if (val !== null) {
+                            if (currentQty !== null) {
+                                const textPart = words.slice(currentQtyIdx + 1, i).join(" ");
+                                if(textPart.trim().length > 0) {
+                                    segments.push({ qty: currentQty, text: textPart });
+                                }
+                            }
+                            currentQty = val;
+                            currentQtyIdx = i;
+                        }
+                    }
+                    
+                    if (currentQty !== null) {
+                        const textPart = words.slice(currentQtyIdx + 1).join(" ");
+                        if(textPart.trim().length > 0) {
+                            segments.push({ qty: currentQty, text: textPart });
+                        }
+                    }
                 }
 
                 segments.forEach(seg => {
@@ -4473,14 +4514,8 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     }
                 }, 3000);
             } else {
-                // Si no se detectó una acción específica o cantidad, usamos el texto completo como término de búsqueda
-                const fallbackQuery = text.trim();
-                document.getElementById('product-search').value = fallbackQuery;
-                goToStep(2);
-                filterProducts();
-                speak("Buscando " + fallbackQuery);
-                document.getElementById("voice-transcript").textContent = 'Buscando: "' + fallbackQuery + '"';
-                
+                speak("No entendí o no se encontró el producto. Por favor intenta de nuevo.");
+                document.getElementById("voice-transcript").textContent = 'No se detectó acción en: "' + text + '"';
                 setTimeout(() => {
                     const voiceModal = document.getElementById('voice-modal');
                     if (voiceModal && voiceModal.style.display === 'flex' && isListening && !isVoicePaused) {
