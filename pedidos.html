@@ -4868,16 +4868,15 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 // 3. Prompt estricto (Bajo consumo de tokens)
                 const promptText = "Extract 'REF.' and 'CANT.' columns from this order form image. Return ONLY a JSON array of objects with keys 'ref' (string) and 'qty' (number). Ensure 'ref' matches exactly what is written, often 3 digits like '701', '720'. Ignore empty quantities. NO markdown, NO text, ONLY the JSON array.";
 
-                // 4. Llamada a Gemini 3.5 Flash usando el SDK oficial @google/genai
+                // 4. Llamada a Gemini usando el SDK oficial @google/genai
                 const { GoogleGenAI } = await import("https://esm.sh/@google/genai");
                 const ai = new GoogleGenAI({ 
                     apiKey: apiKey,
-                    // Aseguramos que la llamada apunte a la versión correcta de la API en caso de que v1beta no sea soportada
                     httpOptions: { apiVersion: "v1alpha" } 
                 });
                 
-                const response = await ai.models.generateContent({
-                    model: "gemini-3.5-flash",
+                let response;
+                const requestConfig = {
                     contents: [
                         promptText,
                         { inlineData: { mimeType: "image/jpeg", data: base64Image } }
@@ -4886,9 +4885,28 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         temperature: 0.1,
                         responseMimeType: "application/json"
                     }
-                });
+                };
 
-                if (!response.text) {
+                try {
+                    // Intentamos con 3.5-flash primero
+                    response = await ai.models.generateContent({
+                        model: "gemini-3.5-flash",
+                        ...requestConfig
+                    });
+                } catch (apiError) {
+                    // Si el modelo principal está sobrecargado (503), usamos el de respaldo
+                    if (apiError.message && apiError.message.includes("503")) {
+                        console.warn("Gemini 3.5 Flash está saturado (503). Cambiando a modelo de respaldo (1.5 Flash)...");
+                        response = await ai.models.generateContent({
+                            model: "gemini-1.5-flash",
+                            ...requestConfig
+                        });
+                    } else {
+                        throw apiError;
+                    }
+                }
+
+                if (!response || !response.text) {
                     throw new Error("Respuesta inválida de la API de Gemini.");
                 }
 
