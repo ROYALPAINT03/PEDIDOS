@@ -1387,6 +1387,7 @@
         }
 
         .floating-btn-cart { background: var(--primary); color: white; position: relative; }
+        .floating-btn-scan { background: linear-gradient(135deg, #10b981, #059669); color: white; }
         .cart-count {
             position: absolute;
             top: -3px;
@@ -1826,8 +1827,10 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
         </div>
     </div>
 
-    <!-- Barra de acciones flotante flotante (Micrófono + Carrito) -->
+    <!-- Barra de acciones flotante flotante (Micrófono + Carrito + Escáner) -->
     <div class="floating-action-bar">
+        <button class="floating-btn floating-btn-scan" id="btn-scan-image" type="button" title="Escanear Pedido con IA"><i class="fas fa-camera"></i></button>
+        <input type="file" id="camera-input" accept="image/*" capture="environment" style="display: none;">
         <button class="floating-btn floating-btn-voice" id="floating-mic-btn" type="button" title="Asistente de Voz"><i class="fas fa-microphone"></i></button>
         <button class="floating-btn floating-btn-cart" id="floating-cart" type="button" title="Ver pedido" onclick="goToStep(3)" style="display: none;">
             <i class="fas fa-shopping-cart"></i>
@@ -2039,6 +2042,11 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
     </div>
 
     <script>
+        // Ocultar la ruta del archivo en la barra de direcciones (Ej: quita /pedidos.html y deja solo el dominio)
+        if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, '', '/');
+        }
+
         // Registro del Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -4837,6 +4845,137 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
             const seller = document.getElementById('seller-select').value;
             deleteDraftSilently(id, seller);
             renderDraftsList(seller);
+        }
+
+        // --- ESCÁNER DE IMÁGENES CON GEMINI ---
+        document.getElementById('btn-scan-image')?.addEventListener('click', () => {
+            document.getElementById('camera-input').click();
+        });
+
+        document.getElementById('camera-input')?.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            showLoading(true, "Analizando imagen con IA...");
+            try {
+                // 1. Comprimir imagen a base64
+                const base64Image = await compressImage(file);
+                
+                // 2. Extraer llave ofuscada
+                const encKey = "QVEuQWI4Uk42S2J5THlDZUZzU2szMXRsck81QzhSTzh4NzA3TTBSYkp2VjVsWmlNN255Rmc=";
+                const apiKey = atob(encKey);
+                
+                // 3. Prompt estricto (Bajo consumo de tokens)
+                const payload = {
+                    contents: [{
+                        parts: [
+                            { text: "Extract 'REF.' and 'CANT.' columns from this order form image. Return ONLY a JSON array of objects with keys 'ref' (string) and 'qty' (number). Ensure 'ref' matches exactly what is written, often 3 digits like '701', '720'. Ignore empty quantities. NO markdown, NO text, ONLY the JSON array." },
+                            { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+                        ]
+                    }],
+                    generationConfig: {
+                        temperature: 0.1,
+                        responseMimeType: "application/json"
+                    }
+                };
+
+                // 4. Llamada a Gemini 1.5 Flash
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Error en la API de Gemini: " + response.status);
+                }
+
+                const data = await response.json();
+                let jsonStr = data.candidates[0].content.parts[0].text;
+                
+                // Limpieza por si Gemini incluye markdown a pesar del responseMimeType
+                jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
+                const items = JSON.parse(jsonStr);
+
+                // 5. Procesar e insertar al carrito
+                let addedCount = 0;
+                items.forEach(item => {
+                    const refStr = String(item.ref).trim();
+                    const qty = parseInt(item.qty);
+                    
+                    if (refStr && !isNaN(qty) && qty > 0) {
+                        const prod = allProducts.find(p => String(p.ref) === refStr || String(p.id) === refStr);
+                        if (prod) {
+                            const unit = 'U'; // Unidades por defecto (u otra unidad si se prefiriera)
+                            const existing = cartItems.find(i => i.product.id === prod.id && i.unit === unit);
+                            if (existing) {
+                                existing.quantity += qty;
+                            } else {
+                                cartItems.push({ product: prod, unit: unit, quantity: qty });
+                            }
+                            addedCount++;
+                        }
+                    }
+                });
+
+                if (addedCount > 0) {
+                    updateCart();
+                    showNotification(`¡Éxito! Se agregaron ${addedCount} productos escaneados`);
+                    goToStep(2); // Asegurarse de estar en la vista de productos
+                } else {
+                    showNotification("No se detectaron referencias válidas en la imagen", "error");
+                }
+
+            } catch (err) {
+                console.error("Error escaneando pedido:", err);
+                showNotification("Error procesando imagen: " + err.message, "error");
+            } finally {
+                showLoading(false);
+                e.target.value = ""; // Limpiar input para permitir seleccionar la misma foto de nuevo
+            }
+        });
+
+        function compressImage(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        // Reducimos bastante la resolución para ahorrar ancho de banda y acelerar la IA
+                        const MAX_WIDTH = 1200;
+                        const MAX_HEIGHT = 1200;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                            }
+                        } else {
+                            if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Extraer base64 crudo sin el prefijo "data:image/jpeg;base64,"
+                        const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+                        const base64 = dataUrl.split(',')[1];
+                        resolve(base64);
+                    };
+                    img.onerror = (e) => reject(e);
+                    img.src = event.target.result;
+                };
+                reader.onerror = (e) => reject(e);
+                reader.readAsDataURL(file);
+            });
         }
     </script>
 </body>
