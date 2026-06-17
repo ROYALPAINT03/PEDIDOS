@@ -1,4 +1,4 @@
-const CACHE_NAME = 'pedidos-osi-sisi-v3';
+const CACHE_NAME = 'pedidos-osi-sisi-v4';
 const ASSETS = [
   './',
   './pedidos.html',
