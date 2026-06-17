@@ -4869,11 +4869,15 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 const promptText = "Extract 'REF.' and 'CANT.' columns from this order form image. Return ONLY a JSON array of objects with keys 'ref' (string) and 'qty' (number). Ensure 'ref' matches exactly what is written, often 3 digits like '701', '720'. Ignore empty quantities. NO markdown, NO text, ONLY the JSON array.";
 
                 // 4. Llamada a Gemini 3.5 Flash usando el SDK oficial @google/genai
-                const { GoogleGenAI } = await import("https://esm.run/@google/genai");
-                const ai = new GoogleGenAI({ apiKey: apiKey });
+                const { GoogleGenAI } = await import("https://esm.sh/@google/genai");
+                const ai = new GoogleGenAI({ 
+                    apiKey: apiKey,
+                    // Aseguramos que la llamada apunte a la versión correcta de la API en caso de que v1beta no sea soportada
+                    httpOptions: { apiVersion: "v1alpha" } 
+                });
                 
                 const response = await ai.models.generateContent({
-                    model: "gemini-1.5-flash",
+                    model: "gemini-3.5-flash",
                     contents: [
                         promptText,
                         { inlineData: { mimeType: "image/jpeg", data: base64Image } }
