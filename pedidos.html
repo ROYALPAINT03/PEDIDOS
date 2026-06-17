@@ -4865,56 +4865,58 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                 const encKey = "QVEuQWI4Uk42S2J5THlDZUZzU2szMXRsck81QzhSTzh4NzA3TTBSYkp2VjVsWmlNN255Rmc=";
                 const apiKey = atob(encKey);
                 
-                // 3. Prompt estricto (Bajo consumo de tokens)
-                const promptText = "Extract 'REF.' and 'CANT.' columns from this order form image. Return ONLY a JSON array of objects with keys 'ref' (string) and 'qty' (number). Ensure 'ref' matches exactly what is written, often 3 digits like '701', '720'. Ignore empty quantities. NO markdown, NO text, ONLY the JSON array.";
-
-                // 4. Llamada a Gemini usando el SDK oficial @google/genai
-                const { GoogleGenAI } = await import("https://esm.sh/@google/genai");
-                const ai = new GoogleGenAI({ 
-                    apiKey: apiKey,
-                    httpOptions: { apiVersion: "v1alpha" } 
-                });
-                
-                let response;
-                const requestConfig = {
-                    contents: [
-                        promptText,
-                        { inlineData: { mimeType: "image/jpeg", data: base64Image } }
-                    ],
-                    config: {
-                        temperature: 0.1,
-                        responseMimeType: "application/json"
-                    }
+                // 3. Payload para Google Cloud Vision API
+                const payload = {
+                    requests: [
+                        {
+                            image: { content: base64Image },
+                            features: [{ type: "DOCUMENT_TEXT_DETECTION" }]
+                        }
+                    ]
                 };
 
-                try {
-                    // Intentamos con 3.5-flash primero
-                    response = await ai.models.generateContent({
-                        model: "gemini-3.5-flash",
-                        ...requestConfig
-                    });
-                } catch (apiError) {
-                    // Si el modelo principal está sobrecargado (503), usamos el de respaldo
-                    if (apiError.message && apiError.message.includes("503")) {
-                        console.warn("Gemini 3.5 Flash está saturado (503). Cambiando a modelo de respaldo (1.5 Flash)...");
-                        response = await ai.models.generateContent({
-                            model: "gemini-1.5-flash",
-                            ...requestConfig
-                        });
-                    } else {
-                        throw apiError;
-                    }
+                // 4. Llamada a Cloud Vision API (Endpoint REST)
+                const visionResponse = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!visionResponse.ok) {
+                    throw new Error("Error en la API de Cloud Vision: " + visionResponse.status);
                 }
 
-                if (!response || !response.text) {
-                    throw new Error("Respuesta inválida de la API de Gemini.");
-                }
-
-                let jsonStr = response.text;
+                const data = await visionResponse.json();
                 
-                // Limpieza por si Gemini incluye markdown a pesar del responseMimeType
-                jsonStr = jsonStr.replace(/```json/g, '').replace(/```/g, '').trim();
-                const items = JSON.parse(jsonStr);
+                if (!data.responses || !data.responses[0].fullTextAnnotation) {
+                    throw new Error("Cloud Vision no detectó texto en la imagen.");
+                }
+
+                const rawText = data.responses[0].fullTextAnnotation.text;
+                console.log("Texto detectado por Vision API:\n", rawText);
+
+                // 5. Parseo básico del texto OCR a formato JSON [{ref, qty}]
+                const items = [];
+                const lines = rawText.split('\n');
+                
+                lines.forEach(line => {
+                    // Busca dos números en la misma línea (Ej: "701  2", "REF: 720 CANT: 5")
+                    // Un número debe ser de 2 a 4 dígitos (Referencia), el otro de 1 a 3 (Cantidad)
+                    const matches = line.match(/\b(\d{2,4})\b.*\b(\d{1,3})\b/);
+                    if (matches) {
+                        let num1 = parseInt(matches[1]);
+                        let num2 = parseInt(matches[2]);
+                        
+                        // Heurística simple: la referencia suele ser el número mayor o de >=3 dígitos
+                        let isNum1Ref = (num1 >= 100) || (num1 > num2 && num1 >= 10);
+                        let refStr = isNum1Ref ? String(num1) : String(num2);
+                        let qty = isNum1Ref ? num2 : num1;
+                        
+                        if (qty > 0) {
+                            items.push({ ref: refStr, qty: qty });
+                        }
+                    }
+                });
 
                 // 5. Procesar e insertar al carrito
                 let addedCount = 0;
