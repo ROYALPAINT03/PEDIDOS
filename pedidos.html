@@ -5015,21 +5015,31 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                         // Dibujar imagen original
                         ctx.drawImage(img, 0, 0, width, height);
                         
-                        // Aumentar contraste para mejor detección de texto
+                        // Filtro agresivo: "Escaneo de Documento a PDF" (Binarización estricta Blanco/Negro)
+                        // Esto elimina sombras y deja solo el texto puro para que el OCR lo lea mejor
                         const imageData = ctx.getImageData(0, 0, width, height);
                         const data = imageData.data;
-                        const contrast = 40; // Nivel de contraste
-                        const factor = (259 * (contrast + 255)) / (255 * (259 - contrast));
                         
                         for (let i = 0; i < data.length; i += 4) {
+                            const r = data[i];
+                            const g = data[i+1];
+                            const b = data[i+2];
+                            
                             // Convertir a escala de grises
-                            const gray = 0.299 * data[i] + 0.587 * data[i+1] + 0.114 * data[i+2];
-                            // Aplicar contraste
-                            let newVal = factor * (gray - 128) + 128;
-                            newVal = Math.max(0, Math.min(255, newVal));
-                            data[i] = newVal;     // R
-                            data[i+1] = newVal;   // G
-                            data[i+2] = newVal;   // B
+                            let gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                            
+                            // Binarización (Threshold): Todo lo que sea un poco claro se vuelve blanco puro (fondo)
+                            // y todo lo que sea oscuro se vuelve negro puro (texto)
+                            if (gray > 130) {
+                                gray = 255; // Blanco
+                            } else {
+                                // Para oscurecer más las letras y darles contraste
+                                gray = 0;   // Negro
+                            }
+                            
+                            data[i] = gray;       // R
+                            data[i+1] = gray;     // G
+                            data[i+2] = gray;     // B
                         }
                         
                         ctx.putImageData(imageData, 0, 0);
