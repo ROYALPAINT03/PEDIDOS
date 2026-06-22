@@ -4886,53 +4886,83 @@ CREATE POLICY "Allow public insert" ON pedidos FOR INSERT WITH CHECK (true);</co
                     throw new Error("No se detectó texto en la imagen. Intenta con una foto más nítida.");
                 }
 
-                // 3. Parseo del texto OCR a formato JSON [{ref, qty}]
+                // 3. Parseo del texto OCR a formato JSON [{ref, qty, unit}]
                 const items = [];
                 const lines = rawText.split('\n');
+                let debugInfo = "TEXTO ESCANEADO:\n" + rawText + "\n\nARTÍCULOS INTERPRETADOS:\n";
                 
                 lines.forEach(line => {
-                    // Limpiar caracteres OCR erróneos comunes
-                    const cleanLine = line.replace(/[|\[\]{}]/g, '').trim();
+                    // Limpiar caracteres OCR erróneos y pasar a minúsculas para buscar "und"
+                    const cleanLine = line.replace(/[|\[\]{}]/g, '').trim().toLowerCase();
                     if (!cleanLine) return;
                     
-                    // Busca dos números en la misma línea (Ej: "701  2", "REF: 720 CANT: 5")
-                    // Un número debe ser de 2 a 4 dígitos (Referencia), el otro de 1 a 3 (Cantidad)
-                    const matches = cleanLine.match(/\b(\d{2,4})\b.*\b(\d{1,3})\b/);
-                    if (matches) {
-                        let num1 = parseInt(matches[1]);
-                        let num2 = parseInt(matches[2]);
+                    // Extraer todos los números en la línea
+                    const nums = cleanLine.match(/\b\d+\b/g);
+                    if (nums && nums.length >= 2) {
+                        let refStr = null;
+                        let qty = null;
+                        let prodMatch = null;
                         
-                        // Heurística: la referencia suele ser el número mayor o de >=3 dígitos
-                        let isNum1Ref = (num1 >= 100) || (num1 > num2 && num1 >= 10);
-                        let refStr = isNum1Ref ? String(num1) : String(num2);
-                        let qty = isNum1Ref ? num2 : num1;
+                        // Analizar contra las referencias almacenadas
+                        for (let num of nums) {
+                            prodMatch = allProducts.find(p => String(p.ref) === num || String(p.id) === num);
+                            // También si empieza con 7 y tiene 3 dígitos (Ej: 701, 720)
+                            if (prodMatch || /^7\d{2}$/.test(num)) {
+                                refStr = num;
+                                break;
+                            }
+                        }
                         
-                        if (qty > 0) {
-                            items.push({ ref: refStr, qty: qty });
+                        if (refStr) {
+                            // El otro número en la línea es la cantidad
+                            const otherNums = nums.filter(n => n !== refStr);
+                            if (otherNums.length > 0) {
+                                qty = parseInt(otherNums[0]);
+                            } else if (nums.length === 2 && nums[0] === nums[1]) {
+                                // Si es algo como "701 701", la cantidad es el mismo número
+                                qty = parseInt(nums[1]); 
+                            }
+                            
+                            if (qty && qty > 0) {
+                                // Detectar si son unidades ("und", "u") o docenas (por defecto)
+                                let unit = (cleanLine.includes('und') || cleanLine.includes('unid') || cleanLine.includes('unidad')) ? 'U' : 'DZ';
+                                items.push({ ref: refStr, qty: qty, unit: unit, prodMatch: prodMatch });
+                                debugInfo += `- Ref: ${refStr} | Cant: ${qty} ${unit === 'U' ? 'Und' : 'Docenas'}\n`;
+                            }
                         }
                     }
                 });
 
                 console.log("Items parseados:", items);
 
+                // Mostrar datos para probar e identificar bien el texto
+                if (items.length === 0) {
+                    alert("TEXTO DETECTADO:\n" + rawText + "\n\nNo se detectó ningún artículo válido que coincida con tus referencias.");
+                    showLoading(false);
+                    e.target.value = "";
+                    return;
+                } else {
+                    const confirmScan = confirm(debugInfo + "\n¿Agregar estos productos al carrito?");
+                    if (!confirmScan) {
+                        showLoading(false);
+                        e.target.value = "";
+                        return;
+                    }
+                }
+
                 // 4. Procesar e insertar al carrito
                 let addedCount = 0;
                 items.forEach(item => {
-                    const refStr = String(item.ref).trim();
-                    const qty = parseInt(item.qty);
+                    const prod = item.prodMatch || allProducts.find(p => String(p.ref) === item.ref || String(p.id) === item.ref);
                     
-                    if (refStr && !isNaN(qty) && qty > 0) {
-                        const prod = allProducts.find(p => String(p.ref) === refStr || String(p.id) === refStr);
-                        if (prod) {
-                            const unit = 'U';
-                            const existing = cartItems.find(i => i.product.id === prod.id && i.unit === unit);
-                            if (existing) {
-                                existing.quantity += qty;
-                            } else {
-                                cartItems.push({ product: prod, unit: unit, quantity: qty });
-                            }
-                            addedCount++;
+                    if (prod) {
+                        const existing = cartItems.find(i => i.product.id === prod.id && i.unit === item.unit);
+                        if (existing) {
+                            existing.quantity += item.qty;
+                        } else {
+                            cartItems.push({ product: prod, unit: item.unit, quantity: item.qty });
                         }
+                        addedCount++;
                     }
                 });
 
